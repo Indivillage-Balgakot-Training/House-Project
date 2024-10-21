@@ -96,8 +96,11 @@ const HomePage = () => {
     setIsOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsOpen(false);
+  const handleCloseModal = (event: React.MouseEvent) => {
+    // Only close the modal if the click is outside the ImageMapComponent
+    if (event.target === event.currentTarget) {
+      setIsOpen(false);
+    }
   };
 
   return (
