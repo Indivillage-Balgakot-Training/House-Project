@@ -151,6 +151,7 @@ const HomePage = () => {
           alt="House" 
           width={250} 
           height={250} 
+          onClick={handleImageClick}
         />
       </div>
 
