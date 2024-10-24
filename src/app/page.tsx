@@ -11,8 +11,8 @@ const HomePage = () => {
         <Image 
           src="/background home.jpg" 
           alt="Hero Background" 
-          layout="fill" 
-          objectFit="cover" 
+          fill // Use fill instead of layout
+          style={{ objectFit: 'cover' }} // Use style for objectFit
           className="absolute inset-0" 
         />
         <div className="absolute inset-0 bg-black opacity-50" />
