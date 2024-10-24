@@ -5,27 +5,30 @@ import Link from 'next/link';
 
 const HomePage = () => {
   return (
-    <div className="relative h-screen w-full">
-      <Link href="/image-map">
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      {/* Hero Section */}
+      <div className="relative h-screen w-full">
         <Image 
-          src="/image1.jpg" 
-          alt="My Image" 
+          src="/background home.jpg" 
+          alt="Hero Background" 
           layout="fill" 
           objectFit="cover" 
-          className="absolute inset-0 cursor-pointer" 
+          className="absolute inset-0" 
         />
-      </Link>
-
-      <div className="absolute top-0 left-0 p-4">
-        <Link href="/image-map">
-          <Image 
-            src="/house1.jpg" 
-            alt="House" 
-            width={250} 
-            height={250} 
-          />
-        </Link>
+        <div className="absolute inset-0 bg-black opacity-50" />
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center">
+          <h1 className="text-6xl font-extrabold drop-shadow-lg">Welcome to Small House Living</h1>
+          <p className="mt-4 text-xl drop-shadow-lg">Explore cozy homes designed for comfort and style.</p>
+          <Link href="/gallery" className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
+            View Gallery
+          </Link>
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-4 text-center">
+        <p>&copy; 2024 Small House Living. All rights reserved.</p>
+      </footer>
     </div>
   );
 };
