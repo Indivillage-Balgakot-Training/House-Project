@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 const HomePage = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [sessionId, setSessionId] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -13,6 +14,22 @@ const HomePage = () => {
     }, 300); // Adjust the delay as needed
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    // Generate a session ID if it doesn't exist
+    const existingSessionId = sessionStorage.getItem('sessionId');
+    if (!existingSessionId) {
+      const newSessionId = generateSessionId();
+      sessionStorage.setItem('sessionId', newSessionId);
+      setSessionId(newSessionId);
+    } else {
+      setSessionId(existingSessionId);
+    }
+  }, []);
+
+  const generateSessionId = () => {
+    return 'session-' + Math.random().toString(36).substr(2, 9); // Simple random string
+  };
 
   // Logo component
   const Logo = () => {
@@ -28,7 +45,6 @@ const HomePage = () => {
           {/* House shape */}
           <polygon points="75,10 100,40 50,40" fill="#ecf0f1" opacity="0.9" />
           <rect x="65" y="40" width="20" height="20" fill="#ecf0f1" opacity="0.9" />
-
           {/* Logo Text */}
           <text 
             x="10" 
@@ -55,43 +71,36 @@ const HomePage = () => {
     );
   };
 
- // Call Button component
-const CallButton = () => {
-  return (
-    <a
-      href="tel:+917892761921"
-      className="c-btn c-btn--outline bg-yellow-500 text-black rounded-lg px-4 py-2 shadow-lg hover:bg-yellow-400 transition"
-      aria-label="Talk to our team"
-    >
-      Talk to our Team
-    </a>
-  );
-};
+  // Call Button component
+  const CallButton = () => {
+    return (
+      <a
+        href="tel:+917892761921"
+        className="c-btn c-btn--outline bg-yellow-500 text-black rounded-lg px-4 py-2 shadow-lg hover:bg-yellow-400 transition"
+        aria-label="Talk to our team"
+      >
+        Talk to our Team
+      </a>
+    );
+  };
 
-// Social Media Icons component
-const SocialMediaIcons = () => {
-  return (
-    <div className="flex space-x-4">
-      <Link href="https://www.instagram.com" target="_blank" aria-label="Instagram">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white hover:text-yellow-500 transition" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2.163c3.206 0 3.586.012 4.847.07 1.15.056 1.858.244 2.286.41.561.223 1.046.516 1.53 1.005.484.489.778.973 1.001 1.53.166.428.354 1.137.41 2.286.058 1.261.07 1.641.07 4.847s-.012 3.586-.07 4.847c-.056 1.15-.244 1.858-.41 2.286-.223.561-.516 1.046-1.005 1.53-.489.484-.973.778-1.53 1.001-.428.166-1.137.354-2.286.41-1.261.058-1.641.07-4.847.07s-3.586-.012-4.847-.07c-1.15-.056-1.858-.244-2.286-.41-.561-.223-1.046-.516-1.53-1.005-.484-.489-.778-.973-1.001-1.53-.166-.428-.354-1.137-.41-2.286C2.175 15.17 2.163 14.892 2.163 12S2.175 8.83 2.23 7.68c.056-1.15.244-1.858.41-2.286.223-.561.516-1.046 1.005-1.53.489-.484.973-.778 1.53-1.001.428-.166 1.137-.354 2.286-.41C8.414 2.175 8.694 2.163 12 2.163zm0 5.835c-3.092 0-5.51 2.418-5.51 5.51s2.418 5.51 5.51 5.51 5.51-2.418 5.51-5.51-2.418-5.51-5.51-5.51zm0 9.06a3.55 3.55 0 1 0 0-7.1 3.55 3.55 0 0 0 0 7.1zm5.233-9.06c-.569 0-1.058.232-1.43.603a2.005 2.005 0 0 0-.603 1.43 2.005 2.005 0 0 0 .603 1.43c.373.372.861.603 1.43.603s1.058-.232 1.43-.603a2.005 2.005 0 0 0 .603-1.43 2.005 2.005 0 0 0-.603-1.43c-.372-.371-.861-.603-1.43-.603z" fill="currentColor" />
-        </svg>
-      </Link>
-      <Link href="https://www.facebook.com" target="_blank" aria-label="Facebook">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white hover:text-yellow-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2c5.522 0 10 4.478 10 10s-4.478 10-10 10S2 17.522 2 12 6.478 2 12 2zm-1 17v-6h-2v-2h2V9c0-2.21 1.79-4 4-4h2v2h-2c-1.104 0-2 .896-2 2v2h4l-1 2h-3v6h-2z" />
-        </svg>
-      </Link>
-    </div>
-  );
-};
-
-// In your main component, wrap the button and icons in a flex container
-<div className="absolute top-4 right-4 z-20 flex items-center space-x-4">
-  <CallButton />
-  <SocialMediaIcons />
-</div>
-
+  // Social Media Icons component
+  const SocialMediaIcons = () => {
+    return (
+      <div className="flex space-x-4">
+        <Link href="https://www.instagram.com" target="_blank" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white hover:text-yellow-500 transition" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.163c3.206 0 3.586.012 4.847.07 1.15.056 1.858.244 2.286.41.561.223 1.046.516 1.53 1.005.484.489.778.973 1.001 1.53.166.428.354 1.137.41 2.286.058 1.261.07 1.641.07 4.847s-.012 3.586-.07 4.847c-.056 1.15-.244 1.858-.41 2.286-.223.561-.516 1.046-1.005 1.53-.489.484-.973.778-1.53 1.001-.428.166-1.137.354-2.286.41-1.261.058-1.641.07-4.847.07s-3.586-.012-4.847-.07c-1.15-.056-1.858-.244-2.286-.41-.561-.223-1.046-.516-1.53-1.005-.484-.489-.778-.973-1.001-1.53-.166-.428-.354-1.137-.41-2.286C2.175 15.17 2.163 14.892 2.163 12S2.175 8.83 2.23 7.68c.056-1.15.244-1.858.41-2.286.223-.561.516-1.046 1.005-1.53.489-.484.973-.778 1.53-1.001.428-.166 1.137-.354 2.286-.41C8.414 2.175 8.694 2.163 12 2.163zm0 5.835c-3.092 0-5.51 2.418-5.51 5.51s2.418 5.51 5.51 5.51 5.51-2.418 5.51-5.51-2.418-5.51-5.51-5.51zm0 9.06a3.55 3.55 0 1 0 0-7.1 3.55 3.55 0 0 0 0 7.1zm5.233-9.06c-.569 0-1.058.232-1.43.603a2.005 2.005 0 0 0-.603 1.43 2.005 2.005 0 0 0 .603 1.43c.373.372.861.603 1.43.603s1.058-.232 1.43-.603a2.005 2.005 0 0 0 .603-1.43 2.005 2.005 0 0 0-.603-1.43c-.372-.371-.861-.603-1.43-.603z" fill="currentColor" />
+          </svg>
+        </Link>
+        <Link href="https://www.facebook.com" target="_blank" aria-label="Facebook">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white hover:text-yellow-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2c5.522 0 10 4.478 10 10s-4.478 10-10 10S2 17.522 2 12 6.478 2 12 2zm-1 17v-6h-2v-2h2V9c0-2.21 1.79-4 4-4h2v2h-2c-1.104 0-2 .896-2 2v2h4l-1 2h-3v6h-2z" />
+          </svg>
+        </Link>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">

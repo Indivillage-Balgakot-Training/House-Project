@@ -16,9 +16,30 @@ const GalleryPage = () => {
   const [selectedHouse, setSelectedHouse] = useState(houses[0]);
   const router = useRouter();
 
-  const handleImageClick = () => {
-    if (selectedHouse.name === 'House 1') {
-      router.push('/layout'); // Ensure this path matches your layout page
+  const handleImageClick = async () => {
+    // Store house type in the backend
+    try {
+      const response = await fetch('http://localhost:5000/api/user_choices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ room_type: selectedHouse.name }), // Send house type as room_type
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('House type saved:', result);
+
+      // Redirect to the layout page if the first house is selected
+      if (selectedHouse.name === 'House 1') {
+        router.push('/layout'); // Ensure this path matches your layout page
+      }
+    } catch (error) {
+      console.error('Error saving house type:', error);
     }
   };
 
