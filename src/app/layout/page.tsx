@@ -10,7 +10,8 @@ interface ImageMapComponentProps {
 
 const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
   const [hoveredArea, setHoveredArea] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const router = useRouter(); 
+ 
 
   const handleMouseEnter = (area: string) => {
     setHoveredArea(area);
@@ -23,14 +24,9 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
   const handleClick = async (area: string) => {
     console.log(`Clicked area: ${area}`); // Debugging log
 
-    switch (area) {
-      case 'kitchen':
-        setSelectedImage('/kitchen.jpg'); // Ensure this path is correct
-        break;
-      // Add cases for other areas if needed
-      default:
-        setSelectedImage(null);
-        break;
+    if (area === 'kitchen') {
+      alert('Navigating to the kitchen page');
+      router.push('/kitchen'); // Navigate to the kitchen page
     }
 
     try {
@@ -53,7 +49,9 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
     }
   };
 
-
+  const handleAreaClick = () => {
+    router.push('/gallery'); // Navigate to the gallery page
+  };
 
   return (
     <div className="relative">
@@ -62,7 +60,19 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
         alt="Home Section"
         width={800}
         height={600}
+        useMap="#image-map"
       />
+        <map name="image-map">
+        <area
+          target=""
+          alt="Gallery Area"
+          title="Go to Gallery"
+          href="/gallery" // This is optional; handled by onClick
+          coords="791,46,755,11" // Coordinates for the clickable area
+          shape="rect"
+          onClick={handleAreaClick} // Handle the click event
+        />
+      </map>
       {/* Other clickable areas... */}
 
       <div
@@ -111,19 +121,8 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
         style={{ left: '552px', top: '341px', width: '180px', height: '131px', zIndex: 10 }}
       />
 
-      {/* Conditionally render the selected image */}
-      {selectedImage && (
-        <div className="absolute inset-0 flex justify-center items-center z-20 bg-black bg-opacity-50">
-          <Image
-            src={selectedImage}
-            alt={hoveredArea || 'Image'}
-            layout="responsive"
-            width={800}
-            height={600}
-            className="object-contain"
-          />
-        </div>
-      )}
+     
+      
     </div>
   );
 };
