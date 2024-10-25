@@ -14,7 +14,7 @@ const houses = [
 
 const GalleryPage = () => {
   const [selectedHouse, setSelectedHouse] = useState(houses[0]);
-  const router = useRouter(); // Use the correct router
+  const router = useRouter();
 
   const handleImageClick = () => {
     if (selectedHouse.name === 'House 1') {
