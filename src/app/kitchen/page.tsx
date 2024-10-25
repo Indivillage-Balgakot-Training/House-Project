@@ -5,14 +5,14 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation'; // Import useRouter
 
 const wallColorOptions = [
-  { name: 'Default', image: '/kitchen1.jpg', color: '#FAF0E6' }, // Default kitchen image
+  { name: 'Default', image: '/kitchen.jpg', color: '#FAF0E6' }, // Default kitchen image
   { name: 'Caramel', image: '/kitchenCabinet1.jpg', color: '#D2B48C' }, // Caramel color
   { name: 'Yellow', image: '/kitchenCabinet2.jpg', color: '#FFD700' }, // Yellow color
   { name: 'Neon Pink', image: '/kitchenCabinet3.jpg', color: '#FF69B4' }, // Neon Pink color
 ];
 
 const KitchenPage = () => {
-  const [selectedImage, setSelectedImage] = useState('/kitchen1.jpg'); // Default image
+  const [selectedImage, setSelectedImage] = useState('/kitchen.jpg'); // Default image
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter(); // Initialize router
 
