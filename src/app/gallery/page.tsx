@@ -1,60 +1,108 @@
 "use client"; // Mark the component as a Client Component
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // Correct import for the new app router
+import { useRouter } from 'next/navigation';
 
-const houses = [
-  { name: 'House 1', image: '/gallery.jpg', description: 'A Simple and Cozy home.' },
-  { name: 'House 2', image: '/house2.jpg', description: 'A modern home with sleek design.' },
-  { name: 'House 3', image: '/house3.jpg', description: 'A rustic house with a warm feel.' },
-  { name: 'House 4', image: '/house4.jpg', description: 'A tiny house with smart space utilization.' },
-];
+interface House {
+  id: string;
+  name: string;
+  image: string; // Image name (e.g., "house1.jpg")
+  description: string;
+}
 
 const GalleryPage = () => {
-  const [selectedHouse, setSelectedHouse] = useState(houses[0]);
-  const router = useRouter(); // Use the correct router
+  const [houses, setHouses] = useState<House[]>([]);
+  const [selectedHouse, setSelectedHouse] = useState<House | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchHouses = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/houses');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data: House[] = await response.json();
+        
+        // Update image references to match filenames without spaces
+        const updatedHouses = data.map((house, index) => ({
+          ...house,
+          image: `house${index + 1}.jpg`, // No space
+        }));
+
+        console.log("Fetched Houses:", updatedHouses); // Debugging line
+        setHouses(updatedHouses);
+        if (updatedHouses.length > 0) {
+          setSelectedHouse(updatedHouses[0]); // Set the first house as the selected house
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError('Error fetching houses: ' + error.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHouses();
+  }, []);
 
   const handleImageClick = () => {
-    if (selectedHouse.name === 'House 1') {
-      router.push('/layout'); // Ensure this path matches your layout page
+    if (selectedHouse) {
+      router.push('/layout'); // Navigate to layout or desired page
     }
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar for house selection */}
       <div className="w-1/4 bg-white shadow-md p-4">
         <h2 className="text-xl font-bold mb-4">Select a House</h2>
-        <select
-          className="block w-full p-2 border border-gray-300 rounded"
-          onChange={(e) => setSelectedHouse(houses[Number(e.target.value)])}
-        >
-          {houses.map((house, index) => (
-            <option key={index} value={index}>
-              {house.name}
-            </option>
-          ))}
-        </select>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : (
+          <select
+            className="block w-full p-2 border border-gray-300 rounded"
+            onChange={(e) => setSelectedHouse(houses[Number(e.target.value)])}
+            value={selectedHouse ? houses.indexOf(selectedHouse) : ''}
+          >
+            {houses.map((house, index) => (
+              <option key={house.id} value={index}>
+                {house.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
-      {/* Main area to display the selected house */}
       <div className="w-3/4 flex flex-col items-center justify-center p-8">
-        <h1 className="text-4xl font-bold mb-4">{selectedHouse.name}</h1>
-        <Image
-          src={selectedHouse.image}
-          alt={selectedHouse.name}
-          width={600}
-          height={400}
-          style={{ objectFit: 'cover' }}
-          className="rounded-lg shadow-lg cursor-pointer"
-          onClick={handleImageClick} // Attach the click handler
-        />
-        <p className="mt-4 text-center">{selectedHouse.description}</p>
-        <Link href="/" className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
-          Back to Home
-        </Link>
+        {loading ? (
+          <p>Loading...</p>
+        ) : selectedHouse ? (
+          <>
+            <h1 className="text-4xl font-bold mb-4">{selectedHouse.name}</h1>
+            <Image
+              src={`/${selectedHouse.image}`} // Correctly referencing the image in the public folder
+              alt={selectedHouse.name}
+              width={600}
+              height={400}
+              style={{ objectFit: 'cover' }}
+              className="rounded-lg shadow-lg cursor-pointer"
+              onClick={handleImageClick}
+            />
+            <p className="mt-4 text-center">{selectedHouse.description}</p>
+            <Link href="/" className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
+              Back to Home
+            </Link>
+          </>
+        ) : (
+          <p>No houses available.</p>
+        )}
       </div>
     </div>
   );
