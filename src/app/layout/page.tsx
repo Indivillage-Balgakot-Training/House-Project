@@ -1,16 +1,39 @@
 "use client"; // Mark the component as a Client Component
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 interface ImageMapComponentProps {
-  houseType: string; // Define the type for houseType
+  houseType: string;
+}
+
+interface Room {
+  id: string;
+  name: string;
+  color_options: string[];
 }
 
 const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
   const [hoveredArea, setHoveredArea] = useState<string | null>(null);
-  const router = useRouter(); 
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/houses/${houseType}/rooms`);
+        if (!response.ok) throw new Error('Failed to fetch rooms');
+        
+        const data = await response.json();
+        setRooms(data);
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+      }
+    };
+
+    fetchRooms();
+  }, [houseType]);
 
   const handleMouseEnter = (area: string) => {
     setHoveredArea(area);
@@ -21,12 +44,9 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
   };
 
   const handleClick = async (area: string) => {
-    console.log(`Clicked area: ${area}`); // Debugging log
+    console.log(`Clicked area: ${area}`);
 
-    if (area === 'kitchen') {
-      alert('Navigating to the kitchen page');
-      router.push('/kitchen'); // Navigate to the kitchen page
-    }
+    router.push(`/${area}`);
 
     try {
       const response = await fetch('http://localhost:5000/api/user_choices', {
@@ -34,22 +54,16 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ room_type: area, house_type: houseType }), // Send both room_type and house_type
+        body: JSON.stringify({ room_type: area, house_type: houseType }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
 
       const result = await response.json();
       console.log('Data saved:', result);
     } catch (error) {
       console.error('Error saving data:', error);
     }
-  };
-
-  const handleAreaClick = () => {
-    router.push('/gallery'); // Navigate to the gallery page
   };
 
   return (
@@ -67,15 +81,16 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
             target=""
             alt="Gallery Area"
             title="Go to Gallery"
-            href="/gallery" // This is optional; handled by onClick
-            coords="791,46,755,11" // Coordinates for the clickable area
+            href="/gallery"
+            coords="791,46,755,11"
             shape="rect"
-            onClick={handleAreaClick} // Handle the click event
+            onClick={() => router.push('/gallery')}
           />
         </map>
-        {/* Other clickable areas... */}
 
-        <div
+         {/* Other clickable areas... */}
+
+         <div
           className={`absolute ${hoveredArea === 'bedroom' ? 'bg-red-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
           onMouseEnter={() => handleMouseEnter('bedroom')}
           onMouseLeave={handleMouseLeave}
@@ -117,6 +132,18 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
           onClick={() => handleClick('kitchen')}
           style={{ left: '552px', top: '341px', width: '180px', height: '131px', zIndex: 10 }}
         />
+
+        {/* Render room areas dynamically */}
+        {rooms.map(room => (
+          <div
+            key={room.id}
+            className={`absolute ${hoveredArea === room.name ? 'bg-opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+            onMouseEnter={() => handleMouseEnter(room.name)}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick(room.name)}
+            style={{ /* position based on your design */ }}
+          />
+        ))}
       </div>
     </div>
   );

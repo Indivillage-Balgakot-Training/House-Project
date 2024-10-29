@@ -1,28 +1,46 @@
 "use client"; // Mark the component as a Client Component
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 
-const wallColorOptions = [
-  { name: 'Default', image: '/kitchen.jpg', color: '#FAF0E6' }, // Default kitchen image
-  { name: 'Caramel', image: '/kitchenCabinet1.jpg', color: '#D2B48C' }, // Caramel color
-  { name: 'Yellow', image: '/kitchenCabinet2.jpg', color: '#FFD700' }, // Yellow color
-  { name: 'Neon Pink', image: '/kitchenCabinet3.jpg', color: '#FF69B4' }, // Neon Pink color
-];
+// Define a type for kitchen images
+interface KitchenImage {
+  name: string;
+  image: string;
+  color: string;
+}
 
 const KitchenPage = () => {
-  const [selectedImage, setSelectedImage] = useState('/kitchen.jpg'); // Default image
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const router = useRouter(); // Initialize router
+  const [kitchenImages, setKitchenImages] = useState<KitchenImage[]>([]); // Use the defined type
+  const [selectedImage, setSelectedImage] = useState<string>('/images/kitchen.jpg'); // Default image
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchKitchenImages = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/kitchen/images');
+        const data: KitchenImage[] = await response.json(); // Specify the type here
+        setKitchenImages(data);
+        if (data.length > 0) {
+          setSelectedImage(data[0].image); // Set default to first image
+        }
+      } catch (error) {
+        console.error('Error fetching kitchen images:', error);
+      }
+    };
+
+    fetchKitchenImages();
+  }, []);
 
   const handleWallColorChange = (image: string) => {
     setSelectedImage(image);
-    setIsDropdownOpen(false); // Close the dropdown after selection
+    setIsDropdownOpen(false);
   };
 
   const handleBackToHome = () => {
-    router.push('/gallery'); // Navigate back to home
+    router.push('/gallery');
   };
 
   return (
@@ -41,7 +59,7 @@ const KitchenPage = () => {
             {isDropdownOpen && (
               <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
                 <div className="flex p-2 space-x-4">
-                  {wallColorOptions.map((color, index) => (
+                  {kitchenImages.map((color, index) => (
                     <div
                       key={index}
                       onClick={() => handleWallColorChange(color.image)}
@@ -62,10 +80,10 @@ const KitchenPage = () => {
         {/* Display Selected Image */}
         <div className="w-3/4 flex items-center justify-center flex-col">
           <Image
-            src={selectedImage} // Selected image (either wall color or default)
+            src={selectedImage}
             alt="Selected Kitchen"
-            width={1000} // Increased width
-            height={800} // Increased height
+            width={1000}
+            height={800}
             style={{ objectFit: 'cover' }}
             className="rounded-lg shadow-lg"
           />

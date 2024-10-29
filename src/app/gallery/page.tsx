@@ -28,12 +28,13 @@ const GalleryPage = () => {
         }
         const data: House[] = await response.json();
         
-        // Update image references to match filenames without spaces
+        // Update image references and format house names
         const updatedHouses = data.map((house, index) => ({
           ...house,
           image: `house${index + 1}.jpg`, // No space
+          name: `House Number ${index + 1}` // Format the name as "House Number X"
         }));
-
+    
         console.log("Fetched Houses:", updatedHouses); // Debugging line
         setHouses(updatedHouses);
         if (updatedHouses.length > 0) {
