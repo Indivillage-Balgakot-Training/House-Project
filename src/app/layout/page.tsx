@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import Sidebar from './Sidebar'; // Import your Sidebar component
+import Sidebar from './Sidebar'; // Ensure the casing matches
 
 interface ImageMapComponentProps {
   houseType: string;

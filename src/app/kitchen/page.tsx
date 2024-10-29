@@ -1,8 +1,10 @@
+// src/app/kitchen/page.tsx
 "use client"; // Mark the component as a Client Component
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Sidebar from '../layout/Sidebar'; // Ensure the casing matches
 
 // Define types for kitchen images
 interface KitchenImage {
@@ -26,11 +28,11 @@ const KitchenPage = () => {
       try {
         const response = await fetch('http://localhost:5000/kitchen/images');
         const data = await response.json();
-        setCabinetImages(data.cabinets); // Set cabinet images
-        setWallImages(data.walls); // Set wall images
-        setBasinImages(data.basins); // Set basin images
+        setCabinetImages(data.cabinets);
+        setWallImages(data.walls);
+        setBasinImages(data.basins);
         if (data.cabinets.length > 0) {
-          setSelectedImage(data.cabinets[0].image); // Set default to first cabinet image
+          setSelectedImage(data.cabinets[0].image);
         }
       } catch (error) {
         console.error('Error fetching kitchen images:', error);
@@ -60,115 +62,118 @@ const KitchenPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex flex-1">
-        {/* Selection Section for Colors */}
-        <div className="w-1/4 bg-white shadow-md p-4 flex flex-col items-start">
-          {/* Cabinets Section */}
-          <h2 className="text-xl font-bold mb-4">Cabinets</h2>
-          <div className="relative mb-20">
-            <button 
-              onClick={() => setIsCabinetDropdownOpen(prev => !prev)} 
-              className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
-            >
-              Select Color
-            </button>
-            {isCabinetDropdownOpen && (
-              <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
-                <div className="flex p-2 space-x-4">
-                  {cabinetImages.map((color, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleCabinetColorChange(color.image)}
-                      className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
-                    >
+    <div className="flex">
+      <Sidebar currentPage="kitchen" /> {/* Include the sidebar */}
+      <div className="flex flex-col w-full h-screen">
+        <div className="flex flex-1">
+          {/* Selection Section for Colors */}
+          <div className="w-1/4 bg-white shadow-md p-4 flex flex-col items-start">
+            {/* Cabinets Section */}
+            <h2 className="text-xl font-bold mb-4">Cabinets</h2>
+            <div className="relative mb-20">
+              <button 
+                onClick={() => setIsCabinetDropdownOpen(prev => !prev)} 
+                className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
+              >
+                Select Color
+              </button>
+              {isCabinetDropdownOpen && (
+                <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
+                  <div className="flex p-2 space-x-4">
+                    {cabinetImages.map((color, index) => (
                       <div
-                        className="w-8 h-8 rounded shadow-md"
-                        style={{ backgroundColor: color.color }}
-                      />
-                    </div>
-                  ))}
+                        key={index}
+                        onClick={() => handleCabinetColorChange(color.image)}
+                        className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
+                      >
+                        <div
+                          className="w-8 h-8 rounded shadow-md"
+                          style={{ backgroundColor: color.color }}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Walls Section */}
+            <h2 className="text-xl font-bold mb-4">Walls</h2>
+            <div className="relative mb-20">
+              <button 
+                onClick={() => setIsWallDropdownOpen(prev => !prev)} 
+                className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
+              >
+                Select Color
+              </button>
+              {isWallDropdownOpen && (
+                <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
+                  <div className="flex p-2 space-x-4">
+                    {wallImages.map((color, index) => (
+                      <div
+                        key={index}
+                        onClick={() => handleWallColorChange(color.image)}
+                        className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
+                      >
+                        <div
+                          className="w-8 h-8 rounded shadow-md"
+                          style={{ backgroundColor: color.color }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Basin Section */}
+            <h2 className="text-xl font-bold mb-4">Basin</h2>
+            <div className="relative mb-20">
+              <button 
+                onClick={() => setIsBasinDropdownOpen(prev => !prev)} 
+                className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
+              >
+                Select Color
+              </button>
+              {isBasinDropdownOpen && (
+                <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
+                  <div className="flex p-2 space-x-4">
+                    {basinImages.map((color, index) => (
+                      <div
+                        key={index}
+                        onClick={() => handleBasinColorChange(color.image)}
+                        className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
+                      >
+                        <div
+                          className="w-8 h-8 rounded shadow-md"
+                          style={{ backgroundColor: color.color }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Walls Section */}
-          <h2 className="text-xl font-bold mb-4">Walls</h2>
-          <div className="relative mb-20">
-            <button 
-              onClick={() => setIsWallDropdownOpen(prev => !prev)} 
-              className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
+          {/* Display Selected Image */}
+          <div className="w-3/4 flex items-center justify-center flex-col">
+            <Image
+              src={selectedImage}
+              alt="Selected Kitchen"
+              width={1000}
+              height={800}
+              style={{ objectFit: 'cover' }}
+              className="rounded-lg shadow-lg"
+            />
+            {/* Back to Home Button */}
+            <button
+              onClick={handleBackToHome}
+              className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
             >
-              Select Color
+              Back to House
             </button>
-            {isWallDropdownOpen && (
-              <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
-                <div className="flex p-2 space-x-4">
-                  {wallImages.map((color, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleWallColorChange(color.image)}
-                      className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
-                    >
-                      <div
-                        className="w-8 h-8 rounded shadow-md"
-                        style={{ backgroundColor: color.color }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
-
-          {/* Basin Section */}
-          <h2 className="text-xl font-bold mb-4">Basin</h2>
-          <div className="relative mb-20">
-            <button 
-              onClick={() => setIsBasinDropdownOpen(prev => !prev)} 
-              className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
-            >
-              Select Color
-            </button>
-            {isBasinDropdownOpen && (
-              <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
-                <div className="flex p-2 space-x-4">
-                  {basinImages.map((color, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleBasinColorChange(color.image)}
-                      className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
-                    >
-                      <div
-                        className="w-8 h-8 rounded shadow-md"
-                        style={{ backgroundColor: color.color }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Display Selected Image */}
-        <div className="w-3/4 flex items-center justify-center flex-col">
-          <Image
-            src={selectedImage}
-            alt="Selected Kitchen"
-            width={1000}
-            height={800}
-            style={{ objectFit: 'cover' }}
-            className="rounded-lg shadow-lg"
-          />
-          {/* Back to Home Button */}
-          <button
-            onClick={handleBackToHome}
-            className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
-          >
-            Back to House
-          </button>
         </div>
       </div>
     </div>
