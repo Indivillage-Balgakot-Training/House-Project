@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-// Define a type for kitchen images
+// Define types for kitchen images
 interface KitchenImage {
   name: string;
   image: string;
@@ -12,19 +12,25 @@ interface KitchenImage {
 }
 
 const KitchenPage = () => {
-  const [kitchenImages, setKitchenImages] = useState<KitchenImage[]>([]); // Use the defined type
+  const [cabinetImages, setCabinetImages] = useState<KitchenImage[]>([]);
+  const [wallImages, setWallImages] = useState<KitchenImage[]>([]);
+  const [basinImages, setBasinImages] = useState<KitchenImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<string>('/images/kitchen.jpg'); // Default image
-  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [isCabinetDropdownOpen, setIsCabinetDropdownOpen] = useState<boolean>(false);
+  const [isWallDropdownOpen, setIsWallDropdownOpen] = useState<boolean>(false);
+  const [isBasinDropdownOpen, setIsBasinDropdownOpen] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
     const fetchKitchenImages = async () => {
       try {
         const response = await fetch('http://localhost:5000/kitchen/images');
-        const data: KitchenImage[] = await response.json(); // Specify the type here
-        setKitchenImages(data);
-        if (data.length > 0) {
-          setSelectedImage(data[0].image); // Set default to first image
+        const data = await response.json();
+        setCabinetImages(data.cabinets); // Set cabinet images
+        setWallImages(data.walls); // Set wall images
+        setBasinImages(data.basins); // Set basin images
+        if (data.cabinets.length > 0) {
+          setSelectedImage(data.cabinets[0].image); // Set default to first cabinet image
         }
       } catch (error) {
         console.error('Error fetching kitchen images:', error);
@@ -34,9 +40,19 @@ const KitchenPage = () => {
     fetchKitchenImages();
   }, []);
 
+  const handleCabinetColorChange = (image: string) => {
+    setSelectedImage(image);
+    setIsCabinetDropdownOpen(false);
+  };
+
   const handleWallColorChange = (image: string) => {
     setSelectedImage(image);
-    setIsDropdownOpen(false);
+    setIsWallDropdownOpen(false);
+  };
+
+  const handleBasinColorChange = (image: string) => {
+    setSelectedImage(image);
+    setIsBasinDropdownOpen(false);
   };
 
   const handleBackToHome = () => {
@@ -46,20 +62,50 @@ const KitchenPage = () => {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex flex-1">
-        {/* Selection Section for Wall Colors */}
+        {/* Selection Section for Colors */}
         <div className="w-1/4 bg-white shadow-md p-4 flex flex-col items-start">
+          {/* Cabinets Section */}
           <h2 className="text-xl font-bold mb-4">Cabinets</h2>
-          <div className="relative">
+          <div className="relative mb-20">
             <button 
-              onClick={() => setIsDropdownOpen(prev => !prev)} 
+              onClick={() => setIsCabinetDropdownOpen(prev => !prev)} 
               className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
             >
               Select Color
             </button>
-            {isDropdownOpen && (
+            {isCabinetDropdownOpen && (
               <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
                 <div className="flex p-2 space-x-4">
-                  {kitchenImages.map((color, index) => (
+                  {cabinetImages.map((color, index) => (
+                    <div
+                      key={index}
+                      onClick={() => handleCabinetColorChange(color.image)}
+                      className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
+                    >
+                      <div
+                        className="w-8 h-8 rounded shadow-md"
+                        style={{ backgroundColor: color.color }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Walls Section */}
+          <h2 className="text-xl font-bold mb-4">Walls</h2>
+          <div className="relative mb-20">
+            <button 
+              onClick={() => setIsWallDropdownOpen(prev => !prev)} 
+              className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
+            >
+              Select Color
+            </button>
+            {isWallDropdownOpen && (
+              <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
+                <div className="flex p-2 space-x-4">
+                  {wallImages.map((color, index) => (
                     <div
                       key={index}
                       onClick={() => handleWallColorChange(color.image)}
@@ -67,7 +113,36 @@ const KitchenPage = () => {
                     >
                       <div
                         className="w-8 h-8 rounded shadow-md"
-                        style={{ backgroundColor: color.color }} // Use the specified color
+                        style={{ backgroundColor: color.color }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Basin Section */}
+          <h2 className="text-xl font-bold mb-4">Basin</h2>
+          <div className="relative mb-20">
+            <button 
+              onClick={() => setIsBasinDropdownOpen(prev => !prev)} 
+              className="block w-full p-2 border border-gray-300 rounded mb-4 text-left"
+            >
+              Select Color
+            </button>
+            {isBasinDropdownOpen && (
+              <div className="absolute bg-white border border-gray-300 mt-1 rounded shadow-md w-49">
+                <div className="flex p-2 space-x-4">
+                  {basinImages.map((color, index) => (
+                    <div
+                      key={index}
+                      onClick={() => handleBasinColorChange(color.image)}
+                      className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
+                    >
+                      <div
+                        className="w-8 h-8 rounded shadow-md"
+                        style={{ backgroundColor: color.color }}
                       />
                     </div>
                   ))}
@@ -90,7 +165,8 @@ const KitchenPage = () => {
           {/* Back to Home Button */}
           <button
             onClick={handleBackToHome}
-            className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
+            className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
+          >
             Back to House
           </button>
         </div>

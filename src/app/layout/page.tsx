@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Sidebar from './Sidebar'; // Import your Sidebar component
 
 interface ImageMapComponentProps {
   houseType: string;
@@ -17,6 +18,7 @@ interface Room {
 const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
   const [hoveredArea, setHoveredArea] = useState<string | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [currentPage, setCurrentPage] = useState('Welcome'); // Default page
   const router = useRouter();
 
   useEffect(() => {
@@ -45,7 +47,7 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
 
   const handleClick = async (area: string) => {
     console.log(`Clicked area: ${area}`);
-
+    setCurrentPage(area); // Set current page based on clicked area
     router.push(`/${area}`);
 
     try {
@@ -67,6 +69,10 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
   };
 
   return (
+    <div className="flex h-screen">
+      {/* Sidebar to show current page */}
+      <Sidebar currentPage={currentPage} />
+
     <div className="flex items-center justify-center h-screen">
       <div className="relative">
         <Image
@@ -145,6 +151,7 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
           />
         ))}
       </div>
+    </div>
     </div>
   );
 };
