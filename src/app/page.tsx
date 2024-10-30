@@ -143,17 +143,6 @@ const HomePage = () => {
 </Link>
         </div>
       </div>
-      
-
-      {/* Houses Section */}
-      <div className="flex flex-col items-center py-10">
-        {houses.map((house) => (
-          <div key={house.id} className="bg-white p-4 shadow rounded-lg mb-4 w-full max-w-md">
-            <h2 className="text-xl font-bold">{house.name}</h2>
-            <p>{house.description}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };
