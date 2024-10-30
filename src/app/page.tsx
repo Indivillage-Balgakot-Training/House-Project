@@ -4,60 +4,89 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+interface House {
+  id: number;         // or string, depending on your backend
+  name: string;
+  description: string;
+}
+
 const HomePage = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [sessionId, setSessionId] = useState('');
+  const [houses, setHouses] = useState<House[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 300); // Adjust the delay as needed
+    }, 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // Logo component
-  const Logo = () => {
-    return (
-      <div className="flex items-center justify-center">
-        <svg
-          width="150"
-          height="100" // Adjust height as needed
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-white"
-        >
-          <rect width="100%" height="100%" fill="transparent" />
-          {/* House shape */}
-          <polygon points="75,10 100,40 50,40" fill="#ecf0f1" opacity="0.9" />
-          <rect x="65" y="40" width="20" height="20" fill="#ecf0f1" opacity="0.9" />
+  useEffect(() => {
+    const existingSessionId = sessionStorage.getItem('sessionId');
+    if (!existingSessionId) {
+      const newSessionId = generateSessionId();
+      sessionStorage.setItem('sessionId', newSessionId);
+      setSessionId(newSessionId);
+    } else {
+      setSessionId(existingSessionId);
+    }
+  }, []);
 
-          {/* Logo Text */}
-          <text 
-            x="10" 
-            y="75" // Position for main text
-            fontFamily="'Poppins', sans-serif" // Updated font family
-            fontSize="20" 
-            fill="white" 
-            className="drop-shadow-md"
-          >
-            Indivillage
-          </text>
-          <text 
-            x="10" 
-            y="90" // Position for subtitle text
-            fontFamily="'Poppins', sans-serif" // Updated font family
-            fontSize="10" 
-            fill="white" 
-            className="drop-shadow-md"
-          >
-            You dream, We Build
-          </text>
-        </svg>
-      </div>
-    );
+  useEffect(() => {
+    fetchHouses();
+  }, []);
+
+  const generateSessionId = () => {
+    return 'session-' + Math.random().toString(36).substr(2, 9);
   };
 
- // Call Button component
-const CallButton = () => {
-  return (
+  const fetchHouses = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/houses');
+      const data: House[] = await response.json();
+      setHouses(data);
+    } catch (error) {
+      console.error('Error fetching houses:', error);
+    }
+  };
+
+  const Logo = () => (
+    <div className="flex items-center justify-center">
+      <svg
+        width="150"
+        height="100"
+        xmlns="http://www.w3.org/2000/svg"
+        className="text-white"
+      >
+        <rect width="100%" height="100%" fill="transparent" />
+        <polygon points="75,10 100,40 50,40" fill="#ecf0f1" opacity="0.9" />
+        <rect x="65" y="40" width="20" height="20" fill="#ecf0f1" opacity="0.9" />
+        <text 
+          x="10" 
+          y="75" 
+          fontFamily="'Poppins', sans-serif" 
+          fontSize="20" 
+          fill="white" 
+          className="drop-shadow-md"
+        >
+          Indivillage
+        </text>
+        <text 
+          x="10" 
+          y="90" 
+          fontFamily="'Poppins', sans-serif" 
+          fontSize="10" 
+          fill="white" 
+          className="drop-shadow-md"
+        >
+          You dream, We Build
+        </text>
+      </svg>
+    </div>
+  );
+
+  const CallButton = () => (
     <a
       href="tel:+917892761921"
       className="c-btn c-btn--outline bg-yellow-500 text-black rounded-lg px-4 py-2 shadow-lg hover:bg-yellow-400 transition"
@@ -66,11 +95,8 @@ const CallButton = () => {
       Talk to our Team
     </a>
   );
-};
 
-// Social Media Icons component
-const SocialMediaIcons = () => {
-  return (
+  const SocialMediaIcons = () => (
     <div className="flex space-x-4">
       <Link href="https://www.instagram.com" target="_blank" aria-label="Instagram">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white hover:text-yellow-500 transition" viewBox="0 0 24 24" fill="none">
@@ -84,14 +110,6 @@ const SocialMediaIcons = () => {
       </Link>
     </div>
   );
-};
-
-// In your main component, wrap the button and icons in a flex container
-<div className="absolute top-4 right-4 z-20 flex items-center space-x-4">
-  <CallButton />
-  <SocialMediaIcons />
-</div>
-
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -117,19 +135,25 @@ const SocialMediaIcons = () => {
           <SocialMediaIcons />
         </div>
 
-        <div className={`relative z-10 flex flex-col items-center justify-center h-full text-white text-center transition-transform duration-500 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-          <h1 className="text-6xl font-extrabold drop-shadow-lg">You Imagine We Build</h1>
-          <p className="mt-4 text-xl drop-shadow-lg">Go through Your Dream House.</p>
+        <div className={`relative z-10 flex flex-col items-center justify-center h-full text-white text-center transition-transform duration-500 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+          <h1 className="text-5xl font-bold mb-4">Welcome to Indivillage</h1>
+          <p className="text-lg mb-8">Your dream home awaits</p>
           <Link href="/gallery" className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
-            View Gallery
-          </Link>
+  View Gallery
+</Link>
         </div>
       </div>
+      
 
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-4 text-center">
-        <p>&copy; 2024 Indivillage. All rights reserved.</p>
-      </footer>
+      {/* Houses Section */}
+      <div className="flex flex-col items-center py-10">
+        {houses.map((house) => (
+          <div key={house.id} className="bg-white p-4 shadow rounded-lg mb-4 w-full max-w-md">
+            <h2 className="text-xl font-bold">{house.name}</h2>
+            <p>{house.description}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
