@@ -25,3 +25,23 @@ body {
     text-wrap: balance;
   }
 }
+
+.sidebar__wrapper {
+  position: relative; /* Required for absolute positioning of the button */
+}
+
+.btn {
+  position: absolute; /* Position it absolutely */
+  right: 0.5rem; /* Adjust to your liking */
+  top: 1rem; /* Adjust to your liking */
+  border: none;
+  background-color: transparent; /* Transparent background for a clean look */
+  width: 2rem; /* Adjust for better usability */
+  height: 2rem; /* Adjust for better usability */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1.5rem; /* Increased font size for better visibility */
+  color: var(--foreground); /* Use the defined foreground color */
+}

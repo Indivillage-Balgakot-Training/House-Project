@@ -21,6 +21,7 @@ const KitchenPage = () => {
   const [isCabinetDropdownOpen, setIsCabinetDropdownOpen] = useState<boolean>(false);
   const [isWallDropdownOpen, setIsWallDropdownOpen] = useState<boolean>(false);
   const [isBasinDropdownOpen, setIsBasinDropdownOpen] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true); // Sidebar state
   const router = useRouter();
 
   useEffect(() => {
@@ -61,9 +62,13 @@ const KitchenPage = () => {
     router.push('/gallery');
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
+
   return (
     <div className="flex">
-      <Sidebar currentPage="kitchen" /> {/* Include the sidebar */}
+      <Sidebar currentPage="kitchen" isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} /> {/* Include the sidebar */}
       <div className="flex flex-col w-full h-screen">
         <div className="flex flex-1">
           {/* Selection Section for Colors */}

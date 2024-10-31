@@ -20,6 +20,8 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [currentPage, setCurrentPage] = useState('Welcome'); // Default page
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -69,31 +71,36 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar to show current page */}
-      <Sidebar currentPage='layout' />
-
-
-    <div className="flex items-center justify-center h-screen">
-      <div className="relative">
-        <Image
-          src="/image2.jpg"
-          alt="Home Section"
-          width={800}
-          height={600}
-          useMap="#image-map"
-        />
-        <map name="image-map">
-          <area
-            target=""
-            alt="Gallery Area"
-            title="Go to Gallery"
-            href="/gallery"
-            coords="791,46,755,11"
-            shape="rect"
-            onClick={() => router.push('/gallery')}
-          />
-        </map>
+    <div className="flex">
+      <Sidebar
+        currentPage="layout"
+        isOpen={isSidebarOpen}
+        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+      />
+      <div className={`flex-grow transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
+        <div className="flex items-center justify-center h-screen">
+          <div className="relative">
+            <Image
+              src="/image2.jpg"
+              alt="Home Section"
+              width={800}
+              height={600}
+              useMap="#image-map"
+            />
+            <map name="image-map">
+              <area
+                target="_self" // Adjust if necessary
+                alt="Gallery Area"
+                title="Go to Gallery"
+                href="/gallery"
+                coords="791,46,755,11"
+                shape="rect"
+                onClick={(e) => {
+                  e.preventDefault(); // Prevent default anchor behavior
+                  router.push('/gallery');
+                }}
+              />
+            </map>
 
          {/* Other clickable areas... */}
 
@@ -152,6 +159,7 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
           />
         ))}
       </div>
+    </div>
     </div>
     </div>
   );
