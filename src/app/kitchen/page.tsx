@@ -35,6 +35,9 @@ const KitchenPage = () => {
         if (data.cabinets.length > 0) {
           setSelectedImage(data.cabinets[0].image);
         }
+        if (data.basins.length > 0) {
+          setSelectedImage(data.basins[0].image); // Default basin image
+        }
       } catch (error) {
         console.error('Error fetching kitchen images:', error);
       }
