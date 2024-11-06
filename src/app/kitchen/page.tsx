@@ -1,4 +1,3 @@
-// src/app/kitchen/page.tsx
 "use client"; // Mark the component as a Client Component
 
 import { useEffect, useState } from 'react';
@@ -22,6 +21,9 @@ const KitchenPage = () => {
   const [isWallDropdownOpen, setIsWallDropdownOpen] = useState<boolean>(false);
   const [isBasinDropdownOpen, setIsBasinDropdownOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true); // Sidebar state
+  const [selectedCabinetColor, setSelectedCabinetColor] = useState<string | null>(null);
+  const [selectedWallColor, setSelectedWallColor] = useState<string | null>(null);
+  const [selectedBasinColor, setSelectedBasinColor] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,9 +36,11 @@ const KitchenPage = () => {
         setBasinImages(data.basins);
         if (data.cabinets.length > 0) {
           setSelectedImage(data.cabinets[0].image);
+          setSelectedCabinetColor(data.cabinets[0].color); // Default cabinet color
         }
         if (data.basins.length > 0) {
           setSelectedImage(data.basins[0].image); // Default basin image
+          setSelectedBasinColor(data.basins[0].color); // Default basin color
         }
       } catch (error) {
         console.error('Error fetching kitchen images:', error);
@@ -46,18 +50,21 @@ const KitchenPage = () => {
     fetchKitchenImages();
   }, []);
 
-  const handleCabinetColorChange = (image: string) => {
+  const handleCabinetColorChange = (image: string, color: string) => {
     setSelectedImage(image);
+    setSelectedCabinetColor(color); // Update selected cabinet color
     setIsCabinetDropdownOpen(false);
   };
 
-  const handleWallColorChange = (image: string) => {
+  const handleWallColorChange = (image: string, color: string) => {
     setSelectedImage(image);
+    setSelectedWallColor(color); // Update selected wall color
     setIsWallDropdownOpen(false);
   };
 
-  const handleBasinColorChange = (image: string) => {
+  const handleBasinColorChange = (image: string, color: string) => {
     setSelectedImage(image);
+    setSelectedBasinColor(color); // Update selected basin color
     setIsBasinDropdownOpen(false);
   };
 
@@ -91,8 +98,8 @@ const KitchenPage = () => {
                     {cabinetImages.map((color, index) => (
                       <div
                         key={index}
-                        onClick={() => handleCabinetColorChange(color.image)}
-                        className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
+                        onClick={() => handleCabinetColorChange(color.image, color.color)}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedCabinetColor === color.color ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
@@ -120,8 +127,8 @@ const KitchenPage = () => {
                     {wallImages.map((color, index) => (
                       <div
                         key={index}
-                        onClick={() => handleWallColorChange(color.image)}
-                        className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
+                        onClick={() => handleWallColorChange(color.image, color.color)}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedWallColor === color.color ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
@@ -149,8 +156,8 @@ const KitchenPage = () => {
                     {basinImages.map((color, index) => (
                       <div
                         key={index}
-                        onClick={() => handleBasinColorChange(color.image)}
-                        className="flex items-center cursor-pointer hover:bg-gray-200 p-2"
+                        onClick={() => handleBasinColorChange(color.image, color.color)}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedBasinColor === color.color ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
