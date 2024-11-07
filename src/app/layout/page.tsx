@@ -5,75 +5,60 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar'; // Ensure the casing matches
 
-interface ImageMapComponentProps {
-  houseType: string; // The houseType will be passed as a prop
-}
-
-interface Room {
-  id: string;
-  name: string;
-  coords: string; // Coordinates for the clickable area (left, top, width, height)
-  color_options: string[]; // You might want to use this data in the future
-}
-
-const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
-  const [hoveredArea, setHoveredArea] = useState<string | null>(null);
-  const [rooms, setRooms] = useState<Room[]>([]);  // Array of rooms fetched from the backend
-  const [currentPage, setCurrentPage] = useState('Welcome'); // Default page
-  const router = useRouter();
+const ImageMapComponent: React.FC = () => {
+  const [layoutData, setLayoutData] = useState<any[]>([]); // Array of layout data
+  const [hoveredArea, setHoveredArea] = useState<string | null>(null); // Track the area that is being hovered
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const router = useRouter();
 
-  // Fetch rooms from the backend based on the house type
+  // Fetch layout data
   useEffect(() => {
-    const fetchRooms = async () => {
+    const fetchLayoutData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/houses/${houseType}/rooms`);
-        if (!response.ok) throw new Error('Failed to fetch rooms');
-        
-        const data = await response.json();
-        setRooms(data);
+        const layoutResponse = await fetch('http://localhost:5000/layout'); // Fetch from your API
+        if (!layoutResponse.ok) throw new Error('Failed to fetch layout data');
+
+        const layoutData = await layoutResponse.json();
+        setLayoutData(layoutData);
       } catch (error) {
-        console.error('Error fetching rooms:', error);
+        console.error('Error fetching layout data:', error);
       }
     };
 
-    fetchRooms();
-  }, [houseType]);
+    fetchLayoutData();
+  }, []);
 
-  // Handle mouse hover events
+  // Handle mouse enter on an area
   const handleMouseEnter = (area: string) => {
     setHoveredArea(area);
   };
 
+  // Handle mouse leave from an area
   const handleMouseLeave = () => {
     setHoveredArea(null);
   };
 
-  // Handle click on areas to set room type and navigate
-  const handleClick = async (roomName: string) => {
-    console.log(`Clicked area: ${roomName}`);
-    setCurrentPage(roomName); // Set current page based on clicked area
-    router.push(`/${roomName}`);  // Navigate to the page
+  // Handle click on an area and send data to the backend
+  const handleClick = async (area: string) => {
+    console.log(`Clicked on ${area}`);
 
-    // Send the room type and house type to the backend
+    // Send selected room to the backend
     try {
-      const response = await fetch('http://localhost:5000/select-room', {
+      const response = await fetch('/api/save-selection', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          room_type: roomName,    // Send the room type selected
-          house_type: houseType,  // Send the house type selected
-        }),
+        body: JSON.stringify({ selectedRoom: area }),
       });
 
-      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error('Failed to save selection');
+      }
 
-      const result = await response.json();
-      console.log('Room type data saved:', result);  // Log the result after the data is saved
+      console.log(`${area} saved successfully!`);
     } catch (error) {
-      console.error('Error saving data:', error);
+      console.error('Error sending data to backend:', error);
     }
   };
 
@@ -153,24 +138,6 @@ const ImageMapComponent: React.FC<ImageMapComponentProps> = ({ houseType }) => {
               onClick={() => handleClick('kitchen')}
               style={{ left: '552px', top: '341px', width: '180px', height: '131px', zIndex: 10 }}
             />
-{/* Other clickable areas */}
-{/* Dynamically rendered clickable areas for rooms */}
-{rooms.map((room) => (
-              <div
-                key={room.id}
-                className={`absolute ${hoveredArea === room.name ? 'bg-opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-                onMouseEnter={() => handleMouseEnter(room.name)}
-                onMouseLeave={handleMouseLeave}
-                onClick={() => handleClick(room.name)}  // Send room type dynamically
-                style={{
-                  left: room.coords.split(',')[0] + 'px', 
-                  top: room.coords.split(',')[1] + 'px', 
-                  width: room.coords.split(',')[2] + 'px', 
-                  height: room.coords.split(',')[3] + 'px', 
-                  zIndex: 10,
-                }}
-              />
-            ))}
           </div>
         </div>
       </div>

@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 
 interface House {
   id: string;
-  name: string;
-  image: string; // Image name (e.g., "house1.jpg")
+  house_name: string;
+  house_image: string; // Image name (e.g., "house1.jpg")
   description: string;
 }
 
@@ -19,6 +19,7 @@ const GalleryPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
+  // Fetch houses from the backend when the component mounts
   useEffect(() => {
     const fetchHouses = async () => {
       try {
@@ -28,17 +29,10 @@ const GalleryPage = () => {
         }
         const data: House[] = await response.json();
         
-        // Update image references and format house names
-        const updatedHouses = data.map((house, index) => ({
-          ...house,
-          image: `house${index + 1}.jpg`, // No space
-          name: `House Number ${index + 1}` // Format the name as "House Number X"
-        }));
-    
-        console.log("Fetched Houses:", updatedHouses); // Debugging line
-        setHouses(updatedHouses);
-        if (updatedHouses.length > 0) {
-          setSelectedHouse(updatedHouses[0]); // Set the first house as the selected house
+        console.log("Fetched Houses:", data); // Debugging line
+        setHouses(data);
+        if (data.length > 0) {
+          setSelectedHouse(data[0]); // Set the first house as the selected house
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -63,7 +57,7 @@ const GalleryPage = () => {
           },
           body: JSON.stringify({
             house_id: selectedHouse.id,
-            house_name: selectedHouse.name, // Send house name
+            house_name: selectedHouse.house_name, // Send house name
           }),
         });
   
@@ -96,7 +90,7 @@ const GalleryPage = () => {
           >
             {houses.map((house, index) => (
               <option key={house.id} value={index}>
-                {house.name}
+                {house.house_name}
               </option>
             ))}
           </select>
@@ -108,10 +102,10 @@ const GalleryPage = () => {
           <p>Loading...</p>
         ) : selectedHouse ? (
           <>
-            <h1 className="text-4xl font-bold mb-4">{selectedHouse.name}</h1>
+            <h1 className="text-4xl font-bold mb-4">{selectedHouse.house_name}</h1>
             <Image
-              src={`/${selectedHouse.image}`} // Correctly referencing the image in the public folder
-              alt={selectedHouse.name}
+              src={`${selectedHouse.house_image}`} // Correctly referencing the image in the public folder
+              alt={selectedHouse.house_name}
               width={600}
               height={400}
               style={{ objectFit: 'cover' }}
