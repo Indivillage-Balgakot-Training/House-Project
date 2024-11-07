@@ -41,21 +41,25 @@ const ImageMapComponent: React.FC = () => {
   // Handle click on an area and send data to the backend
   const handleClick = async (area: string) => {
     console.log(`Clicked on ${area}`);
-
-    // Send selected room to the backend
+  
+    // Send selected room to the Flask backend
     try {
-      const response = await fetch('/api/save-selection', {
+      const response = await fetch('http://localhost:5000/select-room', { // Update URL to your Flask backend
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ selectedRoom: area }),
+        body: JSON.stringify({
+          house_id: 'your-house-id', // Replace with actual house ID logic
+          house_name: 'your-house-name', // Replace with actual house name logic
+          selected_rooms: [area], // Only the selected room
+        }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to save selection');
       }
-
+  
       console.log(`${area} saved successfully!`);
     } catch (error) {
       console.error('Error sending data to backend:', error);
