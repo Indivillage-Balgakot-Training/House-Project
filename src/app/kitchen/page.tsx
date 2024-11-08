@@ -16,9 +16,9 @@ const KitchenPage = () => {
   const [cabinetImages, setCabinetImages] = useState<KitchenImage[]>([]);
   const [wallImages, setWallImages] = useState<KitchenImage[]>([]);
   const [basinImages, setBasinImages] = useState<KitchenImage[]>([]);
-  
+
   const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>('/images/kitchen.jpg'); // Default cabinet image
-  const [selectedWallImage, setSelectedWallImage] = useState<string>('/images/Wall1.jpg'); // Default wall image
+  const [selectedWallImage, setSelectedWallImage] = useState<string>('/images/kitchen.jpg'); // Default wall image
   const [selectedBasinImage, setSelectedBasinImage] = useState<string>('/images/kitchen.jpg'); // Default basin image
 
   const [isCabinetDropdownOpen, setIsCabinetDropdownOpen] = useState<boolean>(false);
@@ -35,12 +35,10 @@ const KitchenPage = () => {
         const data = await response.json();
         
         if (data.room_name) {
-          // Assuming data contains "images", "cabinet_colors", etc. as per your app.py code
           setCabinetImages(data.cabinet_colors);
           setWallImages(data.wall_colors);
           setBasinImages(data.basin_colors);
-  
-          // Default selected images and colors
+
           if (data.cabinet_colors.length > 0) {
             setSelectedCabinetImage(data.images[0]?.image || '/images/kitchen.jpg');
           }
@@ -59,18 +57,37 @@ const KitchenPage = () => {
     fetchKitchenData();
   }, []);
 
+  // Handle color changes with deselection functionality
   const handleCabinetColorChange = (image: string) => {
-    setSelectedCabinetImage(image);
+    if (image === selectedCabinetImage) {
+      // If the selected color is clicked again, reset to default
+      setSelectedCabinetImage('/images/kitchen.jpg');
+    } else {
+      // Otherwise, set the new selected color
+      setSelectedCabinetImage(image);
+    }
     setIsCabinetDropdownOpen(false);
   };
 
   const handleWallColorChange = (image: string) => {
-    setSelectedWallImage(image);
+    if (image === selectedWallImage) {
+      // If the selected color is clicked again, reset to default
+      setSelectedWallImage('/images/kitchen.jpg');
+    } else {
+      // Otherwise, set the new selected color
+      setSelectedWallImage(image);
+    }
     setIsWallDropdownOpen(false);
   };
 
   const handleBasinColorChange = (image: string) => {
-    setSelectedBasinImage(image);
+    if (image === selectedBasinImage) {
+      // If the selected color is clicked again, reset to default
+      setSelectedBasinImage('/images/kitchen.jpg');
+    } else {
+      // Otherwise, set the new selected color
+      setSelectedBasinImage(image);
+    }
     setIsBasinDropdownOpen(false);
   };
 
@@ -84,7 +101,7 @@ const KitchenPage = () => {
 
   return (
     <div className="flex">
-      <Sidebar currentPage="kitchen" isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} /> {/* Include the sidebar */}
+      <Sidebar currentPage="kitchen" isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className="flex flex-col w-full h-screen">
         <div className="flex flex-1">
           {/* Selection Section for Colors */}
@@ -200,8 +217,8 @@ const KitchenPage = () => {
                   height: '100%',
                   backgroundImage: `url(${selectedCabinetImage})`,
                   backgroundSize: 'cover',
-                  opacity: 1, // Adjust opacity for better overlay
-                  pointerEvents: 'none', // Make sure it's not blocking clicks
+                  opacity: 1,
+                  pointerEvents: 'none',
                 }}
                 className="rounded-lg"
               />
