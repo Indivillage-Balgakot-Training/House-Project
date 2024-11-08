@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { FaHome, FaThLarge, FaBuilding } from 'react-icons/fa';
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight, MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { BiSolidFoodMenu } from "react-icons/bi";
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -20,7 +20,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
 
   // State to track the current page
   const [currentPage, setCurrentPage] = useState<PageKeys>('welcome');
-  const [subMenuOpen, setSubMenuOpen] = useState<boolean>(false); // For submenu toggle in layout
   const [selectedHouse, setSelectedHouse] = useState<string | null>(null); // Track selected house
   
   // Map of pages to their paths
@@ -54,11 +53,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     setSelectedHouse(house); // Set selected house
     router.push('/gallery'); // Navigate to the gallery page (or wherever you want to go)
     toggleSidebar(); // Close the sidebar
-  };
-
-  // Toggle submenu open/close when clicking "Layout"
-  const toggleSubMenu = () => {
-    setSubMenuOpen(prev => !prev);
   };
 
   return (
@@ -103,37 +97,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           </li>
         ))}
 
-        {/* House 1 - This is placed directly under Houses */}
-        {isOpen && (
-          <ul className="mt-2 space-y-2 pl-6">
-            <li
-              key="house1"
-              className={`cursor-pointer p-1 rounded-lg transition-all duration-200 ${selectedHouse === 'House 1' ? 'bg-green-500 text-white scale-105' : 'hover:bg-gray-500'}`}
-              onClick={() => handleHouseSelection('House 1')}
-            >
-              <span className="capitalize">House 1</span>
-            </li>
-          </ul>
-        )}
-
-        {/* Layout item and submenu */}
+        {/* Layout item and submenu directly listed below */}
         <li
           key="layout"
           className={`flex items-center cursor-pointer p-1 rounded-lg transition-all duration-200 ${currentPage === 'layout' ? 'bg-green-500 text-white scale-105' : 'hover:bg-gray-500'}`}
-          onClick={toggleSubMenu} // Toggle Layout submenu
+          onClick={() => handleNavigation('layout')} // Navigate directly to layout
         >
           <span className={`mr-2 transition-opacity duration-300`} style={{ opacity: isOpen ? 1 : 0.7 }}>
             <FaBuilding />
           </span>
           {isOpen && <span className="capitalize">Layout</span>}
-          {isOpen && (
-            <span className="ml-auto">{subMenuOpen ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}</span>
-          )}
         </li>
       </ul>
 
-      {/* Layout Submenu */}
-      {isOpen && subMenuOpen && (
+      {/* Layout Submenu always visible */}
+      {isOpen && (
         <ul className="mt-2 space-y-2 pl-6">
           {['bedroom', 'open-area', 'master-bedroom1', 'master-bedroom2', 'guest-bathroom', 'kitchen'].map((subPage) => (
             <li
