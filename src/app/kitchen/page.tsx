@@ -16,14 +16,16 @@ const KitchenPage = () => {
   const [cabinetImages, setCabinetImages] = useState<KitchenImage[]>([]);
   const [wallImages, setWallImages] = useState<KitchenImage[]>([]);
   const [basinImages, setBasinImages] = useState<KitchenImage[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string>('/images/kitchen.jpg'); // Default image
+  
+  const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>('/images/kitchen.jpg'); // Default cabinet image
+  const [selectedWallImage, setSelectedWallImage] = useState<string>('/images/Wall1.jpg'); // Default wall image
+  const [selectedBasinImage, setSelectedBasinImage] = useState<string>('/images/kitchen.jpg'); // Default basin image
+
   const [isCabinetDropdownOpen, setIsCabinetDropdownOpen] = useState<boolean>(false);
   const [isWallDropdownOpen, setIsWallDropdownOpen] = useState<boolean>(false);
   const [isBasinDropdownOpen, setIsBasinDropdownOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true); // Sidebar state
-  const [selectedCabinetColor, setSelectedCabinetColor] = useState<string | null>(null);
-  const [selectedWallColor, setSelectedWallColor] = useState<string | null>(null);
-  const [selectedBasinColor, setSelectedBasinColor] = useState<string | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -40,11 +42,13 @@ const KitchenPage = () => {
   
           // Default selected images and colors
           if (data.cabinet_colors.length > 0) {
-            setSelectedImage(data.images[0]?.image || '/images/kitchen.jpg');
-            setSelectedCabinetColor(data.cabinet_colors[0] || null);
+            setSelectedCabinetImage(data.images[0]?.image || '/images/kitchen.jpg');
           }
-          if (data.basin_colors.length > 0) {
-            setSelectedBasinColor(data.basin_colors[0] || null);
+          if (data.basins.length > 0) {
+            setSelectedBasinImage(data.basins[0]?.image || '/images/kitchen.jpg');
+          }
+          if (data.walls.length > 0) {
+            setSelectedWallImage(data.walls[0]?.image || '/images/Wall1.jpg');
           }
         }
       } catch (error) {
@@ -55,21 +59,18 @@ const KitchenPage = () => {
     fetchKitchenData();
   }, []);
 
-  const handleCabinetColorChange = (image: string, color: string) => {
-    setSelectedImage(image);
-    setSelectedCabinetColor(color); // Update selected cabinet color
+  const handleCabinetColorChange = (image: string) => {
+    setSelectedCabinetImage(image);
     setIsCabinetDropdownOpen(false);
   };
 
-  const handleWallColorChange = (image: string, color: string) => {
-    setSelectedImage(image);
-    setSelectedWallColor(color); // Update selected wall color
+  const handleWallColorChange = (image: string) => {
+    setSelectedWallImage(image);
     setIsWallDropdownOpen(false);
   };
 
-  const handleBasinColorChange = (image: string, color: string) => {
-    setSelectedImage(image);
-    setSelectedBasinColor(color); // Update selected basin color
+  const handleBasinColorChange = (image: string) => {
+    setSelectedBasinImage(image);
     setIsBasinDropdownOpen(false);
   };
 
@@ -103,8 +104,8 @@ const KitchenPage = () => {
                     {cabinetImages.map((color, index) => (
                       <div
                         key={index}
-                        onClick={() => handleCabinetColorChange(color.image, color.color)}
-                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedCabinetColor === color.color ? 'border-4 border-green-500' : ''}`}
+                        onClick={() => handleCabinetColorChange(color.image)}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedCabinetImage === color.image ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
@@ -132,8 +133,8 @@ const KitchenPage = () => {
                     {wallImages.map((color, index) => (
                       <div
                         key={index}
-                        onClick={() => handleWallColorChange(color.image, color.color)}
-                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedWallColor === color.color ? 'border-4 border-green-500' : ''}`}
+                        onClick={() => handleWallColorChange(color.image)}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedWallImage === color.image ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
@@ -161,8 +162,8 @@ const KitchenPage = () => {
                     {basinImages.map((color, index) => (
                       <div
                         key={index}
-                        onClick={() => handleBasinColorChange(color.image, color.color)}
-                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedBasinColor === color.color ? 'border-4 border-green-500' : ''}`}
+                        onClick={() => handleBasinColorChange(color.image)}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedBasinImage === color.image ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
@@ -178,14 +179,66 @@ const KitchenPage = () => {
 
           {/* Display Selected Image */}
           <div className="w-3/4 flex items-center justify-center flex-col">
-            <Image
-              src={selectedImage}
-              alt="Selected Kitchen"
-              width={1000}
-              height={800}
-              style={{ objectFit: 'cover' }}
-              className="rounded-lg shadow-lg"
-            />
+            <div className="relative">
+              {/* Base kitchen image */}
+              <Image
+                src="/images/kitchen.jpg" // Replace with your default base image
+                alt="Kitchen"
+                width={1000}
+                height={800}
+                style={{ objectFit: 'cover' }}
+                className="rounded-lg shadow-lg"
+              />
+
+              {/* Overlay selected cabinet color */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  width: '100%',
+                  height: '100%',
+                  backgroundImage: `url(${selectedCabinetImage})`,
+                  backgroundSize: 'cover',
+                  opacity: 1, // Adjust opacity for better overlay
+                  pointerEvents: 'none', // Make sure it's not blocking clicks
+                }}
+                className="rounded-lg"
+              />
+
+              {/* Overlay selected wall color */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  width: '100%',
+                  height: '100%',
+                  backgroundImage: `url(${selectedWallImage})`,
+                  backgroundSize: 'cover',
+                  opacity: 0.6,
+                  pointerEvents: 'none',
+                }}
+                className="rounded-lg"
+              />
+
+              {/* Overlay selected basin color */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  width: '100%',
+                  height: '100%',
+                  backgroundImage: `url(${selectedBasinImage})`,
+                  backgroundSize: 'cover',
+                  opacity: 0.6,
+                  pointerEvents: 'none',
+                }}
+                className="rounded-lg"
+              />
+            </div>
+
             {/* Back to Home Button */}
             <button
               onClick={handleBackToHome}
