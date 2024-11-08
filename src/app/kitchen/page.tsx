@@ -27,27 +27,32 @@ const KitchenPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchKitchenImages = async () => {
+    const fetchKitchenData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/kitchen/images');
+        const response = await fetch('http://localhost:5000/kitchen-data?room_name=Kitchen');
         const data = await response.json();
-        setCabinetImages(data.cabinets);
-        setWallImages(data.walls);
-        setBasinImages(data.basins);
-        if (data.cabinets.length > 0) {
-          setSelectedImage(data.cabinets[0].image);
-          setSelectedCabinetColor(data.cabinets[0].color); // Default cabinet color
-        }
-        if (data.basins.length > 0) {
-          setSelectedImage(data.basins[0].image); // Default basin image
-          setSelectedBasinColor(data.basins[0].color); // Default basin color
+        
+        if (data.room_name) {
+          // Assuming data contains "images", "cabinet_colors", etc. as per your app.py code
+          setCabinetImages(data.cabinet_colors);
+          setWallImages(data.wall_colors);
+          setBasinImages(data.basin_colors);
+  
+          // Default selected images and colors
+          if (data.cabinet_colors.length > 0) {
+            setSelectedImage(data.images[0]?.image || '/images/kitchen.jpg');
+            setSelectedCabinetColor(data.cabinet_colors[0] || null);
+          }
+          if (data.basin_colors.length > 0) {
+            setSelectedBasinColor(data.basin_colors[0] || null);
+          }
         }
       } catch (error) {
-        console.error('Error fetching kitchen images:', error);
+        console.error('Error fetching kitchen data:', error);
       }
     };
-
-    fetchKitchenImages();
+  
+    fetchKitchenData();
   }, []);
 
   const handleCabinetColorChange = (image: string, color: string) => {

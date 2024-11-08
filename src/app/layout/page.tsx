@@ -41,7 +41,7 @@ const ImageMapComponent: React.FC = () => {
   // Handle click on an area and send data to the backend
   const handleClick = async (area: string) => {
     console.log(`Clicked on ${area}`);
-  
+
     // Send selected room to the Flask backend
     try {
       const response = await fetch('http://localhost:5000/select-room', { // Update URL to your Flask backend
@@ -55,12 +55,20 @@ const ImageMapComponent: React.FC = () => {
           selected_rooms: [area], // Only the selected room
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to save selection');
       }
-  
+
       console.log(`${area} saved successfully!`);
+
+      // Navigate to the kitchen page if the area is 'kitchen'
+      if (area === 'kitchen') {
+        router.push('/kitchen'); // Navigate to the kitchen page
+      } else {
+        // Handle other areas (you can add logic for other areas as needed)
+        console.log(`Navigating to ${area}`);
+      }
     } catch (error) {
       console.error('Error sending data to backend:', error);
     }
