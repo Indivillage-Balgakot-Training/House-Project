@@ -76,7 +76,7 @@ const GalleryPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <div className="w-1/4 bg-white shadow-md p-4">
+      <div className="w-1/6 bg-gray-400 shadow-md p-4">
         <h2 className="text-xl font-bold mb-4">Select a House</h2>
         {loading ? (
           <p>Loading...</p>
