@@ -66,7 +66,7 @@ const KitchenPage = () => {
       // Otherwise, set the new selected color
       setSelectedCabinetImage(image);
     }
-    setIsCabinetDropdownOpen(false);
+    //setIsCabinetDropdownOpen(false);
   };
 
   const handleWallColorChange = (image: string) => {
@@ -77,7 +77,7 @@ const KitchenPage = () => {
       // Otherwise, set the new selected color
       setSelectedWallImage(image);
     }
-    setIsWallDropdownOpen(false);
+    //setIsWallDropdownOpen(false);
   };
 
   const handleBasinColorChange = (image: string) => {
@@ -88,7 +88,7 @@ const KitchenPage = () => {
       // Otherwise, set the new selected color
       setSelectedBasinImage(image);
     }
-    setIsBasinDropdownOpen(false);
+    //setIsBasinDropdownOpen(false);
   };
 
   const handleBackToHome = () => {
@@ -122,7 +122,7 @@ const KitchenPage = () => {
                       <div
                         key={index}
                         onClick={() => handleCabinetColorChange(color.image)}
-                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedCabinetImage === color.image ? 'border-4 border-green-500' : ''}`}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCabinetImage === color.image ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
@@ -151,7 +151,7 @@ const KitchenPage = () => {
                       <div
                         key={index}
                         onClick={() => handleWallColorChange(color.image)}
-                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedWallImage === color.image ? 'border-4 border-green-500' : ''}`}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
@@ -180,7 +180,7 @@ const KitchenPage = () => {
                       <div
                         key={index}
                         onClick={() => handleBasinColorChange(color.image)}
-                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-2 ${selectedBasinImage === color.image ? 'border-4 border-green-500' : ''}`}
+                        className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedBasinImage === color.image ? 'border-4 border-green-500' : ''}`}
                       >
                         <div
                           className="w-8 h-8 rounded shadow-md"
