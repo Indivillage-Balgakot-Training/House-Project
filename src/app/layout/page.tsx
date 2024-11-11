@@ -2,77 +2,105 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import Sidebar from './Sidebar'; // Ensure the casing matches
+import { useSearchParams, useRouter } from 'next/navigation'; // useSearchParams to access query params
+import Sidebar from './Sidebar';
 
-const ImageMapComponent: React.FC = () => {
-  const [layoutData, setLayoutData] = useState<any[]>([]); // Array of layout data
-  const [hoveredArea, setHoveredArea] = useState<string | null>(null); // Track the area that is being hovered
+// Define a type for the layout data
+interface LayoutData {
+  rooms_image: string;
+  rooms: string[];
+}
+
+const LayoutPage = () => {
+  const [layoutData, setLayoutData] = useState<LayoutData | null>(null); // Now it's an object or null
+  const [hoveredArea, setHoveredArea] = useState<string | null>(null); // Track the area being hovered
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Fetch layout data
+  // Get query parameters from the URL
+  const houseId = searchParams.get('house_id');
+  const sessionId = searchParams.get('session_id');
+  const houseName = searchParams.get('house_name');
+  const [error, setError] = useState<string | null>(null); // State hook for error
+
+
+  // Log the parameters to check if they're being extracted correctly
   useEffect(() => {
+    if (!houseId || !sessionId ) {
+      console.error("Missing house_id, or session_id");
+      return;
+    }
+
+    console.log('Received from query params:', { houseId, sessionId, houseName });
+
     const fetchLayoutData = async () => {
       try {
-        const layoutResponse = await fetch('http://localhost:5000/layout'); // Fetch from your API
-        if (!layoutResponse.ok) throw new Error('Failed to fetch layout data');
-
-        const layoutData = await layoutResponse.json();
-        setLayoutData(layoutData);
+        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}/${houseName}`);
+        if (!layoutResponse.ok) {
+          throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
+        }
+        const data: LayoutData = await layoutResponse.json();
+        setLayoutData(data); // Set the response data
       } catch (error) {
         console.error('Error fetching layout data:', error);
       }
     };
 
     fetchLayoutData();
-  }, []);
+  }, [houseId, houseName, sessionId]); // Re-run effect when params change
 
-  // Handle mouse enter on an area
+  // Handle mouse enter event (to highlight the area)
   const handleMouseEnter = (area: string) => {
     setHoveredArea(area);
   };
 
-  // Handle mouse leave from an area
+  // Handle mouse leave event (to remove the highlight)
   const handleMouseLeave = () => {
     setHoveredArea(null);
   };
 
-  // Handle click on an area and send data to the backend
+  // Handle click event on a room area
   const handleClick = async (area: string) => {
     console.log(`Clicked on ${area}`);
 
-    // Send selected room to the Flask backend
+    // Check if houseId, houseName, and sessionId are valid
+    if (!houseId || !sessionId || !area) {
+      console.error("Missing houseId, sessionId, or area");
+      return;
+    }
+
+    const requestData = {
+      house_id: houseId,
+      session_id: sessionId,
+      selected_rooms: [area], // Send selected room in an array
+    };
+
+    console.log("Sending data to backend:", requestData);  // Check what is being sent
+
     try {
-      const response = await fetch('http://localhost:5000/select-room', { // Update URL to your Flask backend
+      const response = await fetch('http://localhost:5000/select-room', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          house_id: 'your-house-id', // Replace with actual house ID logic
-          house_name: 'your-house-name', // Replace with actual house name logic
-          selected_rooms: [area], // Only the selected room
-        }),
+        body: JSON.stringify(requestData),
       });
 
       if (!response.ok) {
         throw new Error('Failed to save selection');
       }
 
+      const result = await response.json();
       console.log(`${area} saved successfully!`);
 
-      // Navigate to the kitchen page if the area is 'kitchen'
-      if (area === 'kitchen') {
-        router.push('/kitchen'); // Navigate to the kitchen page
-      } else {
-        // Handle other areas (you can add logic for other areas as needed)
-        console.log(`Navigating to ${area}`);
-      }
+      // Navigate to the selected room's page dynamically
+      router.push(`/${area}?house_id=${houseId}&session_id=${sessionId}&house_name=${houseName}`);
+
     } catch (error) {
       console.error('Error sending data to backend:', error);
     }
-  };
+};
 
   return (
     <div className="flex">
@@ -81,80 +109,73 @@ const ImageMapComponent: React.FC = () => {
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
-      <div className={`flex-grow transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
-        <div className="flex items-center justify-center h-screen">
-          <div className="relative">
-            <Image
-              src="/image2.jpg" // Ensure this image exists
-              alt="Home Section"
-              width={800}
-              height={600}
-              useMap="#image-map"
+      <div className={`flex-grow ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
+        <div className="relative">
+          {/* Now using layoutData safely as an object */}
+          <Image
+            src={layoutData?.rooms_image || "/image2.jpg"} // Safe access with optional chaining
+            alt="Layout Image"
+            width={800}
+            height={600}
+            useMap="#image-map"
+          />
+          <map name="image-map">
+            <area
+              target="_self"
+              alt="Gallery Area"
+              title="Go to Gallery"
+              href="/gallery" // Link back to the gallery
+              coords="791,46,755,11"
+              shape="rect"
             />
-            <map name="image-map">
-              {/* Predefined clickable areas */}
-              <area
-                target="_self"
-                alt="Gallery Area"
-                title="Go to Gallery"
-                href="/gallery"
-                coords="791,46,755,11"
-                shape="rect"
-                onClick={(e) => {
-                  e.preventDefault();
-                  router.push('/gallery');
-                }}
-              />
-            </map>
-
-            {/* Other clickable areas */}
-            <div
-              className={`absolute ${hoveredArea === 'bedroom' ? 'bg-red-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-              onMouseEnter={() => handleMouseEnter('bedroom')}
-              onMouseLeave={handleMouseLeave}
-              onClick={() => handleClick('bedroom')}
-              style={{ left: '83px', top: '61px', width: '185px', height: '278px', zIndex: 10 }}
-            />
-            <div
-              className={`absolute ${hoveredArea === 'openArea' ? 'bg-green-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-              onMouseEnter={() => handleMouseEnter('openArea')}
-              onMouseLeave={handleMouseLeave}
-              onClick={() => handleClick('openArea')}
-              style={{ left: '268px', top: '59px', width: '119px', height: '280px', zIndex: 10 }}
-            />
-            <div
-              className={`absolute ${hoveredArea === 'masterBedroom2' ? 'bg-blue-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-              onMouseEnter={() => handleMouseEnter('masterBedroom2')}
-              onMouseLeave={handleMouseLeave}
-              onClick={() => handleClick('masterBedroom2')}
-              style={{ left: '388px', top: '58px', width: '163px', height: '281px', zIndex: 10 }}
-            />
-            <div
-              className={`absolute ${hoveredArea === 'masterBedroom1' ? 'bg-yellow-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-              onMouseEnter={() => handleMouseEnter('masterBedroom1')}
-              onMouseLeave={handleMouseLeave}
-              onClick={() => handleClick('masterBedroom1')}
-              style={{ left: '551px', top: '59px', width: '180px', height: '280px', zIndex: 10 }}
-            />
-            <div
-              className={`absolute ${hoveredArea === 'guestBathroom' ? 'bg-purple-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-              onMouseEnter={() => handleMouseEnter('guestBathroom')}
-              onMouseLeave={handleMouseLeave}
-              onClick={() => handleClick('guestBathroom')}
-              style={{ left: '80px', top: '337px', width: '189px', height: '134px', zIndex: 10 }}
-            />
-            <div
-              className={`absolute ${hoveredArea === 'kitchen' ? 'bg-orange-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-              onMouseEnter={() => handleMouseEnter('kitchen')}
-              onMouseLeave={handleMouseLeave}
-              onClick={() => handleClick('kitchen')}
-              style={{ left: '552px', top: '341px', width: '180px', height: '131px', zIndex: 10 }}
-            />
-          </div>
+          </map>
+          {/* Other clickable areas */}
+          <div
+            className={`absolute ${hoveredArea === 'bedroom' ? 'bg-red-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+            onMouseEnter={() => handleMouseEnter('bedroom')}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick('bedroom')}
+            style={{ left: '83px', top: '61px', width: '185px', height: '278px', zIndex: 10 }}
+          />
+          <div
+            className={`absolute ${hoveredArea === 'openArea' ? 'bg-green-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+            onMouseEnter={() => handleMouseEnter('openArea')}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick('openArea')}
+            style={{ left: '268px', top: '59px', width: '119px', height: '280px', zIndex: 10 }}
+          />
+          <div
+            className={`absolute ${hoveredArea === 'masterBedroom2' ? 'bg-blue-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+            onMouseEnter={() => handleMouseEnter('masterBedroom2')}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick('masterBedroom2')}
+            style={{ left: '388px', top: '58px', width: '163px', height: '281px', zIndex: 10 }}
+          />
+          <div
+            className={`absolute ${hoveredArea === 'masterBedroom1' ? 'bg-yellow-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+            onMouseEnter={() => handleMouseEnter('masterBedroom1')}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick('masterBedroom1')}
+            style={{ left: '551px', top: '59px', width: '180px', height: '280px', zIndex: 10 }}
+          />
+          <div
+            className={`absolute ${hoveredArea === 'guestBathroom' ? 'bg-purple-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+            onMouseEnter={() => handleMouseEnter('guestBathroom')}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick('guestBathroom')}
+            style={{ left: '80px', top: '337px', width: '189px', height: '134px', zIndex: 10 }}
+          />
+          <div
+            className={`absolute ${hoveredArea === 'kitchen' ? 'bg-orange-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+            onMouseEnter={() => handleMouseEnter('kitchen')}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick('kitchen')}
+            style={{ left: '552px', top: '341px', width: '180px', height: '131px', zIndex: 10 }}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export default ImageMapComponent;
+export default LayoutPage;

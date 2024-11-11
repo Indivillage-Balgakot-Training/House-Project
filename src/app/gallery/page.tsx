@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface House {
-  id: string;
+  house_id: string;  // Renamed to match the backend
   house_name: string;
-  house_image: string; // Image name (e.g., "house1.jpg")
-  description: string;
+  house_image: string;
+  description?: string;  // Description is optional since it's not in the backend
 }
 
 const GalleryPage = () => {
@@ -48,7 +48,7 @@ const GalleryPage = () => {
 
   const handleImageClick = async () => {
     if (selectedHouse) {
-      // Store the selected house in the database
+      // Store the selected house in the database along with session ID
       try {
         const response = await fetch('http://127.0.0.1:5000/select-house', {
           method: 'POST',
@@ -56,31 +56,43 @@ const GalleryPage = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            house_id: selectedHouse.id,
+            house_id: selectedHouse.house_id,  // Use house_id instead of id
             house_name: selectedHouse.house_name, // Send house name
           }),
         });
-  
+
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.error || 'Failed to select house');
         }
-  
-        console.log(data.message); // Success message
-        router.push('/layout'); // Navigate to layout or desired page
+
+        // After selection, we get the session ID, house_id, and house_name from the response
+        const { session_id, house_id, house_name } = data;
+        console.log('House Selected:', { session_id, house_id, house_name });
+
+        // Redirect to layout page with house_id and session_id as URL parameters
+        router.push(`/layout?house_id=${house_id}&session_id=${session_id}`);
       } catch (error) {
         console.error('Error selecting house:', error);
       }
     }
   };
 
+  // Show loading spinner or error message
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="spinner"></div> {/* You can add a CSS spinner here */}
+        <p>Loading houses...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <div className="w-1/6 bg-gray-400 shadow-md p-4">
         <h2 className="text-xl font-bold mb-4">Select a House</h2>
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
+        {error ? (
           <p className="text-red-500">{error}</p>
         ) : (
           <select
@@ -89,7 +101,7 @@ const GalleryPage = () => {
             value={selectedHouse ? houses.indexOf(selectedHouse) : ''}
           >
             {houses.map((house, index) => (
-              <option key={house.id} value={index}>
+              <option key={house.house_id} value={index}>
                 {house.house_name}
               </option>
             ))}
@@ -98,13 +110,11 @@ const GalleryPage = () => {
       </div>
 
       <div className="w-3/4 flex flex-col items-center justify-center p-8">
-        {loading ? (
-          <p>Loading...</p>
-        ) : selectedHouse ? (
+        {selectedHouse ? (
           <>
             <h1 className="text-4xl font-bold mb-4">{selectedHouse.house_name}</h1>
             <Image
-              src={`${selectedHouse.house_image}`} // Correctly referencing the image in the public folder
+              src={selectedHouse.house_image} // Correctly referencing the image in the public folder
               alt={selectedHouse.house_name}
               width={600}
               height={400}
@@ -112,7 +122,7 @@ const GalleryPage = () => {
               className="rounded-lg shadow-lg cursor-pointer"
               onClick={handleImageClick} // Call handleImageClick on image click
             />
-            <p className="mt-4 text-center">{selectedHouse.description}</p>
+            <p className="mt-4 text-center">{selectedHouse.description || "No description available."}</p>
             <Link href="/" className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
               Back to Home
             </Link>
