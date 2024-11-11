@@ -84,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         ].map(({ id, icon, label }) => (
           <li
             key={id}
-            className={`flex items-center cursor-pointer p-1 rounded-lg transition-all duration-200 ${currentPage === id ? 'bg-green-500 text-white scale-105' : 'hover:bg-gray-500'}`}
+            className={`flex items-center cursor-pointer p-1 rounded-lg transition-all duration-200 ${currentPage === id ? 'bg-green-500 text-white scale-105' : 'hover:bg-green-200'}`}
             onClick={() => handleNavigation(id as PageKeys)} // Handle click for main navigation
             role="button"
             tabIndex={0}
@@ -100,7 +100,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         {/* Layout item and submenu directly listed below */}
         <li
           key="layout"
-          className={`flex items-center cursor-pointer p-1 rounded-lg transition-all duration-200 ${currentPage === 'layout' ? 'bg-green-500 text-white scale-105' : 'hover:bg-gray-500'}`}
+          className={`flex items-center cursor-pointer p-1 rounded-lg transition-all duration-200 ${currentPage === 'layout' ? 'bg-green-500 text-white scale-105' : 'hover:bg-green-200'}`}
           onClick={() => handleNavigation('layout')} // Navigate directly to layout
         >
           <span className={`mr-2 transition-opacity duration-300`} style={{ opacity: isOpen ? 1 : 0.7 }}>
@@ -116,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           {['bedroom', 'open-area', 'master-bedroom1', 'master-bedroom2', 'guest-bathroom', 'kitchen'].map((subPage) => (
             <li
               key={subPage}
-              className={`cursor-pointer p-1 rounded-lg transition-all duration-200 ${pathname.includes(subPage) ? 'bg-green-500 text-white scale-105' : 'hover:bg-gray-500'}`}
+              className={`cursor-pointer p-1 rounded-lg transition-all duration-200 ${pathname.includes(subPage) ? 'bg-green-500 text-white scale-105' : 'hover:bg-green-200'}`}
               onClick={() => handleNavigation(subPage as PageKeys)}
             >
               <span className="capitalize">{subPage.replace('-', ' ')}</span>
