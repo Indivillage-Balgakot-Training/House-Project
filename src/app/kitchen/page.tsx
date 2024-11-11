@@ -219,6 +219,8 @@ const KitchenPage = () => {
                   backgroundSize: 'cover',
                   opacity: 1,
                   pointerEvents: 'none',
+                  mixBlendMode: 'overlay',
+                  filter: 'brightness(1.2) saturation(1.5)',
                 }}
                 className="rounded-lg"
               />
@@ -235,6 +237,8 @@ const KitchenPage = () => {
                   backgroundSize: 'cover',
                   opacity: 0.6,
                   pointerEvents: 'none',
+                  mixBlendMode: 'multiply',
+                  filter: 'brightness(1.0) saturation(1.5)',
                 }}
                 className="rounded-lg"
               />
@@ -251,6 +255,8 @@ const KitchenPage = () => {
                   backgroundSize: 'cover',
                   opacity: 0.6,
                   pointerEvents: 'none',
+                  mixBlendMode: 'multiply',
+                  filter: 'brightness(1.0) saturation(1.5)',
                 }}
                 className="rounded-lg"
               />
