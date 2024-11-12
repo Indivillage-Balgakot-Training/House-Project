@@ -95,7 +95,7 @@ const LayoutPage = () => {
       console.log(`${area} saved successfully!`);
 
       // Navigate to the selected room's page dynamically
-      router.push(`/${area}?house_id=${houseId}&session_id=${sessionId}&house_name=${houseName}`);
+      router.push(`/${area}?house_id=${houseId}&session_id=${sessionId}`);
 
     } catch (error) {
       console.error('Error sending data to backend:', error);
