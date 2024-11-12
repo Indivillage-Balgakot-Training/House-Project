@@ -31,7 +31,7 @@ const KitchenPage = () => {
   useEffect(() => {
     const fetchKitchenData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/kitchen-data?room_name=Kitchen');
+        const response = await fetch('http://localhost:5000/room-data?room_name=Kitchen');
         const data = await response.json();
         
         if (data.room_name) {

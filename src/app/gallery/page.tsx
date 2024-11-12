@@ -57,7 +57,6 @@ const GalleryPage = () => {
           },
           body: JSON.stringify({
             house_id: selectedHouse.house_id,  // Use house_id instead of id
-            house_name: selectedHouse.house_name, // Send house name
           }),
         });
 
@@ -67,8 +66,8 @@ const GalleryPage = () => {
         }
 
         // After selection, we get the session ID, house_id, and house_name from the response
-        const { session_id, house_id, house_name } = data;
-        console.log('House Selected:', { session_id, house_id, house_name });
+        const { session_id, house_id } = data;
+        console.log('House Selected:', { session_id, house_id});
 
         // Redirect to layout page with house_id and session_id as URL parameters
         router.push(`/layout?house_id=${house_id}&session_id=${session_id}`);

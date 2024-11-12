@@ -32,7 +32,7 @@ const LayoutPage = () => {
       return;
     }
 
-    console.log('Received from query params:', { houseId, sessionId, houseName });
+    console.log('Received from query params:', { houseId, sessionId });
 
     const fetchLayoutData = async () => {
       try {
