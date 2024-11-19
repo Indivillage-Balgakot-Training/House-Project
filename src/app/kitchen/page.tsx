@@ -1,9 +1,9 @@
 "use client"; // Mark the component as a Client Component
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import Sidebar from '../layout/Sidebar'; // Ensure the casing matches
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Sidebar from "../layout/Sidebar"; // Ensure the casing matches
 
 // Define types for kitchen images
 interface KitchenImage {
@@ -17,9 +17,9 @@ const KitchenPage = () => {
   const [wallImages, setWallImages] = useState<KitchenImage[]>([]);
   const [basinImages, setBasinImages] = useState<KitchenImage[]>([]);
 
-  const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>('/images/kitchen.jpg'); // Default cabinet image
-  const [selectedWallImage, setSelectedWallImage] = useState<string>('/images/kitchen.jpg'); // Default wall image
-  const [selectedBasinImage, setSelectedBasinImage] = useState<string>('/images/kitchen.jpg'); // Default basin image
+  const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>("/images/kitchen.jpg"); // Default cabinet image
+  const [selectedWallImage, setSelectedWallImage] = useState<string>("/images/kitchen.jpg"); // Default wall image
+  const [selectedBasinImage, setSelectedBasinImage] = useState<string>("/images/kitchen.jpg"); // Default basin image
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true); // Sidebar state
 
@@ -28,69 +28,101 @@ const KitchenPage = () => {
   useEffect(() => {
     const fetchKitchenData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/room-data?room_name=Kitchen');
+        const response = await fetch("http://localhost:5000/room-data?room_name=Kitchen");
         const data = await response.json();
-        
+
         if (data.room_name) {
           setCabinetImages(data.cabinet_colors);
           setWallImages(data.wall_colors);
           setBasinImages(data.basin_colors);
 
           if (data.cabinet_colors.length > 0) {
-            setSelectedCabinetImage(data.images[0]?.image || '/images/kitchen.jpg');
+            setSelectedCabinetImage(data.cabinet_colors[0]?.image || "/images/kitchen.jpg");
           }
           if (data.basins.length > 0) {
-            setSelectedBasinImage(data.basins[0]?.image || '/images/kitchen.jpg');
+            setSelectedBasinImage(data.basins[0]?.image || "/images/kitchen.jpg");
           }
           if (data.walls.length > 0) {
-            setSelectedWallImage(data.walls[0]?.image || '/images/Wall1.jpg');
+            setSelectedWallImage(data.walls[0]?.image || "/images/Wall1.jpg");
           }
         }
       } catch (error) {
-        console.error('Error fetching kitchen data:', error);
+        console.error("Error fetching kitchen data:", error);
       }
     };
-  
+
     fetchKitchenData();
   }, []);
 
-  // Handle color changes with deselection functionality
-  const handleCabinetColorChange = (image: string) => {
+  // Function to update selection in the backend
+  const updateSelection = async () => {
+    const cabinetColor = selectedCabinetImage !== "/images/kitchen.jpg" ? selectedCabinetImage : null;
+    const wallColor = selectedWallImage !== "/images/kitchen.jpg" ? selectedWallImage : null;
+    const basinColor = selectedBasinImage !== "/images/kitchen.jpg" ? selectedBasinImage : null;
+
+    const data = {
+      house_id: "house-001", // Replace with actual house ID
+      session_id: "8ed6a495-bff6-4be0-8fda-cdfa788c99bb", // Replace with actual session ID if required
+      selected_rooms: ["kitchen"], // Assume we are always working with the kitchen room
+      cabinet_colors: cabinetColor ? [cabinetColor] : [], // Only send if color is selected
+      wall_colors: wallColor ? [wallColor] : [], // Only send if color is selected
+      basin_colors: basinColor ? [basinColor] : [], // Only send if color is selected
+    };
+
+    console.log("Data being sent to the backend:", data); // Debugging line
+
+    try {
+      const response = await fetch("http://localhost:5000/select-room", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      console.log("Color selection updated:", result);
+    } catch (error) {
+      console.error("Error updating selection:", error);
+    }
+  };
+
+  const handleCabinetColorChange = (color: string, image: string) => {
+    console.log("Selected cabinet color:", color); // Debugging line
     if (image === selectedCabinetImage) {
-      // If the selected color is clicked again, reset to default
-      setSelectedCabinetImage('/images/kitchen.jpg');
+      setSelectedCabinetImage("/images/kitchen.jpg"); // Deselect if it's already selected
     } else {
-      // Otherwise, set the new selected color
-      setSelectedCabinetImage(image);
+      setSelectedCabinetImage(image); // Select new color
+      updateSelection(); // Update backend with the new color
     }
   };
 
-  const handleWallColorChange = (image: string) => {
+  const handleWallColorChange = (color: string, image: string) => {
+    console.log("Selected wall color:", color); // Debugging line
     if (image === selectedWallImage) {
-      // If the selected color is clicked again, reset to default
-      setSelectedWallImage('/images/kitchen.jpg');
+      setSelectedWallImage("/images/kitchen.jpg"); // Deselect if it's already selected
     } else {
-      // Otherwise, set the new selected color
-      setSelectedWallImage(image);
+      setSelectedWallImage(image); // Select new color
+      updateSelection(); // Update backend with the new color
     }
   };
 
-  const handleBasinColorChange = (image: string) => {
+  const handleBasinColorChange = (color: string, image: string) => {
+    console.log("Selected basin color:", color); // Debugging line
     if (image === selectedBasinImage) {
-      // If the selected color is clicked again, reset to default
-      setSelectedBasinImage('/images/kitchen.jpg');
+      setSelectedBasinImage("/images/kitchen.jpg"); // Deselect if it's already selected
     } else {
-      // Otherwise, set the new selected color
-      setSelectedBasinImage(image);
+      setSelectedBasinImage(image); // Select new color
+      updateSelection(); // Update backend with the new color
     }
   };
 
   const handleBackToHome = () => {
-    router.push('/gallery');
+    router.push("/gallery");
   };
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(prev => !prev);
+    setIsSidebarOpen((prev) => !prev);
   };
 
   return (
@@ -108,8 +140,8 @@ const KitchenPage = () => {
                 {cabinetImages.map((color, index) => (
                   <div
                     key={index}
-                    onClick={() => handleCabinetColorChange(color.image)}
-                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCabinetImage === color.image ? 'border-4 border-green-500' : ''}`}
+                    onClick={() => handleCabinetColorChange(color.color, color.image)}
+                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCabinetImage === color.image ? "border-4 border-green-500" : ""}`}
                   >
                     <div
                       className="w-8 h-8 rounded shadow-md"
@@ -128,8 +160,8 @@ const KitchenPage = () => {
                 {wallImages.map((color, index) => (
                   <div
                     key={index}
-                    onClick={() => handleWallColorChange(color.image)}
-                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? 'border-4 border-green-500' : ''}`}
+                    onClick={() => handleWallColorChange(color.color, color.image)}
+                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? "border-4 border-green-500" : ""}`}
                   >
                     <div
                       className="w-8 h-8 rounded shadow-md"
@@ -148,8 +180,8 @@ const KitchenPage = () => {
                 {basinImages.map((color, index) => (
                   <div
                     key={index}
-                    onClick={() => handleBasinColorChange(color.image)}
-                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedBasinImage === color.image ? 'border-4 border-green-500' : ''}`}
+                    onClick={() => handleBasinColorChange(color.color, color.image)}
+                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedBasinImage === color.image ? "border-4 border-green-500" : ""}`}
                   >
                     <div
                       className="w-8 h-8 rounded shadow-md"
@@ -170,71 +202,54 @@ const KitchenPage = () => {
                 alt="Kitchen"
                 width={1000}
                 height={800}
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: "cover" }}
                 className="rounded-lg shadow-lg"
               />
 
               {/* Overlay selected cabinet color */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
-                  width: '100%',
-                  height: '100%',
+                  position: "absolute",
+                  top: "0",
+                  left: "0",
+                  width: "100%",
+                  height: "100%",
                   backgroundImage: `url(${selectedCabinetImage})`,
-                  backgroundSize: 'cover',
-                  opacity: 1,
-                  pointerEvents: 'none',
-                  mixBlendMode: 'overlay',
-                  filter: 'brightness(1.2) saturation(1.5)',
+                  backgroundSize: "cover",
+                  opacity: 0.5,
                 }}
-                className="rounded-lg"
               />
 
               {/* Overlay selected wall color */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
-                  width: '100%',
-                  height: '100%',
+                  position: "absolute",
+                  top: "0",
+                  left: "0",
+                  width: "100%",
+                  height: "100%",
                   backgroundImage: `url(${selectedWallImage})`,
-                  backgroundSize: 'cover',
-                  opacity: 0.6,
-                  pointerEvents: 'none',
-                  mixBlendMode: 'multiply',
-                  filter: 'brightness(1.0) saturation(1.5)',
+                  backgroundSize: "cover",
+                  opacity: 0.3,
                 }}
-                className="rounded-lg"
               />
 
               {/* Overlay selected basin color */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
-                  width: '100%',
-                  height: '100%',
+                  position: "absolute",
+                  top: "0",
+                  left: "0",
+                  width: "100%",
+                  height: "100%",
                   backgroundImage: `url(${selectedBasinImage})`,
-                  backgroundSize: 'cover',
-                  opacity: 0.6,
-                  pointerEvents: 'none',
-                  mixBlendMode: 'multiply',
-                  filter: 'brightness(1.0) saturation(1.5)',
+                  backgroundSize: "cover",
+                  opacity: 0.4,
                 }}
-                className="rounded-lg"
               />
             </div>
-
-            {/* Back to Home Button */}
-            <button
-              onClick={handleBackToHome}
-              className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
-            >
-              Back to House
+            <button onClick={handleBackToHome} className="mt-4 text-white bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg">
+              Back to Home
             </button>
           </div>
         </div>
