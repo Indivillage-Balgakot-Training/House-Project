@@ -216,8 +216,12 @@ const KitchenPage = () => {
                   height: "100%",
                   backgroundImage: `url(${selectedCabinetImage})`,
                   backgroundSize: "cover",
-                  opacity: 0.5,
+                  opacity: 1,
+                  pointerEvents: 'none',
+                  mixBlendMode: 'overlay',
+                  filter: 'brightness(1.2) saturation(1.5)',
                 }}
+                className="rounded-lg"
               />
 
               {/* Overlay selected wall color */}
@@ -230,8 +234,12 @@ const KitchenPage = () => {
                   height: "100%",
                   backgroundImage: `url(${selectedWallImage})`,
                   backgroundSize: "cover",
-                  opacity: 0.3,
+                  opacity: 0.6,
+                  pointerEvents: 'none',
+                  mixBlendMode: 'multiply',
+                  filter: 'brightness(1.0) saturation(1.5)',
                 }}
+                className="rounded-lg"
               />
 
               {/* Overlay selected basin color */}
@@ -244,11 +252,15 @@ const KitchenPage = () => {
                   height: "100%",
                   backgroundImage: `url(${selectedBasinImage})`,
                   backgroundSize: "cover",
-                  opacity: 0.4,
+                  opacity: 0.6,
+                  pointerEvents: 'none',
+                  mixBlendMode: 'multiply',
+                  filter: 'brightness(1.0) saturation(1.5)',
                 }}
+                className="rounded-lg"
               />
             </div>
-            <button onClick={handleBackToHome} className="mt-4 text-white bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded-lg">
+            <button onClick={handleBackToHome} className="mt-4 px-4 py-2  text-black bg-yellow-500 hover:bg-yellow-400 shadow-lg  rounded-lg transition ">
               Back to Home
             </button>
           </div>
