@@ -98,16 +98,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         <ul className="space-y-4">
         {/* Display Selected House */}
         {selectedHouse && isOpen && (
-          <li key="selected-house" className="flex items-center p-1 mt-2 rounded-lg transition-all duration-200 text-black">
-            <div className="mr-2 pl-6">
-              <Image 
-                src={selectedHouse.house_image} 
-                alt={selectedHouse.house_name} 
-                width={50} 
-                height={50} 
-                className="rounded-full object-cover"
-              />
-            </div>
+          <li key="selected-house" className="flex items-center p-1 rounded-lg transition-all duration-200 text-black pl-7 mt-4">
             <span>{selectedHouse.house_name}</span>
           </li>
         )}
