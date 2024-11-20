@@ -5,6 +5,8 @@ import { FaHome, FaThLarge, FaBuilding } from 'react-icons/fa';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { BiSolidFoodMenu } from "react-icons/bi";
 import { usePathname, useRouter } from 'next/navigation';
+import { useSelectedHouse } from '../contexts/SelectedHouseContext';  // Import the context hook
+import Image from 'next/image'; // Add Image import
 
 interface SidebarProps {
   currentPage: string;
@@ -17,11 +19,11 @@ type PageKeys = 'welcome' | 'houses' | 'layout' | 'kitchen';
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const pathname = usePathname();  // Get the current path
   const router = useRouter();  // Access the router for navigation
+  const { selectedHouse } = useSelectedHouse(); // Access the selected house from the context
 
   // State to track the current page
   const [currentPage, setCurrentPage] = useState<PageKeys>('welcome');
-  const [selectedHouse, setSelectedHouse] = useState<string | null>(null); // Track selected house
-  
+
   // Map of pages to their paths
   const pages: Record<PageKeys, string> = {
     welcome: '/',
@@ -32,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
 
   useEffect(() => {
     const path = pathname;
-    
+
     if (!path) return; // Guard against undefined or null path
 
     // Check which page the path corresponds to and set it as the currentPage
@@ -50,7 +52,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
 
   // Handle house selection
   const handleHouseSelection = (house: string) => {
-    setSelectedHouse(house); // Set selected house
+    // You can pass the house name or house object to context to set it
+    // Assuming the selected house contains properties such as house_name and house_image
     router.push('/gallery'); // Navigate to the gallery page (or wherever you want to go)
     toggleSidebar(); // Close the sidebar
   };
@@ -70,21 +73,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           {isOpen ? <MdKeyboardArrowLeft /> : <MdKeyboardArrowRight />}
         </button>
       </div>
-      
-      <ul className="space-y-4">
+
+     
+        {/* Other links like Kitchen, Layout */}
         {[ 
           { id: 'welcome', icon: <FaHome />, label: 'Welcome' },
-
-          // Houses section with House 1 directly below it
-          {
-            id: 'houses', 
-            icon: <FaThLarge />, 
-            label: 'Houses'
-          },
+          { id: 'houses', icon: <FaThLarge />, label: 'Houses' },
         ].map(({ id, icon, label }) => (
           <li
             key={id}
-            className={`flex items-center cursor-pointer p-1 rounded-lg transition-all duration-200 ${currentPage === id ? 'bg-green-500 text-white scale-105' : 'hover:bg-green-200'}`}
+            className={`flex items-center cursor-pointer p-1 mt-4 rounded-lg transition-all duration-200 ${currentPage === id ? 'bg-green-500 text-white scale-105' : 'hover:bg-green-200'}`}
             onClick={() => handleNavigation(id as PageKeys)} // Handle click for main navigation
             role="button"
             tabIndex={0}
@@ -97,10 +95,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           </li>
         ))}
 
+        <ul className="space-y-4">
+        {/* Display Selected House */}
+        {selectedHouse && isOpen && (
+          <li key="selected-house" className="flex items-center p-1 mt-2 rounded-lg transition-all duration-200 text-black">
+            <div className="mr-2 pl-6">
+              <Image 
+                src={selectedHouse.house_image} 
+                alt={selectedHouse.house_name} 
+                width={50} 
+                height={50} 
+                className="rounded-full object-cover"
+              />
+            </div>
+            <span>{selectedHouse.house_name}</span>
+          </li>
+        )}
+
+
         {/* Layout item and submenu directly listed below */}
         <li
           key="layout"
-          className={`flex items-center cursor-pointer p-1 rounded-lg transition-all duration-200 ${currentPage === 'layout' ? 'bg-green-500 text-white scale-105' : 'hover:bg-green-200'}`}
+          className={`flex items-center cursor-pointer p-1 mt-4 rounded-lg transition-all duration-200 ${currentPage === 'layout' ? 'bg-green-500 text-white scale-105' : 'hover:bg-green-200'}`}
           onClick={() => handleNavigation('layout')} // Navigate directly to layout
         >
           <span className={`mr-2 transition-opacity duration-300`} style={{ opacity: isOpen ? 1 : 0.7 }}>

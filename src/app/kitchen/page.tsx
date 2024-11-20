@@ -201,7 +201,7 @@ const KitchenPage = () => {
             <h2 className="text-xl font-bold mb-4">Cabinets</h2>
             <div className="relative mb-10">
               <p className="mb-4 text-lg">Select Color</p>
-              <div className="flex p-2 space-x-4 w-6/6 bg-white-400 shadow-md p-4">
+              <div className="flex p-2 space-x-4">
                 {cabinetImages.map((color, index) => (
                   <div
                     key={index}
@@ -221,7 +221,7 @@ const KitchenPage = () => {
             <h2 className="text-xl font-bold mb-4">Wall</h2>
             <div className="mb-10">
               <p className="mb-4 text-lg">Select Color</p>
-              <div className="flex p-2 space-x-4 w-6/6 bg-white-400 shadow-md p-4">
+              <div className="flex p-2 space-x-4">
                 {wallImages.map((color, index) => (
                   <div
                     key={index}
@@ -241,7 +241,7 @@ const KitchenPage = () => {
             <h2 className="text-xl font-bold mb-4">Basin</h2>
             <div className="mb-20">
               <p className="mb-4 text-lg">Select Color</p>
-              <div className="flex p-2 space-x-4 w-4/5 bg-white-400 shadow-md p-4">
+              <div className="flex p-2 space-x-4">
                 {basinImages.map((color, index) => (
                   <div
                     key={index}
