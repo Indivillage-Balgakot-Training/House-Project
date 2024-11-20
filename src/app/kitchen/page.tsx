@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Keep this if needed for navigation
+import { useSearchParams } from "next/navigation"; // Import the useSearchParams hook
 import Sidebar from "../layout/Sidebar"; // Ensure the casing matches
 
 // Define types for kitchen images
@@ -20,10 +21,54 @@ const KitchenPage = () => {
   const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>("/images/kitchen.jpg"); // Default cabinet image
   const [selectedWallImage, setSelectedWallImage] = useState<string>("/images/kitchen.jpg"); // Default wall image
   const [selectedBasinImage, setSelectedBasinImage] = useState<string>("/images/kitchen.jpg"); // Default basin image
+  const [selectedCabinetColor, setSelectedCabinetColor] = useState<string>(""); // Store the hex value of the selected cabinet color
+  const [selectedWallColor, setSelectedWallColor] = useState<string>(""); // Store the hex value of the selected wall color
+  const [selectedBasinColor, setSelectedBasinColor] = useState<string>("");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true); // Sidebar state
 
   const router = useRouter();
+  const searchParams = useSearchParams(); // Get search params using useSearchParams hook
+
+  const [houseId, setHouseId] = useState<string | null>(null); // State to store house_id
+  const [sessionId, setSessionId] = useState<string | null>(null); // State to store session_id
+
+  useEffect(() => {
+    // Get house_id from URL parameters using searchParams
+    const house_id = searchParams.get("house_id");
+
+    if (house_id) {
+      setHouseId(house_id); // Set the house_id from the URL
+    } else {
+      console.error("No house_id in the URL.");
+    }
+  }, [searchParams]); // Re-run when the URL query parameters change
+
+  useEffect(() => {
+    const fetchHouseDetails = async () => {
+      if (!houseId) return; // Don't make the request until we have a house_id
+
+      try {
+        const response = await fetch("http://localhost:5000/select-house", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ house_id: houseId }), // Use dynamic house_id
+        });
+        const data = await response.json();
+        if (data.session_id && data.house_id) {
+          setSessionId(data.session_id); // Store session_id from backend response
+        } else {
+          console.error("Failed to retrieve session or house id.");
+        }
+      } catch (error) {
+        console.error("Error fetching house details:", error);
+      }
+    };
+
+    fetchHouseDetails();
+  }, [houseId]);
 
   useEffect(() => {
     const fetchKitchenData = async () => {
@@ -31,20 +76,29 @@ const KitchenPage = () => {
         const response = await fetch("http://localhost:5000/room-data?room_name=Kitchen");
         const data = await response.json();
 
+        // Check if data is returned and handle null values
         if (data.room_name) {
-          setCabinetImages(data.cabinet_colors);
-          setWallImages(data.wall_colors);
-          setBasinImages(data.basin_colors);
+          setCabinetImages(data.cabinet_colors || []);
+          setWallImages(data.wall_colors || []);
+          setBasinImages(data.basin_colors || []);
 
-          if (data.cabinet_colors.length > 0) {
+          // Set default selections if there are available colors
+          if (data.cabinet_colors && data.cabinet_colors.length > 0) {
             setSelectedCabinetImage(data.cabinet_colors[0]?.image || "/images/kitchen.jpg");
+            setSelectedCabinetColor(data.cabinet_colors[0]?.color || "");
           }
-          if (data.basins.length > 0) {
-            setSelectedBasinImage(data.basins[0]?.image || "/images/kitchen.jpg");
+
+          if (data.basin_colors && data.basin_colors.length > 0) {
+            setSelectedBasinImage(data.basin_colors[0]?.image || "/images/kitchen.jpg");
+            setSelectedBasinColor(data.basin_colors[0]?.color || "");
           }
-          if (data.walls.length > 0) {
-            setSelectedWallImage(data.walls[0]?.image || "/images/Wall1.jpg");
+
+          if (data.wall_colors && data.wall_colors.length > 0) {
+            setSelectedWallImage(data.wall_colors[0]?.image || "/images/Wall1.jpg");
+            setSelectedWallColor(data.wall_colors[0]?.color || "");
           }
+        } else {
+          console.error("Room data not found");
         }
       } catch (error) {
         console.error("Error fetching kitchen data:", error);
@@ -54,22 +108,30 @@ const KitchenPage = () => {
     fetchKitchenData();
   }, []);
 
-  // Function to update selection in the backend
   const updateSelection = async () => {
+    if (!sessionId || !houseId) {
+      console.error("Session ID or House ID is missing.");
+      return; // Prevent the update if session or house ID is not available
+    }
+
     const cabinetColor = selectedCabinetImage !== "/images/kitchen.jpg" ? selectedCabinetImage : null;
     const wallColor = selectedWallImage !== "/images/kitchen.jpg" ? selectedWallImage : null;
     const basinColor = selectedBasinImage !== "/images/kitchen.jpg" ? selectedBasinImage : null;
 
+    const cabinetColorHex = selectedCabinetColor;
+    const wallColorHex = selectedWallColor;
+    const basinColorHex = selectedBasinColor;
+
     const data = {
-      house_id: "house-001", // Replace with actual house ID
-      session_id: "8ed6a495-bff6-4be0-8fda-cdfa788c99bb", // Replace with actual session ID if required
+      house_id: houseId, // Use dynamic house_id
+      session_id: sessionId, // Use dynamic session_id
       selected_rooms: ["kitchen"], // Assume we are always working with the kitchen room
-      cabinet_colors: cabinetColor ? [cabinetColor] : [], // Only send if color is selected
-      wall_colors: wallColor ? [wallColor] : [], // Only send if color is selected
-      basin_colors: basinColor ? [basinColor] : [], // Only send if color is selected
+      cabinet_colors: cabinetColor ? [{ image: cabinetColor, color: cabinetColorHex }] : [],
+      wall_colors: wallColor ? [{ image: wallColor, color: wallColorHex }] : [],
+      basin_colors: basinColor ? [{ image: basinColor, color: basinColorHex }] : [],
     };
 
-    console.log("Data being sent to the backend:", data); // Debugging line
+    console.log("Data being sent to the backend:", JSON.stringify(data));
 
     try {
       const response = await fetch("http://localhost:5000/select-room", {
@@ -88,32 +150,35 @@ const KitchenPage = () => {
   };
 
   const handleCabinetColorChange = (color: string, image: string) => {
-    console.log("Selected cabinet color:", color); // Debugging line
     if (image === selectedCabinetImage) {
-      setSelectedCabinetImage("/images/kitchen.jpg"); // Deselect if it's already selected
+      setSelectedCabinetImage("/images/kitchen.jpg");
+      setSelectedCabinetColor("");
     } else {
-      setSelectedCabinetImage(image); // Select new color
-      updateSelection(); // Update backend with the new color
+      setSelectedCabinetImage(image);
+      setSelectedCabinetColor(color);
+      updateSelection();
     }
   };
 
   const handleWallColorChange = (color: string, image: string) => {
-    console.log("Selected wall color:", color); // Debugging line
     if (image === selectedWallImage) {
-      setSelectedWallImage("/images/kitchen.jpg"); // Deselect if it's already selected
+      setSelectedWallImage("/images/kitchen.jpg");
+      setSelectedWallColor("");
     } else {
-      setSelectedWallImage(image); // Select new color
-      updateSelection(); // Update backend with the new color
+      setSelectedWallImage(image);
+      setSelectedWallColor(color);
+      updateSelection();
     }
   };
 
   const handleBasinColorChange = (color: string, image: string) => {
-    console.log("Selected basin color:", color); // Debugging line
     if (image === selectedBasinImage) {
-      setSelectedBasinImage("/images/kitchen.jpg"); // Deselect if it's already selected
+      setSelectedBasinImage("/images/kitchen.jpg");
+      setSelectedBasinColor("");
     } else {
-      setSelectedBasinImage(image); // Select new color
-      updateSelection(); // Update backend with the new color
+      setSelectedBasinImage(image);
+      setSelectedBasinColor(color);
+      updateSelection();
     }
   };
 
@@ -152,8 +217,8 @@ const KitchenPage = () => {
               </div>
             </div>
 
-            {/* Walls Section */}
-            <h2 className="text-xl font-bold mb-4">Walls</h2>
+            {/* Wall Section */}
+            <h2 className="text-xl font-bold mb-4">Wall</h2>
             <div className="mb-10">
               <p className="mb-4 text-lg">Select Color</p>
               <div className="flex p-2 space-x-4 w-6/6 bg-white-400 shadow-md p-4">
@@ -260,7 +325,10 @@ const KitchenPage = () => {
                 className="rounded-lg"
               />
             </div>
-            <button onClick={handleBackToHome} className="mt-4 px-4 py-2  text-black bg-yellow-500 hover:bg-yellow-400 shadow-lg  rounded-lg transition ">
+            <button
+              onClick={handleBackToHome}
+              className="mt-4 px-4 py-2 text-black bg-yellow-500 hover:bg-yellow-400 shadow-lg rounded-lg transition "
+            >
               Back to Home
             </button>
           </div>
