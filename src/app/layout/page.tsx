@@ -24,15 +24,21 @@ const LayoutPage = () => {
   const houseName = searchParams.get('house_name');
   const [error, setError] = useState<string | null>(null); // State hook for error
 
+  const [storedHouseId, setStoredHouseId] = useState<string | null>(null); // Store houseId
+  const [storedSessionId, setStoredSessionId] = useState<string | null>(null); // Store sessionId
 
   // Log the parameters to check if they're being extracted correctly
   useEffect(() => {
-    if (!houseId || !sessionId ) {
+    if (!houseId || !sessionId) {
       console.error("Missing house_id, or session_id");
       return;
     }
 
     console.log('Received from query params:', { houseId, sessionId });
+
+    // Store the session and house IDs in state
+    setStoredHouseId(houseId);
+    setStoredSessionId(sessionId);
 
     const fetchLayoutData = async () => {
       try {
@@ -65,14 +71,14 @@ const LayoutPage = () => {
     console.log(`Clicked on ${area}`);
 
     // Check if houseId, houseName, and sessionId are valid
-    if (!houseId || !sessionId || !area) {
+    if (!storedHouseId || !storedSessionId || !area) {
       console.error("Missing houseId, sessionId, or area");
       return;
     }
 
     const requestData = {
-      house_id: houseId,
-      session_id: sessionId,
+      house_id: storedHouseId,
+      session_id: storedSessionId,
       selected_rooms: [area], // Send selected room in an array
     };
 
@@ -95,12 +101,12 @@ const LayoutPage = () => {
       console.log(`${area} saved successfully!`);
 
       // Navigate to the selected room's page dynamically
-      router.push(`/${area}?house_id=${houseId}&session_id=${sessionId}`);
+      router.push(`/${area}?house_id=${storedHouseId}&session_id=${storedSessionId}`);
 
     } catch (error) {
       console.error('Error sending data to backend:', error);
     }
-};
+  };
 
   return (
     <div className="flex">

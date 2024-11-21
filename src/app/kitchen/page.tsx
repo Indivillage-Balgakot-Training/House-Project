@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // Keep this if needed for navigation
-import { useSearchParams } from "next/navigation"; // Import the useSearchParams hook
-import Sidebar from "../layout/Sidebar"; // Ensure the casing matches
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import Sidebar from "../layout/Sidebar";
 
-// Define types for kitchen images
 interface KitchenImage {
   name: string;
   image: string;
@@ -18,57 +17,33 @@ const KitchenPage = () => {
   const [wallImages, setWallImages] = useState<KitchenImage[]>([]);
   const [basinImages, setBasinImages] = useState<KitchenImage[]>([]);
 
-  const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>("/images/kitchen.jpg"); // Default cabinet image
-  const [selectedWallImage, setSelectedWallImage] = useState<string>("/images/kitchen.jpg"); // Default wall image
-  const [selectedBasinImage, setSelectedBasinImage] = useState<string>("/images/kitchen.jpg"); // Default basin image
-  const [selectedCabinetColor, setSelectedCabinetColor] = useState<string>(""); // Store the hex value of the selected cabinet color
-  const [selectedWallColor, setSelectedWallColor] = useState<string>(""); // Store the hex value of the selected wall color
+  const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>("/images/kitchen.jpg");
+  const [selectedWallImage, setSelectedWallImage] = useState<string>("/images/kitchen.jpg");
+  const [selectedBasinImage, setSelectedBasinImage] = useState<string>("/images/kitchen.jpg");
+  const [selectedCabinetColor, setSelectedCabinetColor] = useState<string>("");
+  const [selectedWallColor, setSelectedWallColor] = useState<string>("");
   const [selectedBasinColor, setSelectedBasinColor] = useState<string>("");
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true); // Sidebar state
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const router = useRouter();
-  const searchParams = useSearchParams(); // Get search params using useSearchParams hook
+  const searchParams = useSearchParams();
 
-  const [houseId, setHouseId] = useState<string | null>(null); // State to store house_id
-  const [sessionId, setSessionId] = useState<string | null>(null); // State to store session_id
+  const [houseId, setHouseId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get house_id from URL parameters using searchParams
+    // Get house_id and session_id from URL parameters using searchParams
     const house_id = searchParams.get("house_id");
-
+    const session_id = searchParams.get("session_id"); // Retrieve session_id from URL
     if (house_id) {
       setHouseId(house_id); // Set the house_id from the URL
-    } else {
-      console.error("No house_id in the URL.");
     }
-  }, [searchParams]); // Re-run when the URL query parameters change
-
-  useEffect(() => {
-    const fetchHouseDetails = async () => {
-      if (!houseId) return; // Don't make the request until we have a house_id
-
-      try {
-        const response = await fetch("http://localhost:5000/select-house", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ house_id: houseId }), // Use dynamic house_id
-        });
-        const data = await response.json();
-        if (data.session_id && data.house_id) {
-          setSessionId(data.session_id); // Store session_id from backend response
-        } else {
-          console.error("Failed to retrieve session or house id.");
-        }
-      } catch (error) {
-        console.error("Error fetching house details:", error);
-      }
-    };
-
-    fetchHouseDetails();
-  }, [houseId]);
+    if (session_id) {
+      setSessionId(session_id); // Set the session_id from the URL
+    } else {
+      console.error("No session_id in the URL.");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchKitchenData = async () => {
@@ -76,13 +51,12 @@ const KitchenPage = () => {
         const response = await fetch("http://localhost:5000/room-data?room_name=Kitchen");
         const data = await response.json();
 
-        // Check if data is returned and handle null values
         if (data.room_name) {
           setCabinetImages(data.cabinet_colors || []);
           setWallImages(data.wall_colors || []);
           setBasinImages(data.basin_colors || []);
 
-          // Set default selections if there are available colors
+          // Set default selections if available colors exist
           if (data.cabinet_colors && data.cabinet_colors.length > 0) {
             setSelectedCabinetImage(data.cabinet_colors[0]?.image || "/images/kitchen.jpg");
             setSelectedCabinetColor(data.cabinet_colors[0]?.color || "");
@@ -111,7 +85,7 @@ const KitchenPage = () => {
   const updateSelection = async () => {
     if (!sessionId || !houseId) {
       console.error("Session ID or House ID is missing.");
-      return; // Prevent the update if session or house ID is not available
+      return;
     }
 
     const cabinetColor = selectedCabinetImage !== "/images/kitchen.jpg" ? selectedCabinetImage : null;
@@ -123,9 +97,9 @@ const KitchenPage = () => {
     const basinColorHex = selectedBasinColor;
 
     const data = {
-      house_id: houseId, // Use dynamic house_id
-      session_id: sessionId, // Use dynamic session_id
-      selected_rooms: ["kitchen"], // Assume we are always working with the kitchen room
+      house_id: houseId,
+      session_id: sessionId,
+      selected_rooms: ["kitchen"],
       cabinet_colors: cabinetColor ? [{ image: cabinetColor, color: cabinetColorHex }] : [],
       wall_colors: wallColor ? [{ image: wallColor, color: wallColorHex }] : [],
       basin_colors: basinColor ? [{ image: basinColor, color: basinColorHex }] : [],
@@ -189,7 +163,6 @@ const KitchenPage = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
-
   return (
     <div className="flex">
       <Sidebar currentPage="kitchen" isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
