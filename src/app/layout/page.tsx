@@ -17,6 +17,7 @@ const LayoutPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [selectedImage, setSelectedImage] = useState<string>(''); // State to store the selected image
 
   // Get query parameters from the URL
   const houseId = searchParams.get('house_id');
@@ -108,6 +109,17 @@ const LayoutPage = () => {
     }
   };
 
+  // Effect to set the layout image based on the house_name
+  useEffect(() => {
+    if (houseName === 'House 1') {
+      setSelectedImage('/image2.jpg'); // Default image for House 1
+    } else if (houseName === 'House 2') {
+      setSelectedImage('/images/layout.jpg'); // Layout image for House 2
+    } else {
+      setSelectedImage('/image2.jpg'); // Default to House 1 if no valid house_name
+    }
+  }, [houseName]);
+
   return (
     <div className="flex">
       <Sidebar
@@ -116,68 +128,110 @@ const LayoutPage = () => {
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
       <div className={`flex-grow ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
-        <div className="relative">
-          {/* Now using layoutData safely as an object */}
-          <Image
-            src={layoutData?.rooms_image || "/image2.jpg"} // Safe access with optional chaining
-            alt="Layout Image"
-            width={800}
-            height={600}
-            useMap="#image-map"
-          />
-          <map name="image-map">
-            <area
-              target="_self"
-              alt="Gallery Area"
-              title="Go to Gallery"
-              href="/gallery" // Link back to the gallery
-              coords="791,46,755,11"
-              shape="rect"
-            />
-          </map>
-          {/* Other clickable areas */}
-          <div
-            className={`absolute ${hoveredArea === 'bedroom' ? 'bg-red-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-            onMouseEnter={() => handleMouseEnter('bedroom')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleClick('bedroom')}
-            style={{ left: '83px', top: '61px', width: '185px', height: '278px', zIndex: 10 }}
-          />
-          <div
-            className={`absolute ${hoveredArea === 'openArea' ? 'bg-green-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-            onMouseEnter={() => handleMouseEnter('openArea')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleClick('openArea')}
-            style={{ left: '268px', top: '59px', width: '119px', height: '280px', zIndex: 10 }}
-          />
-          <div
-            className={`absolute ${hoveredArea === 'masterBedroom2' ? 'bg-blue-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-            onMouseEnter={() => handleMouseEnter('masterBedroom2')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleClick('masterBedroom2')}
-            style={{ left: '388px', top: '58px', width: '163px', height: '281px', zIndex: 10 }}
-          />
-          <div
-            className={`absolute ${hoveredArea === 'masterBedroom1' ? 'bg-yellow-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-            onMouseEnter={() => handleMouseEnter('masterBedroom1')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleClick('masterBedroom1')}
-            style={{ left: '551px', top: '59px', width: '180px', height: '280px', zIndex: 10 }}
-          />
-          <div
-            className={`absolute ${hoveredArea === 'guestBathroom' ? 'bg-purple-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-            onMouseEnter={() => handleMouseEnter('guestBathroom')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleClick('guestBathroom')}
-            style={{ left: '80px', top: '337px', width: '189px', height: '134px', zIndex: 10 }}
-          />
-          <div
-            className={`absolute ${hoveredArea === 'kitchen' ? 'bg-orange-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-            onMouseEnter={() => handleMouseEnter('kitchen')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleClick('kitchen')}
-            style={{ left: '552px', top: '341px', width: '180px', height: '131px', zIndex: 10 }}
-          />
+        <div className="flex-grow ml-64">
+          <div className="relative">
+            {/* Display the selected image based on house_name */}
+            {selectedImage && (
+              <Image
+                src={selectedImage}
+                alt="Layout Image"
+                width={800}
+                height={600}
+                useMap="#image-map"
+              />
+            )}
+            {/* Map for image hotspots */}
+            <map name="image-map">
+              <area
+                target="_self"
+                alt="Gallery Area"
+                title="Go to Gallery"
+                href="/gallery"
+                coords="791,46,755,11"
+                shape="rect"
+              />
+            </map>
+
+            {/* Only apply hoverable areas if houseName is "House 1" */}
+            {houseName === 'House 1' && (
+              <>
+                {/* Interactive areas for House 1 */}
+                <div
+                  className={`absolute ${hoveredArea === 'bedroom' ? 'bg-red-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+                  onMouseEnter={() => handleMouseEnter('bedroom')}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => handleClick('bedroom')}
+                  style={{ left: '83px', top: '61px', width: '185px', height: '278px', zIndex: 10 }}
+                />
+                <div
+                  className={`absolute ${hoveredArea === 'openArea' ? 'bg-green-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+                  onMouseEnter={() => handleMouseEnter('openArea')}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => handleClick('openArea')}
+                  style={{ left: '268px', top: '59px', width: '119px', height: '280px', zIndex: 10 }}
+                />
+                <div
+                  className={`absolute ${hoveredArea === 'masterBedroom2' ? 'bg-blue-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+                  onMouseEnter={() => handleMouseEnter('masterBedroom2')}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => handleClick('masterBedroom2')}
+                  style={{ left: '388px', top: '58px', width: '163px', height: '281px', zIndex: 10 }}
+                />
+                <div
+                  className={`absolute ${hoveredArea === 'masterBedroom1' ? 'bg-yellow-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+                  onMouseEnter={() => handleMouseEnter('masterBedroom1')}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => handleClick('masterBedroom1')}
+                  style={{ left: '551px', top: '59px', width: '180px', height: '280px', zIndex: 10 }}
+                />
+                <div
+                  className={`absolute ${hoveredArea === 'guestBathroom' ? 'bg-purple-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+                  onMouseEnter={() => handleMouseEnter('guestBathroom')}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => handleClick('guestBathroom')}
+                  style={{ left: '80px', top: '337px', width: '189px', height: '134px', zIndex: 10 }}
+                />
+                <div
+                  className={`absolute ${hoveredArea === 'kitchen' ? 'bg-orange-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
+                  onMouseEnter={() => handleMouseEnter('kitchen')}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => handleClick('kitchen')}
+                  style={{ left: '552px', top: '341px', width: '180px', height: '131px', zIndex: 10 }}
+                />
+              </>
+            )}
+
+            {/* Apply areas for House 2 */}
+            {houseName === 'House 2' && (
+              <>
+                {/* Interactive areas for House 2 */}
+                <div
+        className={`absolute ${hoveredArea === "bedroom" ? "bg-blue-500 opacity-50" : "opacity-0"} transition-opacity duration-300`}
+        onMouseEnter={() => handleMouseEnter("bedroom")}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => handleClick("bedroom")}
+        style={{ left: "215px", top: "100px", width: "198px", height: "120px", zIndex: 10 }}
+      />
+
+      <div
+        className={`absolute ${hoveredArea === "kitchen" ? "bg-green-500 opacity-50" : "opacity-0"} transition-opacity duration-300`}
+        onMouseEnter={() => handleMouseEnter("kitchen")}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => handleClick("kitchen")}
+        style={{ left: "218px", top: "220px", width: "195px", height: "197px", zIndex: 10 }}
+      />
+
+      <div
+        className={`absolute ${hoveredArea === "livingroom" ? "bg-red-500 opacity-50" : "opacity-0"} transition-opacity duration-300`}
+        onMouseEnter={() => handleMouseEnter("livingroom")}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => handleClick("livingroom")}
+        style={{ left: "413px", top: "100px", width: "200px", height: "315px", zIndex: 10 }}
+      />
+
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

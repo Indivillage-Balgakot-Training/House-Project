@@ -68,7 +68,7 @@ const GalleryPage = () => {
         const { session_id, house_id } = data;
         console.log('House Selected:', { session_id, house_id });
 
-        router.push(`/layout?house_id=${house_id}&session_id=${session_id}`);
+        router.push(`/layout?house_id=${house_id}&house_name=${selectedHouse.house_name}&session_id=${session_id}`);
       } catch (error) {
         console.error('Error selecting house:', error);
       }
