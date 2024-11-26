@@ -5,19 +5,31 @@ import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation'; // useSearchParams to access query params
 import Sidebar from './Sidebar';
 
-// Define a type for the layout data
+interface Area {
+  name: string;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  color: string; // Color for the area (optional, for highlighting)
+}
+
+interface Room {
+  name: string;
+  areas: Area[];
+}
+
 interface LayoutData {
   rooms_image: string;
-  rooms: string[];
+  rooms: Room[];
 }
 
 const LayoutPage = () => {
-  const [layoutData, setLayoutData] = useState<LayoutData | null>(null); // Now it's an object or null
+  const [layoutData, setLayoutData] = useState<LayoutData | null>(null); // State to hold layout data
   const [hoveredArea, setHoveredArea] = useState<string | null>(null); // Track the area being hovered
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [selectedImage, setSelectedImage] = useState<string>(''); // State to store the selected image
 
   // Get query parameters from the URL
   const houseId = searchParams.get('house_id');
@@ -28,7 +40,6 @@ const LayoutPage = () => {
   const [storedHouseId, setStoredHouseId] = useState<string | null>(null); // Store houseId
   const [storedSessionId, setStoredSessionId] = useState<string | null>(null); // Store sessionId
 
-  // Log the parameters to check if they're being extracted correctly
   useEffect(() => {
     if (!houseId || !sessionId) {
       console.error("Missing house_id, or session_id");
@@ -37,41 +48,36 @@ const LayoutPage = () => {
 
     console.log('Received from query params:', { houseId, sessionId });
 
-    // Store the session and house IDs in state
     setStoredHouseId(houseId);
     setStoredSessionId(sessionId);
 
     const fetchLayoutData = async () => {
       try {
-        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}/${houseName}`);
+        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`);
         if (!layoutResponse.ok) {
           throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
         }
         const data: LayoutData = await layoutResponse.json();
-        setLayoutData(data); // Set the response data
+        setLayoutData(data);
       } catch (error) {
         console.error('Error fetching layout data:', error);
+        setError('Failed to load layout data');
       }
     };
 
     fetchLayoutData();
-  }, [houseId, houseName, sessionId]); // Re-run effect when params change
+  }, [houseId, sessionId]);
 
-  // Handle mouse enter event (to highlight the area)
   const handleMouseEnter = (area: string) => {
     setHoveredArea(area);
   };
 
-  // Handle mouse leave event (to remove the highlight)
   const handleMouseLeave = () => {
     setHoveredArea(null);
   };
 
-  // Handle click event on a room area
   const handleClick = async (area: string) => {
     console.log(`Clicked on ${area}`);
-
-    // Check if houseId, houseName, and sessionId are valid
     if (!storedHouseId || !storedSessionId || !area) {
       console.error("Missing houseId, sessionId, or area");
       return;
@@ -80,10 +86,10 @@ const LayoutPage = () => {
     const requestData = {
       house_id: storedHouseId,
       session_id: storedSessionId,
-      selected_rooms: [area], // Send selected room in an array
+      selected_rooms: [area],
     };
 
-    console.log("Sending data to backend:", requestData);  // Check what is being sent
+    console.log("Sending data to backend:", requestData);
 
     try {
       const response = await fetch('http://localhost:5000/select-room', {
@@ -101,24 +107,15 @@ const LayoutPage = () => {
       const result = await response.json();
       console.log(`${area} saved successfully!`);
 
-      // Navigate to the selected room's page dynamically
       router.push(`/${area}?house_id=${storedHouseId}&session_id=${storedSessionId}`);
-
     } catch (error) {
       console.error('Error sending data to backend:', error);
     }
   };
 
-  // Effect to set the layout image based on the house_name
-  useEffect(() => {
-    if (houseName === 'House 1') {
-      setSelectedImage('/image2.jpg'); // Default image for House 1
-    } else if (houseName === 'House 2') {
-      setSelectedImage('/images/layout.jpg'); // Layout image for House 2
-    } else {
-      setSelectedImage('/image2.jpg'); // Default to House 1 if no valid house_name
-    }
-  }, [houseName]);
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="flex">
@@ -128,108 +125,39 @@ const LayoutPage = () => {
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
       <div className={`flex-grow ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
-        <div className="flex-grow ml-64">
-          <div className="relative">
-            {/* Display the selected image based on house_name */}
-            {selectedImage && (
-              <Image
-                src={selectedImage}
-                alt="Layout Image"
-                width={800}
-                height={600}
-                useMap="#image-map"
-              />
-            )}
-            {/* Map for image hotspots */}
-            <map name="image-map">
-              <area
-                target="_self"
-                alt="Gallery Area"
-                title="Go to Gallery"
-                href="/gallery"
-                coords="791,46,755,11"
-                shape="rect"
-              />
-            </map>
+        <div className="relative">
+          {layoutData?.rooms_image && (
+            <Image
+              src={layoutData.rooms_image}
+              alt="Layout Image"
+              width={800}
+              height={600}
+              useMap="#image-map"
+            />
+          )}
 
-            {/* Only apply hoverable areas if houseName is "House 1" */}
-            {houseName === 'House 1' && (
-              <>
-                {/* Interactive areas for House 1 */}
+          {/* Create div elements for each area for hover effects */}
+          <div className="absolute top-0 left-0">
+            {layoutData?.rooms.flatMap((room) =>
+              room.areas.map((area) => (
                 <div
-                  className={`absolute ${hoveredArea === 'bedroom' ? 'bg-red-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-                  onMouseEnter={() => handleMouseEnter('bedroom')}
+                  key={area.name}
+                  onClick={() => handleClick(area.name)}
+                  onMouseEnter={() => handleMouseEnter(area.name)}
                   onMouseLeave={handleMouseLeave}
-                  onClick={() => handleClick('bedroom')}
-                  style={{ left: '83px', top: '61px', width: '185px', height: '278px', zIndex: 10 }}
+                  style={{
+                    position: 'absolute',
+                    left: `${area.left}px`,
+                    top: `${area.top}px`,
+                    width: `${area.width}px`,
+                    height: `${area.height}px`,
+                    cursor: 'pointer',
+                    backgroundColor: hoveredArea === area.name ? area.color : 'transparent',
+                    opacity: hoveredArea === area.name ? 0.7 : 1,
+                    zIndex: 1,
+                  }}
                 />
-                <div
-                  className={`absolute ${hoveredArea === 'openArea' ? 'bg-green-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-                  onMouseEnter={() => handleMouseEnter('openArea')}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={() => handleClick('openArea')}
-                  style={{ left: '268px', top: '59px', width: '119px', height: '280px', zIndex: 10 }}
-                />
-                <div
-                  className={`absolute ${hoveredArea === 'masterBedroom2' ? 'bg-blue-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-                  onMouseEnter={() => handleMouseEnter('masterBedroom2')}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={() => handleClick('masterBedroom2')}
-                  style={{ left: '388px', top: '58px', width: '163px', height: '281px', zIndex: 10 }}
-                />
-                <div
-                  className={`absolute ${hoveredArea === 'masterBedroom1' ? 'bg-yellow-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-                  onMouseEnter={() => handleMouseEnter('masterBedroom1')}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={() => handleClick('masterBedroom1')}
-                  style={{ left: '551px', top: '59px', width: '180px', height: '280px', zIndex: 10 }}
-                />
-                <div
-                  className={`absolute ${hoveredArea === 'guestBathroom' ? 'bg-purple-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-                  onMouseEnter={() => handleMouseEnter('guestBathroom')}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={() => handleClick('guestBathroom')}
-                  style={{ left: '80px', top: '337px', width: '189px', height: '134px', zIndex: 10 }}
-                />
-                <div
-                  className={`absolute ${hoveredArea === 'kitchen' ? 'bg-orange-500 opacity-50' : 'opacity-0'} transition-opacity duration-300`}
-                  onMouseEnter={() => handleMouseEnter('kitchen')}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={() => handleClick('kitchen')}
-                  style={{ left: '552px', top: '341px', width: '180px', height: '131px', zIndex: 10 }}
-                />
-              </>
-            )}
-
-            {/* Apply areas for House 2 */}
-            {houseName === 'House 2' && (
-              <>
-                {/* Interactive areas for House 2 */}
-                <div
-        className={`absolute ${hoveredArea === "bedroom" ? "bg-blue-500 opacity-50" : "opacity-0"} transition-opacity duration-300`}
-        onMouseEnter={() => handleMouseEnter("bedroom")}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => handleClick("bedroom")}
-        style={{ left: "215px", top: "100px", width: "198px", height: "120px", zIndex: 10 }}
-      />
-
-      <div
-        className={`absolute ${hoveredArea === "kitchen" ? "bg-green-500 opacity-50" : "opacity-0"} transition-opacity duration-300`}
-        onMouseEnter={() => handleMouseEnter("kitchen")}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => handleClick("kitchen")}
-        style={{ left: "218px", top: "220px", width: "195px", height: "197px", zIndex: 10 }}
-      />
-
-      <div
-        className={`absolute ${hoveredArea === "livingroom" ? "bg-red-500 opacity-50" : "opacity-0"} transition-opacity duration-300`}
-        onMouseEnter={() => handleMouseEnter("livingroom")}
-        onMouseLeave={handleMouseLeave}
-        onClick={() => handleClick("livingroom")}
-        style={{ left: "413px", top: "100px", width: "200px", height: "315px", zIndex: 10 }}
-      />
-
-              </>
+              ))
             )}
           </div>
         </div>
