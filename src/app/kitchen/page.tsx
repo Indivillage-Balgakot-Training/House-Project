@@ -34,21 +34,36 @@ const KitchenPage = () => {
   useEffect(() => {
     // Get house_id and session_id from URL parameters using searchParams
     const house_id = searchParams.get("house_id");
-    const session_id = searchParams.get("session_id"); // Retrieve session_id from URL
+    const session_id = searchParams.get("session_id");
+    
+    // Debugging: Log the parameters
+    console.log("house_id from URL:", house_id);
+    console.log("session_id from URL:", session_id);
+    
     if (house_id) {
       setHouseId(house_id); // Set the house_id from the URL
+    } else {
+      console.error("House ID not found in the URL.");
     }
+    
     if (session_id) {
       setSessionId(session_id); // Set the session_id from the URL
     } else {
-      console.error("No session_id in the URL.");
+      console.error("Session ID not found in the URL.");
     }
   }, [searchParams]);
 
   useEffect(() => {
     const fetchKitchenData = async () => {
+      // Ensure houseId and sessionId are available before making the API call
+      if (!houseId || !sessionId) {
+        return;
+      }
+
       try {
-        const response = await fetch("http://localhost:5000/room-data?room_name=Kitchen");
+        const response = await fetch(
+          `http://localhost:5000/room-data?room_name=Kitchen&house_id=${houseId}&session_id=${sessionId}`
+        );
         const data = await response.json();
 
         if (data.room_name) {
@@ -80,7 +95,7 @@ const KitchenPage = () => {
     };
 
     fetchKitchenData();
-  }, []);
+  }, [houseId, sessionId]); // Re-run when houseId or sessionId changes
 
   const updateSelection = async () => {
     if (!sessionId || !houseId) {
