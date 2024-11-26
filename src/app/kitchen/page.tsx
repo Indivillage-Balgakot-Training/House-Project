@@ -17,9 +17,9 @@ const KitchenPage = () => {
   const [wallImages, setWallImages] = useState<KitchenImage[]>([]);
   const [basinImages, setBasinImages] = useState<KitchenImage[]>([]);
 
-  const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>("/images/kitchen.jpg");
-  const [selectedWallImage, setSelectedWallImage] = useState<string>("/images/kitchen.jpg");
-  const [selectedBasinImage, setSelectedBasinImage] = useState<string>("/images/kitchen.jpg");
+  const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>("");
+  const [selectedWallImage, setSelectedWallImage] = useState<string>("");
+  const [selectedBasinImage, setSelectedBasinImage] = useState<string>("");
   const [selectedCabinetColor, setSelectedCabinetColor] = useState<string>("");
   const [selectedWallColor, setSelectedWallColor] = useState<string>("");
   const [selectedBasinColor, setSelectedBasinColor] = useState<string>("");
@@ -58,17 +58,17 @@ const KitchenPage = () => {
 
           // Set default selections if available colors exist
           if (data.cabinet_colors && data.cabinet_colors.length > 0) {
-            setSelectedCabinetImage(data.cabinet_colors[0]?.image || "/images/kitchen.jpg");
+            setSelectedCabinetImage(data.cabinet_colors[0]?.image || "");
             setSelectedCabinetColor(data.cabinet_colors[0]?.color || "");
           }
 
           if (data.basin_colors && data.basin_colors.length > 0) {
-            setSelectedBasinImage(data.basin_colors[0]?.image || "/images/kitchen.jpg");
+            setSelectedBasinImage(data.basin_colors[0]?.image || "");
             setSelectedBasinColor(data.basin_colors[0]?.color || "");
           }
 
           if (data.wall_colors && data.wall_colors.length > 0) {
-            setSelectedWallImage(data.wall_colors[0]?.image || "/images/Wall1.jpg");
+            setSelectedWallImage(data.wall_colors[0]?.image || "");
             setSelectedWallColor(data.wall_colors[0]?.color || "");
           }
         } else {
@@ -88,9 +88,9 @@ const KitchenPage = () => {
       return;
     }
 
-    const cabinetColor = selectedCabinetImage !== "/images/kitchen.jpg" ? selectedCabinetImage : null;
-    const wallColor = selectedWallImage !== "/images/kitchen.jpg" ? selectedWallImage : null;
-    const basinColor = selectedBasinImage !== "/images/kitchen.jpg" ? selectedBasinImage : null;
+    const cabinetColor = selectedCabinetImage || null;
+    const wallColor = selectedWallImage || null;
+    const basinColor = selectedBasinImage || null;
 
     const cabinetColorHex = selectedCabinetColor;
     const wallColorHex = selectedWallColor;
@@ -125,7 +125,7 @@ const KitchenPage = () => {
 
   const handleCabinetColorChange = (color: string, image: string) => {
     if (image === selectedCabinetImage) {
-      setSelectedCabinetImage("/images/kitchen.jpg");
+      setSelectedCabinetImage("");
       setSelectedCabinetColor("");
     } else {
       setSelectedCabinetImage(image);
@@ -136,7 +136,7 @@ const KitchenPage = () => {
 
   const handleWallColorChange = (color: string, image: string) => {
     if (image === selectedWallImage) {
-      setSelectedWallImage("/images/kitchen.jpg");
+      setSelectedWallImage("");
       setSelectedWallColor("");
     } else {
       setSelectedWallImage(image);
@@ -147,7 +147,7 @@ const KitchenPage = () => {
 
   const handleBasinColorChange = (color: string, image: string) => {
     if (image === selectedBasinImage) {
-      setSelectedBasinImage("/images/kitchen.jpg");
+      setSelectedBasinImage("");
       setSelectedBasinColor("");
     } else {
       setSelectedBasinImage(image);
@@ -163,6 +163,7 @@ const KitchenPage = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
+
   return (
     <div className="flex">
       <Sidebar currentPage="kitchen" isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
@@ -236,7 +237,7 @@ const KitchenPage = () => {
             <div className="relative">
               {/* Base kitchen image */}
               <Image
-                src="/images/kitchen.jpg" // Replace with your default base image
+                src="/images/kitchen.jpg" // Base image as default
                 alt="Kitchen"
                 width={1000}
                 height={800}
@@ -245,58 +246,64 @@ const KitchenPage = () => {
               />
 
               {/* Overlay selected cabinet color */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "0",
-                  left: "0",
-                  width: "100%",
-                  height: "100%",
-                  backgroundImage: `url(${selectedCabinetImage})`,
-                  backgroundSize: "cover",
-                  opacity: 1,
-                  pointerEvents: 'none',
-                  mixBlendMode: 'overlay',
-                  filter: 'brightness(1.2) saturation(1.5)',
-                }}
-                className="rounded-lg"
-              />
+              {selectedCabinetImage && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "0",
+                    left: "0",
+                    width: "100%",
+                    height: "100%",
+                    backgroundImage: `url(${selectedCabinetImage})`,
+                    backgroundSize: "cover",
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    mixBlendMode: 'overlay',
+                    filter: 'brightness(1.2) saturation(1.5)',
+                  }}
+                  className="rounded-lg"
+                />
+              )}
 
               {/* Overlay selected wall color */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "0",
-                  left: "0",
-                  width: "100%",
-                  height: "100%",
-                  backgroundImage: `url(${selectedWallImage})`,
-                  backgroundSize: "cover",
-                  opacity: 0.6,
-                  pointerEvents: 'none',
-                  mixBlendMode: 'multiply',
-                  filter: 'brightness(1.0) saturation(1.5)',
-                }}
-                className="rounded-lg"
-              />
+              {selectedWallImage && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "0",
+                    left: "0",
+                    width: "100%",
+                    height: "100%",
+                    backgroundImage: `url(${selectedWallImage})`,
+                    backgroundSize: "cover",
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    mixBlendMode: 'multiply',
+                    filter: 'brightness(1.0) saturation(1.5)',
+                  }}
+                  className="rounded-lg"
+                />
+              )}
 
               {/* Overlay selected basin color */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "0",
-                  left: "0",
-                  width: "100%",
-                  height: "100%",
-                  backgroundImage: `url(${selectedBasinImage})`,
-                  backgroundSize: "cover",
-                  opacity: 0.6,
-                  pointerEvents: 'none',
-                  mixBlendMode: 'multiply',
-                  filter: 'brightness(1.0) saturation(1.5)',
-                }}
-                className="rounded-lg"
-              />
+              {selectedBasinImage && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "0",
+                    left: "0",
+                    width: "100%",
+                    height: "100%",
+                    backgroundImage: `url(${selectedBasinImage})`,
+                    backgroundSize: "cover",
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    mixBlendMode: 'multiply',
+                    filter: 'brightness(1.0) saturation(1.5)',
+                  }}
+                  className="rounded-lg"
+                />
+              )}
             </div>
             <button
               onClick={handleBackToHome}
