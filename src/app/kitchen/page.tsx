@@ -17,7 +17,7 @@ const KitchenPage = () => {
   const [wallColors, setWallColors] = useState<KitchenColor[]>([]);
   const [basinColors, setBasinColors] = useState<KitchenColor[]>([]);
 
-  const [selectedKitchenImage, setSelectedKitchenImage] = useState<string>(""); 
+  const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>(""); 
   const [selectedWallImage, setSelectedWallImage] = useState<string>(""); 
   const [selectedBasinImage, setSelectedBasinImage] = useState<string>("");
 
@@ -58,7 +58,7 @@ const KitchenPage = () => {
           // Set initial selections for each category
           if (data.cabinet_colors?.length > 0) {
             setSelectedCabinetColor(data.cabinet_colors[0]?.color || "");
-            setSelectedKitchenImage(data.cabinet_colors[0]?.image || "");
+            setSelectedCabinetImage(data.cabinet_colors[0]?.image || "");
           }
 
           if (data.wall_colors?.length > 0) {
@@ -89,7 +89,7 @@ const KitchenPage = () => {
       house_id: houseId,
       session_id: sessionId,
       selected_rooms: ["kitchen"],
-      cabinet_colors: selectedKitchenImage ? [{ image: selectedKitchenImage, color: selectedCabinetColor }] : [],
+      cabinet_colors: selectedCabinetImage ? [{ image: selectedCabinetImage, color: selectedCabinetColor }] : [],
       wall_colors: selectedWallImage ? [{ image: selectedWallImage, color: selectedWallColor }] : [],
       basin_colors: selectedBasinImage ? [{ image: selectedBasinImage, color: selectedBasinColor }] : [],
     };
@@ -110,7 +110,7 @@ const KitchenPage = () => {
 
   const handleCabinetColorChange = (color: string, image: string): void => {
     setSelectedCabinetColor(color);
-    setSelectedKitchenImage(image);
+    setSelectedCabinetImage(image); // Use selectedCabinetImage
     updateSelection();
   };
 
@@ -144,7 +144,7 @@ const KitchenPage = () => {
                 {cabinetColors.map((color, index) => (
                   <div
                     key={index}
-                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedKitchenImage === color.image ? "border-4 border-green-500" : ""}`}
+                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCabinetImage === color.image ? "border-4 border-green-500" : ""}`}
                     onClick={() => handleCabinetColorChange(color.color, color.image)}
                   >
                     <div
@@ -201,9 +201,9 @@ const KitchenPage = () => {
           <div className="w-3/4 flex items-center justify-center flex-col">
             <div className="relative">
               {/* Base kitchen image */}
-              {selectedKitchenImage && (
+              {selectedCabinetImage && (
                 <Image
-                  src={selectedKitchenImage}
+                  src={selectedCabinetImage}
                   alt="Selected Kitchen"
                   width={1000}
                   height={800}
@@ -239,7 +239,6 @@ const KitchenPage = () => {
             <button
               className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
               onClick={handleBackToHome}
-              
             >
               Back to Home
             </button>
