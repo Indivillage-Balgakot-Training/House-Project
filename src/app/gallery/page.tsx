@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // Correct router import
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface House {
   house_id: string;
@@ -138,6 +139,12 @@ const GalleryPage = () => {
               onClick={handleImageClick}
             />
             <p className="mt-4 text-center">{selectedHouse.description || "No description available."}</p>
+            
+            {/* Back to Home Button */}
+            <Link href="/"
+              className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
+              Back to Home
+            </Link>
           </>
         ) : (
           <p>No houses available.</p>
