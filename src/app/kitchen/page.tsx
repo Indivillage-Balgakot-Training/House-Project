@@ -126,8 +126,29 @@ const KitchenPage = () => {
     updateSelection();
   };
 
-  const handleBackToHome = () => {
-    router.push("/gallery");
+  const handleBackToHome = async () => {
+    if (!houseId || !sessionId) {
+      console.error("House ID or Session ID is missing.");
+      return;
+    }
+
+    try {
+      // Send request to unlock houses
+      const response = await fetch("http://localhost:5000/exit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ house_id: houseId, session_id: sessionId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to unlock houses");
+      }
+
+      // If unlocking is successful, navigate to the gallery page
+      router.push("/gallery");
+    } catch (error) {
+      console.error("Error unlocking houses:", error);
+    }
   };
 
   return (
