@@ -12,10 +12,18 @@ interface BedroomColor {
   color: string;
 }
 
+interface WardrobeColor {
+  color: string;
+  image: string;
+}
+
 const BedroomPage = () => {
   const [wallColors, setWallColors] = useState<BedroomColor[]>([]);
+  const [wardrobeColors, setWardrobeColors] = useState<WardrobeColor[]>([]); // State for wardrobe colors
   const [selectedWallImage, setSelectedWallImage] = useState<string>(""); 
   const [selectedWallColor, setSelectedWallColor] = useState<string>("");
+  const [selectedWardrobeImage, setSelectedWardrobeImage] = useState<string>(""); // State for selected wardrobe color
+  const [selectedWardrobeColor, setSelectedWardrobeColor] = useState<string>(""); // State for wardrobe color
   const [defaultImage, setDefaultImage] = useState<string>(""); // Store default image
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -45,11 +53,17 @@ const BedroomPage = () => {
   
         if (data.room_name) {
           setWallColors(data.wall_colors || []);
+          setWardrobeColors(data.wardrobe_colors || []); // Set wardrobe colors
           setDefaultImage(data.images[0]?.image_path || "");  // Set default image path
           if (data.wall_colors?.length > 0) {
             const selectedImage = data.wall_colors[0]?.image || "";
             setSelectedWallColor(data.wall_colors[0]?.color || "");
             setSelectedWallImage(selectedImage);
+          }
+          if (data.wardrobe_colors?.length > 0) {
+            const selectedWardrobeImage = data.wardrobe_colors[0]?.image || "";
+            setSelectedWardrobeColor(data.wardrobe_colors[0]?.color || "");
+            setSelectedWardrobeImage(selectedWardrobeImage);
           }
         }
       } catch (error) {
@@ -71,6 +85,7 @@ const BedroomPage = () => {
       session_id: sessionId,
       selected_rooms: ["bedroom"],
       wall_colors: selectedWallImage ? [{ image: selectedWallImage, color: selectedWallColor }] : [],
+      wardrobe_colors: selectedWardrobeImage ? [{ image: selectedWardrobeImage, color: selectedWardrobeColor }] : [], // Send wardrobe selection
     };
 
     try {
@@ -89,13 +104,22 @@ const BedroomPage = () => {
 
   const handleWallColorChange = (color: string, image: string): void => {
     if (selectedWallImage === image) {
-      // Deselect and show the default image when the same color is clicked
       setSelectedWallImage(defaultImage); // Set to default image
       setSelectedWallColor(""); // Clear the selected color
     } else {
-      // Set the selected color and image
       setSelectedWallColor(color);
       setSelectedWallImage(image);
+    }
+    updateSelection();
+  };
+
+  const handleWardrobeColorChange = (color: string, image: string): void => {
+    if (selectedWardrobeImage === image) {
+      setSelectedWardrobeImage(""); // Clear wardrobe selection if clicked again
+      setSelectedWardrobeColor(""); // Clear wardrobe color
+    } else {
+      setSelectedWardrobeColor(color);
+      setSelectedWardrobeImage(image);
     }
     updateSelection();
   };
@@ -108,7 +132,7 @@ const BedroomPage = () => {
           <div className="w-1/4 bg-white shadow-md p-4 flex flex-col items-start">
             <h2 className="text-xl font-bold mb-4">Walls</h2>
             <div className="relative mb-10">
-              <p className="mb-4 text-lg">Select Color</p>
+              <p className="mb-4 text-lg">Select Wall Color</p>
               <div className="flex p-2 space-x-4">
                 {wallColors.map((color, index) => (
                   <div
@@ -124,19 +148,49 @@ const BedroomPage = () => {
                 ))}
               </div>
             </div>
+
+            <h2 className="text-xl font-bold mb-4">Wardrobe</h2>
+            <div className="relative mb-10">
+              <p className="mb-4 text-lg">Select Wardrobe Color</p>
+              <div className="flex p-2 space-x-4">
+                {wardrobeColors.map((color, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWardrobeImage === color.image ? "border-4 border-green-500" : ""}`}
+                    onClick={() => handleWardrobeColorChange(color.color, color.image)}
+                  >
+                    <div
+                      className="w-8 h-8 rounded shadow-md"
+                      style={{ backgroundColor: color.color }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="w-3/4 flex items-center justify-center flex-col">
             <div className="relative">
-              {/* Render selected wall image or default image */}
+              {/* Render selected wall image */}
               <Image
                 src={selectedWallImage || defaultImage}
-                alt="Selected Bedroom"
+                alt="Selected Bedroom Wall"
                 width={900}
                 height={800}
                 style={{ objectFit: "cover" }}
                 className="rounded-lg shadow-lg"
               />
+
+              {/* Overlay selected wardrobe image on top of the wall image */}
+              {selectedWardrobeImage && (
+                <Image
+                  src={selectedWardrobeImage}
+                  alt="Selected Wardrobe"
+                  width={900}
+                  height={800}
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
+                />
+              )}
             </div>
 
             {/* Add the Button Below the Image */}
