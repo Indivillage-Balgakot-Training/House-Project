@@ -244,16 +244,7 @@ const KitchenPage = () => {
                 />
               )}
 
-              {/* Overlay selected basin image */}
-              {selectedBasinImage && (
-                <Image
-                  src={selectedBasinImage}
-                  alt="Selected Basin"
-                  width={500}
-                  height={500}
-                  className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
-                />
-              )}
+             
             </div>
 
             {/* Back to Home Button */}
