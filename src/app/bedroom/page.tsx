@@ -21,7 +21,7 @@ const BedroomPage = () => {
   const [wallColors, setWallColors] = useState<BedroomColor[]>([]);
   const [wardrobeColors, setWardrobeColors] = useState<WardrobeColor[]>([]); // State for wardrobe colors
   const [selectedWallImage, setSelectedWallImage] = useState<string>(""); 
-  const [selectedWallColor, setSelectedWallColor] = useState<string>("");
+  const [selectedWallColor, setSelectedWallColor] = useState<string>(""); 
   const [selectedWardrobeImage, setSelectedWardrobeImage] = useState<string>(""); // State for selected wardrobe color
   const [selectedWardrobeColor, setSelectedWardrobeColor] = useState<string>(""); // State for wardrobe color
   const [defaultImage, setDefaultImage] = useState<string>(""); // Store default image
