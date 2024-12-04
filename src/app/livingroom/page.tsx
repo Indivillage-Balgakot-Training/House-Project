@@ -15,6 +15,8 @@ const LivingRoomPage = () => {
   const [houseId, setHouseId] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
+  const router = useRouter(); // Initialize router here
+
   useEffect(() => {
     const house_id = searchParams.get("house_id");
     const session_id = searchParams.get("session_id");
@@ -44,6 +46,8 @@ const LivingRoomPage = () => {
     fetchLivingRoomData();
   }, [houseId, sessionId]);
 
+  
+
   return (
     <div className="flex">
       <Sidebar currentPage="living_room" isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
@@ -57,12 +61,21 @@ const LivingRoomPage = () => {
                   src={defaultImage}
                   alt="Living Room"
                   objectFit="cover"
-                  width={1000}
+                  width={900}
                   height={800}
                   style={{ objectFit: "cover" }}
                 className="rounded-lg shadow-lg"
                 />
               )}
+            </div>
+             {/* Add the Button Below the Image */}
+             <div className="mt-4">
+              <button
+                onClick={() => router.push("/gallery")}  // Navigate to home page on button click (for example)
+                className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
+              >
+                Back to Home
+              </button>
             </div>
           </div>
         </div>

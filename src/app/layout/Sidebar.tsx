@@ -17,9 +17,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const pathname = usePathname();  // Get the current path
   const router = useRouter();  // Access the router for navigation
 
-  // State to track the current page
+  const { selectedHouse, setSelectedHouse } = useSelectedHouse(); // Access and set selected house from context
+
   const [currentPage, setCurrentPage] = useState<PageKeys>('welcome');
-  const { selectedHouse } = useSelectedHouse(); // Access the selected house from the context
 
   // Map of pages to their paths
   const pages: Record<PageKeys, string> = {
@@ -29,21 +29,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     kitchen: '/kitchen',
   };
 
+  // Step 1: Sync page and selected house to localStorage
   useEffect(() => {
-    const path = pathname;
-    
-    if (!path) return; // Guard against undefined or null path
+    localStorage.setItem('currentPage', currentPage);
+    if (selectedHouse) {
+      localStorage.setItem('selectedHouse', JSON.stringify(selectedHouse));
+    }
+  }, [currentPage, selectedHouse]);
 
-    // Check which page the path corresponds to and set it as the currentPage
-    if (path === '/') setCurrentPage('welcome');
-    else if (path.startsWith('/gallery')) setCurrentPage('houses');
-    else if (path.startsWith('/layout') && !path.includes('/kitchen')) setCurrentPage('layout');
-    else if (path.startsWith('/kitchen')) setCurrentPage('kitchen');
-  }, [pathname]);
+  // Step 2: Retrieve the page and selected house from localStorage on component mount
+  useEffect(() => {
+    const savedPage = localStorage.getItem('currentPage') as PageKeys;
+    const savedHouse = localStorage.getItem('selectedHouse');
+
+    if (savedPage) {
+      setCurrentPage(savedPage);
+    }
+
+    if (savedHouse) {
+      const parsedHouse = JSON.parse(savedHouse);
+      setSelectedHouse(parsedHouse);  // Update the context with the saved house
+    }
+  }, [setSelectedHouse]);
 
   // Handle main page navigation
   const handleNavigation = (page: PageKeys) => {
     router.push(pages[page]);
+    setCurrentPage(page); // Set the current page when navigating
     toggleSidebar(); // Close the sidebar after navigation
   };
 
@@ -55,7 +67,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
       return ['bedroom', 'open-area', 'master-bedroom1', 'master-bedroom2', 'guest-bathroom', 'kitchen']; // Default layout for other houses
     }
   };
-
 
   return (
     <div className={`sidebar__wrapper relative h-screen bg-gray-400 text-black p-6 transition-transform duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
@@ -72,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           {isOpen ? <MdKeyboardArrowLeft /> : <MdKeyboardArrowRight />}
         </button>
       </div>
-      
+
       <ul className="space-y-4">
         {[ 
           { id: 'welcome', icon: <FaHome />, label: 'Welcome' },

@@ -16,14 +16,18 @@ const KitchenPage = () => {
   const [cabinetColors, setCabinetColors] = useState<KitchenColor[]>([]);
   const [wallColors, setWallColors] = useState<KitchenColor[]>([]);
   const [basinColors, setBasinColors] = useState<KitchenColor[]>([]);
-
+  
   const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>(""); 
   const [selectedWallImage, setSelectedWallImage] = useState<string>(""); 
   const [selectedBasinImage, setSelectedBasinImage] = useState<string>("");
+  const [defaultImage, setDefaultImage] = useState<string>(""); // Store default image
+
+  
 
   const [selectedCabinetColor, setSelectedCabinetColor] = useState<string>(""); 
   const [selectedWallColor, setSelectedWallColor] = useState<string>(""); 
   const [selectedBasinColor, setSelectedBasinColor] = useState<string>("");
+  
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const router = useRouter();
@@ -54,6 +58,7 @@ const KitchenPage = () => {
           setCabinetColors(data.cabinet_colors || []);
           setWallColors(data.wall_colors || []);
           setBasinColors(data.basin_colors || []);
+          setDefaultImage(data.images[0]?.image_path || "");  // Set default image path
           
           // Set initial selections for each category
           if (data.cabinet_colors?.length > 0) {
@@ -109,22 +114,37 @@ const KitchenPage = () => {
   };
 
   const handleCabinetColorChange = (color: string, image: string): void => {
+    if (selectedCabinetImage === image) {
+    setSelectedCabinetImage(defaultImage);
+    setSelectedCabinetColor(""); // Use selectedCabinetImage
+  } else {
     setSelectedCabinetColor(color);
-    setSelectedCabinetImage(image); // Use selectedCabinetImage
-    updateSelection();
-  };
+    setSelectedCabinetImage(image);
+  }
+  updateSelection();
+};
 
   const handleWallColorChange = (color: string, image: string): void => {
-    setSelectedWallColor(color);
-    setSelectedWallImage(image);
+    if (selectedWallImage === image) {
+      setSelectedWallImage(""); // Set to default image
+      setSelectedWallColor(""); // Clear the selected color
+    } else {
+      setSelectedWallColor(color);
+      setSelectedWallImage(image);
+    }
     updateSelection();
   };
 
   const handleBasinColorChange = (color: string, image: string): void => {
+    if (selectedBasinImage === image ) {
+    setSelectedBasinImage("");
+    setSelectedBasinColor("");
+  } else {
     setSelectedBasinColor(color);
     setSelectedBasinImage(image);
-    updateSelection();
-  };
+  }
+  updateSelection();
+};
 
   const handleBackToHome = async () => {
     if (!houseId || !sessionId) {
@@ -224,7 +244,7 @@ const KitchenPage = () => {
               {/* Base kitchen image */}
               {selectedCabinetImage && (
                 <Image
-                  src={selectedCabinetImage}
+                  src={selectedCabinetImage || defaultImage}
                   alt="Selected Kitchen"
                   width={1000}
                   height={800}
