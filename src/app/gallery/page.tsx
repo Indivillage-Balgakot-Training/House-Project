@@ -78,7 +78,7 @@ const GalleryPage = () => {
 
         router.push(`/layout?house_id=${house_id}&house_name=${selectedHouse.house_name}&session_id=${session_id}`);
       } catch (error) {
-        setError('Error selecting house, please try again.');
+        setError('');
       } finally {
         setLoading(false);
       }
