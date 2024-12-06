@@ -19,12 +19,12 @@ interface WardrobeColor {
 
 const BedroomPage = () => {
   const [wallColors, setWallColors] = useState<BedroomColor[]>([]);
-  const [wardrobeColors, setWardrobeColors] = useState<WardrobeColor[]>([]); // State for wardrobe colors
+  const [wardrobeColors, setWardrobeColors] = useState<WardrobeColor[]>([]);
   const [selectedWallImage, setSelectedWallImage] = useState<string>(""); 
   const [selectedWallColor, setSelectedWallColor] = useState<string>(""); 
-  const [selectedWardrobeImage, setSelectedWardrobeImage] = useState<string>(""); // State for selected wardrobe color
-  const [selectedWardrobeColor, setSelectedWardrobeColor] = useState<string>(""); // State for wardrobe color
-  const [defaultImage, setDefaultImage] = useState<string>(""); // Store default image
+  const [selectedWardrobeImage, setSelectedWardrobeImage] = useState<string>(""); 
+  const [selectedWardrobeColor, setSelectedWardrobeColor] = useState<string>(""); 
+  const [defaultImage, setDefaultImage] = useState<string>("");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const router = useRouter();
@@ -41,6 +41,7 @@ const BedroomPage = () => {
     if (session_id) setSessionId(session_id);
   }, [searchParams]);
 
+  // Fetch data and load previous selections from localStorage
   useEffect(() => {
     const fetchBedroomData = async () => {
       if (!houseId || !sessionId) return;
@@ -53,14 +54,28 @@ const BedroomPage = () => {
   
         if (data.room_name) {
           setWallColors(data.wall_colors || []);
-          setWardrobeColors(data.wardrobe_colors || []); // Set wardrobe colors
-          setDefaultImage(data.images[0]?.image_path || "");  // Set default image path
-          if (data.wall_colors?.length > 0) {
+          setWardrobeColors(data.wardrobe_colors || []);
+          setDefaultImage(data.images[0]?.image_path || "");  
+
+          // Load previous selections from localStorage or set defaults
+          const storedWallColor = localStorage.getItem("selectedWallColor");
+          const storedWallImage = localStorage.getItem("selectedWallImage");
+          const storedWardrobeColor = localStorage.getItem("selectedWardrobeColor");
+          const storedWardrobeImage = localStorage.getItem("selectedWardrobeImage");
+
+          if (storedWallColor && storedWallImage) {
+            setSelectedWallColor(storedWallColor);
+            setSelectedWallImage(storedWallImage);
+          } else if (data.wall_colors?.length > 0) {
             const selectedImage = data.wall_colors[0]?.image || "";
             setSelectedWallColor(data.wall_colors[0]?.color || "");
             setSelectedWallImage(selectedImage);
           }
-          if (data.wardrobe_colors?.length > 0) {
+
+          if (storedWardrobeColor && storedWardrobeImage) {
+            setSelectedWardrobeColor(storedWardrobeColor);
+            setSelectedWardrobeImage(storedWardrobeImage);
+          } else if (data.wardrobe_colors?.length > 0) {
             const selectedWardrobeImage = data.wardrobe_colors[0]?.image || "";
             setSelectedWardrobeColor(data.wardrobe_colors[0]?.color || "");
             setSelectedWardrobeImage(selectedWardrobeImage);
@@ -85,7 +100,7 @@ const BedroomPage = () => {
       session_id: sessionId,
       selected_rooms: ["bedroom"],
       wall_colors: selectedWallImage ? [{ image: selectedWallImage, color: selectedWallColor }] : [],
-      wardrobe_colors: selectedWardrobeImage ? [{ image: selectedWardrobeImage, color: selectedWardrobeColor }] : [], // Send wardrobe selection
+      wardrobe_colors: selectedWardrobeImage ? [{ image: selectedWardrobeImage, color: selectedWardrobeColor }] : [], 
     };
 
     try {
@@ -106,9 +121,13 @@ const BedroomPage = () => {
     if (selectedWallImage === image) {
       setSelectedWallImage(defaultImage); // Set to default image
       setSelectedWallColor(""); // Clear the selected color
+      localStorage.removeItem("selectedWallColor");
+      localStorage.removeItem("selectedWallImage");
     } else {
       setSelectedWallColor(color);
       setSelectedWallImage(image);
+      localStorage.setItem("selectedWallColor", color);
+      localStorage.setItem("selectedWallImage", image);
     }
     updateSelection();
   };
@@ -117,9 +136,13 @@ const BedroomPage = () => {
     if (selectedWardrobeImage === image) {
       setSelectedWardrobeImage(""); // Clear wardrobe selection if clicked again
       setSelectedWardrobeColor(""); // Clear wardrobe color
+      localStorage.removeItem("selectedWardrobeColor");
+      localStorage.removeItem("selectedWardrobeImage");
     } else {
       setSelectedWardrobeColor(color);
       setSelectedWardrobeImage(image);
+      localStorage.setItem("selectedWardrobeColor", color);
+      localStorage.setItem("selectedWardrobeImage", image);
     }
     updateSelection();
   };
