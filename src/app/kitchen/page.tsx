@@ -16,18 +16,16 @@ const KitchenPage = () => {
   const [cabinetColors, setCabinetColors] = useState<KitchenColor[]>([]);
   const [wallColors, setWallColors] = useState<KitchenColor[]>([]);
   const [basinColors, setBasinColors] = useState<KitchenColor[]>([]);
-  
+
   const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>(""); 
   const [selectedWallImage, setSelectedWallImage] = useState<string>(""); 
   const [selectedBasinImage, setSelectedBasinImage] = useState<string>("");
-  const [defaultImage, setDefaultImage] = useState<string>(""); // Store default image
 
-  
+  const [defaultImage, setDefaultImage] = useState<string>(""); // Store default image
 
   const [selectedCabinetColor, setSelectedCabinetColor] = useState<string>(""); 
   const [selectedWallColor, setSelectedWallColor] = useState<string>(""); 
   const [selectedBasinColor, setSelectedBasinColor] = useState<string>("");
-  
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const router = useRouter();
@@ -115,20 +113,24 @@ const KitchenPage = () => {
 
   const handleCabinetColorChange = (color: string, image: string): void => {
     if (selectedCabinetImage === image) {
-    setSelectedCabinetImage(defaultImage);
-    setSelectedCabinetColor(""); // Use selectedCabinetImage
-  } else {
-    setSelectedCabinetColor(color);
-    setSelectedCabinetImage(image);
-  }
-  updateSelection();
-};
+      // Deselect the color
+      setSelectedCabinetColor("");
+      setSelectedCabinetImage(""); // Reset to default
+    } else {
+      // Select the color
+      setSelectedCabinetColor(color);
+      setSelectedCabinetImage(image);
+    }
+    updateSelection();
+  };
 
   const handleWallColorChange = (color: string, image: string): void => {
     if (selectedWallImage === image) {
-      setSelectedWallImage(""); // Set to default image
-      setSelectedWallColor(""); // Clear the selected color
+      // Deselect the color
+      setSelectedWallColor("");
+      setSelectedWallImage(""); // Reset to default
     } else {
+      // Select the color
       setSelectedWallColor(color);
       setSelectedWallImage(image);
     }
@@ -136,15 +138,17 @@ const KitchenPage = () => {
   };
 
   const handleBasinColorChange = (color: string, image: string): void => {
-    if (selectedBasinImage === image ) {
-    setSelectedBasinImage("");
-    setSelectedBasinColor("");
-  } else {
-    setSelectedBasinColor(color);
-    setSelectedBasinImage(image);
-  }
-  updateSelection();
-};
+    if (selectedBasinImage === image) {
+      // Deselect the color
+      setSelectedBasinColor("");
+      setSelectedBasinImage(""); // Reset to default
+    } else {
+      // Select the color
+      setSelectedBasinColor(color);
+      setSelectedBasinImage(image);
+    }
+    updateSelection();
+  };
 
   const handleBackToHome = async () => {
     if (!houseId || !sessionId) {
@@ -178,80 +182,75 @@ const KitchenPage = () => {
         <div className="flex flex-1">
           <div className="w-1/4 bg-white shadow-md p-4 flex flex-col items-start">
             {/* Cabinet Colors */}
-            <h2 className="text-xl font-bold mb-4">Cabinets</h2>
-            <div className="relative mb-10">
-              <p className="mb-4 text-lg">Select Color</p>
-              <div className="flex p-2 space-x-4">
-                {cabinetColors.map((color, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCabinetImage === color.image ? "border-4 border-green-500" : ""}`}
-                    onClick={() => handleCabinetColorChange(color.color, color.image)}
-                  >
+            {cabinetColors.length > 0 && (
+              <div className="relative mb-10">
+                <h2 className="text-xl font-bold mb-4">Cabinets</h2>
+                <p className="mb-4 text-lg">Select Color</p>
+                <div className="flex p-2 space-x-4">
+                  {cabinetColors.map((color, index) => (
                     <div
-                      className="w-8 h-8 rounded shadow-md"
-                      style={{ backgroundColor: color.color }}
-                    />
-                  </div>
-                ))}
+                      key={index}
+                      className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCabinetImage === color.image ? "border-4 border-green-500" : ""}`}
+                      onClick={() => handleCabinetColorChange(color.color, color.image)}
+                    >
+                      <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Wall Colors */}
-            <h2 className="text-xl font-bold mb-4">Walls</h2>
-            <div className="relative mb-10">
-              <p className="mb-4 text-lg">Select Color</p>
-              <div className="flex p-2 space-x-4">
-                {wallColors.map((color, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? "border-4 border-green-500" : ""}`}
-                    onClick={() => handleWallColorChange(color.color, color.image)}
-                  >
+            {wallColors.length > 0 && (
+              <div className="relative mb-10">
+                <h2 className="text-xl font-bold mb-4">Walls</h2>
+                <p className="mb-4 text-lg">Select Color</p>
+                <div className="flex p-2 space-x-4">
+                  {wallColors.map((color, index) => (
                     <div
-                      className="w-8 h-8 rounded shadow-md"
-                      style={{ backgroundColor: color.color }}
-                    />
-                  </div>
-                ))}
+                      key={index}
+                      className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? "border-4 border-green-500" : ""}`}
+                      onClick={() => handleWallColorChange(color.color, color.image)}
+                    >
+                      <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Basin Colors */}
-            <h2 className="text-xl font-bold mb-4">Basin</h2>
-            <div className="relative mb-10">
-              <p className="mb-4 text-lg">Select Color</p>
-              <div className="flex p-2 space-x-4">
-                {basinColors.map((color, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedBasinImage === color.image ? "border-4 border-green-500" : ""}`}
-                    onClick={() => handleBasinColorChange(color.color, color.image)}
-                  >
+            {basinColors.length > 0 && (
+              <div className="relative mb-10">
+                <h2 className="text-xl font-bold mb-4">Basin</h2>
+                <p className="mb-4 text-lg">Select Color</p>
+                <div className="flex p-2 space-x-4">
+                  {basinColors.map((color, index) => (
                     <div
-                      className="w-8 h-8 rounded shadow-md"
-                      style={{ backgroundColor: color.color }}
-                    />
-                  </div>
-                ))}
+                      key={index}
+                      className={`flex items-center cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedBasinImage === color.image ? "border-4 border-green-500" : ""}`}
+                      onClick={() => handleBasinColorChange(color.color, color.image)}
+                    >
+                      <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Kitchen Image with Overlays */}
           <div className="w-3/4 flex items-center justify-center flex-col">
             <div className="relative">
               {/* Base kitchen image */}
-              {selectedCabinetImage && (
-                <Image
-                  src={selectedCabinetImage || defaultImage}
-                  alt="Selected Kitchen"
-                  width={1000}
-                  height={800}
-                  style={{ objectFit: "cover" }}
-                  className="rounded-lg shadow-lg"
-                />
-              )}
+              <Image
+                src={selectedCabinetImage || defaultImage}
+                alt="Selected Kitchen"
+                width={1000}
+                height={800}
+                style={{ objectFit: "cover" }}
+                className="rounded-lg shadow-lg"
+              />
 
               {/* Overlay selected wall image */}
               {selectedWallImage && (
@@ -263,8 +262,6 @@ const KitchenPage = () => {
                   className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
                 />
               )}
-
-             
             </div>
 
             {/* Back to Home Button */}
