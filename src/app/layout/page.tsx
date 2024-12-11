@@ -34,7 +34,6 @@ const LayoutPage = () => {
   // Get query parameters from the URL
   const houseId = searchParams.get('house_id');
   const sessionId = searchParams.get('session_id');
-  const houseName = searchParams.get('house_name');
   const [error, setError] = useState<string | null>(null); // State hook for error
 
   const [storedHouseId, setStoredHouseId] = useState<string | null>(null); // Store houseId
@@ -107,7 +106,8 @@ const LayoutPage = () => {
       const result = await response.json();
       console.log(`${area} saved successfully!`);
 
-      router.push(`/${area}?house_id=${storedHouseId}&session_id=${storedSessionId}`);
+      // Navigate to MultiRoomPage with the current house_id and session_id
+      router.push(`/rooms?house_id=${storedHouseId}&session_id=${storedSessionId}`);
     } catch (error) {
       console.error('Error sending data to backend:', error);
     }
