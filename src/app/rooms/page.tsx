@@ -29,6 +29,7 @@ const HomePage = () => {
   const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>("");
   const [selectedWallImage, setSelectedWallImage] = useState<string>("");
   const [selectedBasinImage, setSelectedBasinImage] = useState<string>("");
+  const [selectedWardrobeImage, setSelectedWardrobeImage] = useState<string>("");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const searchParams = useSearchParams();
@@ -63,6 +64,7 @@ const HomePage = () => {
           if (roomData.cabinet_colors) setSelectedCabinetImage(roomData.cabinet_colors[0]?.image || "");
           if (roomData.wall_colors) setSelectedWallImage(roomData.wall_colors[0]?.image || "");
           if (roomData.basin_colors) setSelectedBasinImage(roomData.basin_colors[0]?.image || "");
+          if (roomData.wardrobe_colors) setSelectedWardrobeImage(roomData.wardrobe_colors[0]?.image || "");
         }
       } catch (error) {
         console.error("Error fetching room data:", error);
@@ -95,7 +97,7 @@ const HomePage = () => {
       },
       bedroom: {
         wall_colors: selectedWallImage ? [{ image: selectedWallImage }] : [],
-        wardrobe_colors: selectedBasinImage ? [{ image: selectedBasinImage }] : [],
+        wardrobe_colors: selectedWardrobeImage ? [{ image: selectedWardrobeImage }] : [],
       },
     };
 
@@ -233,8 +235,8 @@ const HomePage = () => {
                 {roomData.wardrobe_colors.map((color: WardrobeColor, index: number) => (
                   <div
                     key={index}
-                    className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedBasinImage === color.image ? "border-4 border-green-500" : ""}`}
-                    onClick={() => { setSelectedBasinImage(color.image); updateSelection(); }}
+                    className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWardrobeImage === color.image ? "border-4 border-green-500" : ""}`}
+                    onClick={() => { setSelectedWardrobeImage(color.image); updateSelection(); }}
                   >
                     <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
@@ -250,42 +252,47 @@ const HomePage = () => {
 
           {/* Display Room-specific Content */}
           {selectedRoom === "Kitchen" && roomData?.images && (
-            <>
-              <h3 className="text-xl mb-2">Kitchen Image</h3>
+            <div className="relative">
               <Image
-                src={selectedCabinetImage || roomData.images[0]?.image_path}
-                alt="Selected Kitchen Image"
-                width={1000}
+                src={selectedWallImage || roomData.images[0]?.image_path}
+                alt="Selected Kitchen Wall"
+                width={900}
                 height={800}
-                className="rounded-lg shadow-lg mb-8"
+                style={{ objectFit: "cover" }}
+                className="rounded-lg shadow-lg"
               />
-            </>
-          )}
-
-          {selectedRoom === "Living Room" && roomData?.images && (
-            <>
-              <h3 className="text-xl mb-2">Living Room Image</h3>
-              <Image
-                src={roomData.images[0]?.image_path}
-                alt="Living Room"
-                width={1000}
-                height={800}
-                className="rounded-lg shadow-lg mb-8"
-              />
-            </>
+              {selectedCabinetImage && (
+                <Image
+                  src={selectedCabinetImage}
+                  alt="Selected Cabinet"
+                  width={900}
+                  height={800}
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
+                />
+              )}
+            </div>
           )}
 
           {selectedRoom === "Bedroom" && roomData?.images && (
-            <>
-              <h3 className="text-xl mb-2">Bedroom Image</h3>
+            <div className="relative">
               <Image
                 src={selectedWallImage || roomData.images[0]?.image_path}
-                alt="Selected Bedroom Image"
-                width={1000}
+                alt="Selected Bedroom Wall"
+                width={900}
                 height={800}
-                className="rounded-lg shadow-lg mb-8"
+                style={{ objectFit: "cover" }}
+                className="rounded-lg shadow-lg"
               />
-            </>
+              {selectedWardrobeImage && (
+                <Image
+                  src={selectedWardrobeImage}
+                  alt="Selected Wardrobe"
+                  width={900}
+                  height={800}
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
+                />
+              )}
+            </div>
           )}
 
           <button onClick={handleBackToHome} className="bg-blue-500 text-white py-2 px-6 rounded-full">
