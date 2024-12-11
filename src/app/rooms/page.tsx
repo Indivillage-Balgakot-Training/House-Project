@@ -145,6 +145,15 @@ const HomePage = () => {
         <div className="w-1/4 bg-white shadow-md p-4 flex flex-col items-start">
           <div className="space-y-4">
             {/* Room selection buttons */}
+            {["Kitchen", "Bedroom", "Living Room"].map((room) => (
+              <button
+                key={room}
+                onClick={() => handleRoomSelect(room)}
+                className={`px-4 py-2 text-white rounded-lg ${selectedRoom === room ? "bg-blue-500" : "bg-gray-400"}`}
+              >
+                {room}
+              </button>
+            ))}
           </div>
 
           {/* Color Options Based on Selected Room */}
