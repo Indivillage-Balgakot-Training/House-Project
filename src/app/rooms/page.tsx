@@ -106,7 +106,7 @@ const HomePage = () => {
       living_room: {
         wall_colors: selectedWallImage ? [{ image: selectedWallImage }] : [],
         cabinet_colors: selectedCabinetImage ? [{ image: selectedCabinetImage }] : [],
-        ceiling_images: selectedCeilingImage ? [{ image: selectedCeilingImage }] : [],
+        ceiling_colors: selectedCeilingImage ? [{ image: selectedCeilingImage }] : [],
       },
     };
 
@@ -273,17 +273,17 @@ const HomePage = () => {
           )}
 
           {/* Living Room Ceiling Color Options */}
-          {selectedRoom === "Living Room" && roomData?.ceiling_images && (
+          {selectedRoom === "Living Room" && roomData?.ceiling_colors && (
             <>
               <h3 className="text-xl mt-6 mb-2">Ceiling Colors</h3>
               <div className="flex p-2 space-x-4">
-                {roomData.ceiling_images.map((image: any, index: number) => (
+                {roomData.ceiling_colors.map((color: LivingRoomColor, index: number) => (
                   <div
                     key={index}
-                    className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCeilingImage === image.image ? "border-4 border-green-500" : ""}`}
-                    onClick={() => { setSelectedCeilingImage(image.image); updateSelection(); }}
+                    className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCeilingImage === color.image ? "border-4 border-green-500" : ""}`}
+                    onClick={() => { setSelectedCeilingImage(color.image); updateSelection(); }}
                   >
-                    <div className="w-8 h-8 rounded shadow-md" style={{ backgroundImage: `url(${image.image})`, backgroundSize: 'cover' }} />
+                    <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
                 ))}
               </div>
@@ -314,15 +314,7 @@ const HomePage = () => {
                   className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
                 />
               )}
-              {selectedBasinImage && (
-                <Image
-                  src={selectedBasinImage}
-                  alt="Selected Basin"
-                  width={900}
-                  height={800}
-                  className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
-                />
-              )}
+              
             </div>
           )}
 
