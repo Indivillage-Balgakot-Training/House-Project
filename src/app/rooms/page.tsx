@@ -23,13 +23,19 @@ interface WardrobeColor {
   image: string;
 }
 
+interface LivingRoomColor {
+  color: string;
+  image: string;
+}
+
 const HomePage = () => {
-  const [selectedRoom, setSelectedRoom] = useState<string>("Kitchen"); // State for selected room
+  const [selectedRoom, setSelectedRoom] = useState<string>("Kitchen");
   const [roomData, setRoomData] = useState<any>({});
   const [selectedCabinetImage, setSelectedCabinetImage] = useState<string>("");
   const [selectedWallImage, setSelectedWallImage] = useState<string>("");
   const [selectedBasinImage, setSelectedBasinImage] = useState<string>("");
   const [selectedWardrobeImage, setSelectedWardrobeImage] = useState<string>("");
+  const [selectedCeilingImage, setSelectedCeilingImage] = useState<string>("");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const searchParams = useSearchParams();
@@ -47,7 +53,6 @@ const HomePage = () => {
     if (session_id) setSessionId(session_id);
   }, [searchParams]);
 
-  // Fetch data for the selected room
   useEffect(() => {
     const fetchData = async () => {
       if (!houseId || !sessionId) return;
@@ -65,6 +70,7 @@ const HomePage = () => {
           if (roomData.wall_colors) setSelectedWallImage(roomData.wall_colors[0]?.image || "");
           if (roomData.basin_colors) setSelectedBasinImage(roomData.basin_colors[0]?.image || "");
           if (roomData.wardrobe_colors) setSelectedWardrobeImage(roomData.wardrobe_colors[0]?.image || "");
+          if (roomData.ceiling_images) setSelectedCeilingImage(roomData.ceiling_images[0]?.image || "");
         }
       } catch (error) {
         console.error("Error fetching room data:", error);
@@ -74,12 +80,10 @@ const HomePage = () => {
     fetchData();
   }, [houseId, sessionId, selectedRoom]);
 
-  // Handle the room selection change
   const handleRoomSelect = (room: string) => {
     setSelectedRoom(room); // Set the selected room and fetch its data
   };
 
-  // Update selection function for each room
   const updateSelection = async () => {
     if (!sessionId || !houseId) {
       console.error("Session ID or House ID is missing.");
@@ -98,6 +102,11 @@ const HomePage = () => {
       bedroom: {
         wall_colors: selectedWallImage ? [{ image: selectedWallImage }] : [],
         wardrobe_colors: selectedWardrobeImage ? [{ image: selectedWardrobeImage }] : [],
+      },
+      living_room: {
+        wall_colors: selectedWallImage ? [{ image: selectedWallImage }] : [],
+        cabinet_colors: selectedCabinetImage ? [{ image: selectedCabinetImage }] : [],
+        ceiling_images: selectedCeilingImage ? [{ image: selectedCeilingImage }] : [],
       },
     };
 
@@ -140,13 +149,10 @@ const HomePage = () => {
 
   return (
     <div className="flex">
-      {/* Sidebar: Room Selection and Color Options */}
       <Sidebar currentPage="home" isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       <div className="flex flex-1">
-        {/* Color Selections and Room Selection Inside Sidebar */}
         <div className="w-1/4 bg-white shadow-md p-4 flex flex-col items-start">
           <div className="space-y-4">
-            {/* Room selection buttons */}
             {["Kitchen", "Bedroom", "Living Room"].map((room) => (
               <button
                 key={room}
@@ -158,7 +164,7 @@ const HomePage = () => {
             ))}
           </div>
 
-          {/* Color Options Based on Selected Room */}
+          {/* Kitchen Color Options */}
           {selectedRoom === "Kitchen" && roomData?.cabinet_colors && (
             <>
               <h3 className="text-xl mt-6 mb-2">Cabinet Colors</h3>
@@ -176,11 +182,12 @@ const HomePage = () => {
             </>
           )}
 
+          {/* Kitchen Wall Color Options */}
           {selectedRoom === "Kitchen" && roomData?.wall_colors && (
             <>
               <h3 className="text-xl mt-6 mb-2">Wall Colors</h3>
               <div className="flex p-2 space-x-4">
-                {roomData.wall_colors.map((color: KitchenColor, index: number) => (
+                {roomData.wall_colors.map((color: LivingRoomColor, index: number) => (
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? "border-4 border-green-500" : ""}`}
@@ -193,11 +200,12 @@ const HomePage = () => {
             </>
           )}
 
+          {/* Kitchen Basin Color Options */}
           {selectedRoom === "Kitchen" && roomData?.basin_colors && (
             <>
               <h3 className="text-xl mt-6 mb-2">Basin Colors</h3>
               <div className="flex p-2 space-x-4">
-                {roomData.basin_colors.map((color: KitchenColor, index: number) => (
+                {roomData.basin_colors.map((color: LivingRoomColor, index: number) => (
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedBasinImage === color.image ? "border-4 border-green-500" : ""}`}
@@ -228,6 +236,7 @@ const HomePage = () => {
             </>
           )}
 
+          {/* Bedroom Wardrobe Color Options */}
           {selectedRoom === "Bedroom" && roomData?.wardrobe_colors && (
             <>
               <h3 className="text-xl mt-6 mb-2">Wardrobe Colors</h3>
@@ -244,13 +253,48 @@ const HomePage = () => {
               </div>
             </>
           )}
+
+          {/* Living Room Color Options */}
+          {selectedRoom === "Living Room" && roomData?.wall_colors && (
+            <>
+              <h3 className="text-xl mt-6 mb-2">Wall Colors</h3>
+              <div className="flex p-2 space-x-4">
+                {roomData.wall_colors.map((color: LivingRoomColor, index: number) => (
+                  <div
+                    key={index}
+                    className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? "border-4 border-green-500" : ""}`}
+                    onClick={() => { setSelectedWallImage(color.image); updateSelection(); }}
+                  >
+                    <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Living Room Ceiling Color Options */}
+          {selectedRoom === "Living Room" && roomData?.ceiling_images && (
+            <>
+              <h3 className="text-xl mt-6 mb-2">Ceiling Colors</h3>
+              <div className="flex p-2 space-x-4">
+                {roomData.ceiling_images.map((image: any, index: number) => (
+                  <div
+                    key={index}
+                    className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCeilingImage === image.image ? "border-4 border-green-500" : ""}`}
+                    onClick={() => { setSelectedCeilingImage(image.image); updateSelection(); }}
+                  >
+                    <div className="w-8 h-8 rounded shadow-md" style={{ backgroundImage: `url(${image.image})`, backgroundSize: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right Side: Room Image and Content */}
         <div className="w-3/4 flex items-center justify-center flex-col p-4">
           <h2 className="text-2xl font-bold mb-4">{selectedRoom}</h2>
 
-          {/* Display Room-specific Content */}
           {selectedRoom === "Kitchen" && roomData?.images && (
             <div className="relative">
               <Image
@@ -265,6 +309,15 @@ const HomePage = () => {
                 <Image
                   src={selectedCabinetImage}
                   alt="Selected Cabinet"
+                  width={900}
+                  height={800}
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
+                />
+              )}
+              {selectedBasinImage && (
+                <Image
+                  src={selectedBasinImage}
+                  alt="Selected Basin"
                   width={900}
                   height={800}
                   className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
@@ -295,6 +348,27 @@ const HomePage = () => {
             </div>
           )}
 
+          {selectedRoom === "Living Room" && roomData?.images && (
+            <div className="relative">
+              <Image
+                src={selectedWallImage || roomData.images[0]?.image_path}
+                alt="Selected Living Room Wall"
+                width={900}
+                height={800}
+                style={{ objectFit: "cover" }}
+                className="rounded-lg shadow-lg"
+              />
+              {selectedCeilingImage && (
+                <Image
+                  src={selectedCeilingImage}
+                  alt="Selected Ceiling"
+                  width={900}
+                  height={800}
+                  className="absolute inset-0 w-full h-full object-cover opacity-50 rounded-md"
+                />
+              )}
+            </div>
+          )}
           <button onClick={handleBackToHome} className="bg-blue-500 text-white py-2 px-6 rounded-full">
             Back to Gallery
           </button>
