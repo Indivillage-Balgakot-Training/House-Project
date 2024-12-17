@@ -1,4 +1,4 @@
-"use client"; // Mark the component as a Client Component
+'use client';
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -28,27 +28,22 @@ const LayoutPage = () => {
   const [layoutData, setLayoutData] = useState<LayoutData | null>(null); // State to hold layout data
   const [hoveredArea, setHoveredArea] = useState<string | null>(null); // Track the area being hovered
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null); // Track the selected room
+  const [roomDetails, setRoomDetails] = useState<any | null>(null); // Store selected room details
+  const [error, setError] = useState<string | null>(null); // State hook for error
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
   // Get query parameters from the URL
   const houseId = searchParams.get('house_id');
   const sessionId = searchParams.get('session_id');
-  const [error, setError] = useState<string | null>(null); // State hook for error
-
-  const [storedHouseId, setStoredHouseId] = useState<string | null>(null); // Store houseId
-  const [storedSessionId, setStoredSessionId] = useState<string | null>(null); // Store sessionId
 
   useEffect(() => {
     if (!houseId || !sessionId) {
       console.error("Missing house_id, or session_id");
       return;
     }
-
-    console.log('Received from query params:', { houseId, sessionId });
-
-    setStoredHouseId(houseId);
-    setStoredSessionId(sessionId);
 
     const fetchLayoutData = async () => {
       try {
@@ -57,6 +52,7 @@ const LayoutPage = () => {
           throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
         }
         const data: LayoutData = await layoutResponse.json();
+        console.log(data);  // Check what data is received
         setLayoutData(data);
       } catch (error) {
         console.error('Error fetching layout data:', error);
@@ -75,42 +71,14 @@ const LayoutPage = () => {
     setHoveredArea(null);
   };
 
-  const handleClick = async (area: string) => {
-    console.log(`Clicked on ${area}`);
-    if (!storedHouseId || !storedSessionId || !area) {
-      console.error("Missing houseId, sessionId, or area");
+  const handleClick = (room: string) => {
+    if (!houseId || !sessionId || !room) {
+      console.error("Missing houseId, sessionId, or room");
       return;
     }
 
-    const requestData = {
-      house_id: storedHouseId,
-      session_id: storedSessionId,
-      selected_rooms: [area],
-    };
-
-    console.log("Sending data to backend:", requestData);
-
-    try {
-      const response = await fetch('http://localhost:5000/select-room', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save selection');
-      }
-
-      const result = await response.json();
-      console.log(`${area} saved successfully!`);
-
-      // Navigate to MultiRoomPage with the current house_id and session_id
-      router.push(`/rooms?house_id=${storedHouseId}&session_id=${storedSessionId}`);
-    } catch (error) {
-      console.error('Error sending data to backend:', error);
-    }
+    // Navigate to the room page with the selected room name
+    router.push(`/rooms?house_id=${houseId}&session_id=${sessionId}&room_name=${room}`);
   };
 
   if (error) {
@@ -136,13 +104,13 @@ const LayoutPage = () => {
             />
           )}
 
-          {/* Create div elements for each area for hover effects */}
+          {/* Check if rooms and areas exist */}
           <div className="absolute top-0 left-0">
-            {layoutData?.rooms.flatMap((room) =>
-              room.areas.map((area) => (
+            {layoutData?.rooms?.map((room) =>
+              room.areas?.map((area) => (
                 <div
                   key={area.name}
-                  onClick={() => handleClick(area.name)}
+                  onClick={() => handleClick(room.name)} // Navigate to the room page
                   onMouseEnter={() => handleMouseEnter(area.name)}
                   onMouseLeave={handleMouseLeave}
                   style={{
