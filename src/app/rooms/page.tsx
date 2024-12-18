@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import Sidebar from '../layout/Sidebar';
+import Sidebar from '../gallery/Sidebar';
 
 const RoomsPage = () => {
   const [roomData, setRoomData] = useState<any>({});

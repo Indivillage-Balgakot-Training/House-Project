@@ -1,10 +1,10 @@
-"use client"; // Mark the component as a Client Component
+'use client';
 
-import { useState, useEffect } from 'react'; // Only import these hooks once
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useSelectedHouse } from '../contexts/SelectedHouseContext';
+import { useRouter } from 'next/navigation'; // Ensure correct import of useRouter
+import Sidebar from '../gallery/Sidebar'; // Correct import of Sidebar
 
 interface House {
   house_id: string;
@@ -18,9 +18,10 @@ const GalleryPage = () => {
   const [houses, setHouses] = useState<House[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { selectedHouse, setSelectedHouse } = useSelectedHouse(); // Use context for selected house
+  const [selectedHouse, setSelectedHouse] = useState<House | null>(null); // Selected house state
   const [lockedHouses, setLockedHouses] = useState<{ [key: string]: boolean }>({});
-  const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false); // Sidebar state
+  const router = useRouter(); // Directly call useRouter here
 
   // Fetch houses from the backend when the component mounts
   useEffect(() => {
@@ -31,11 +32,9 @@ const GalleryPage = () => {
           throw new Error('Network response was not ok');
         }
         const data: House[] = await response.json();
-        
-        console.log("Fetched Houses:", data); // Debugging line
         setHouses(data);
         if (data.length > 0) {
-          setSelectedHouse(data[0]); // Set the first house as the selected house
+          setSelectedHouse(data[0]); // Set the first house as selected
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -47,7 +46,7 @@ const GalleryPage = () => {
     };
 
     fetchHouses();
-  }, [setSelectedHouse]);
+  }, []);
 
   const handleImageClick = async () => {
     if (selectedHouse) {
@@ -73,22 +72,31 @@ const GalleryPage = () => {
         }
 
         const { session_id, house_id } = data;
-        console.log('House Selected:', { session_id, house_id });
         setLockedHouses(prev => ({ ...prev, [house_id]: true }));
 
         router.push(`/layout?house_id=${house_id}&house_name=${selectedHouse.house_name}&session_id=${session_id}`);
       } catch (error) {
-        setError('');
+        setError('Failed to select house');
       } finally {
         setLoading(false);
       }
     }
   };
 
+  // Handle house selection from Sidebar
+  const handleHouseSelect = (houseId: string) => {
+    const selected = houses.find(house => house.house_id === houseId);
+    setSelectedHouse(selected || null); // Set the selected house based on the ID
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="spinner"></div> {/* You can add a CSS spinner here */}
+        <div className="spinner"></div>
         <p>Loading houses...</p>
       </div>
     );
@@ -104,22 +112,11 @@ const GalleryPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <div className="w-1/6 bg-gray-400 shadow-md p-4">
-        <h2 className="text-xl font-bold mb-4">Select a House</h2>
-        {error && <p className="text-red-500">{error}</p>}
-        <select
-          className="block w-full p-2 border border-gray-300 rounded"
-          onChange={(e) => setSelectedHouse(houses[Number(e.target.value)])}
-          //value={selectedHouse ? houses.indexOf(selectedHouse) : ''}
-        >
-          {houses.map((house, index) => (
-            <option key={house.house_id} value={index}>
-              {house.house_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
+      <Sidebar
+        onHouseSelect={handleHouseSelect}
+        isOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
       <div className="w-3/4 flex flex-col items-center justify-center p-8">
         {selectedHouse ? (
           <>
@@ -139,7 +136,7 @@ const GalleryPage = () => {
             </Link>
           </>
         ) : (
-          <p>No houses available.</p>
+          <p>No house selected.</p>
         )}
       </div>
     </div>

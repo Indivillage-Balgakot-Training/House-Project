@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation'; // useSearchParams to access query params
-import Sidebar from './Sidebar';
+import Sidebar from '../gallery/Sidebar';
 
 interface Area {
   name: string;
