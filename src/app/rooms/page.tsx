@@ -203,19 +203,20 @@ const RoomsPage = () => {
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
 
-      {/* Main Content Section */}
-      <div className={`flex-grow ${isSidebarOpen ? 'ml-64' : 'ml-16'} p-6`}>
-        <div className="flex justify-center">
-          {/* Content with Image and Options */}
-          <div className="flex flex-col items-center w-full lg:flex-row lg:justify-between">
-            {/* Sidebar with Color Options */}
-            <div className="lg:w-1/4 bg-gray-100 p-4 rounded-lg shadow-md">
-              <h2 className="text-2xl font-bold mb-4">{roomName}</h2>
-              {renderColorOptions()}
-            </div>
+    {/* Main Content Section */}
+<div className={`flex-grow ${isSidebarOpen ? 'ml-50' : 'ml-60'} p-10`}>
+  <div className="flex justify-end h-full">
+    {/* Content with Image and Options */}
+    <div className="flex flex-col items-center w-full lg:flex-row lg:justify-between h-full">
+      
+      {/* Sidebar with Color Options */}
+      <div className="lg:w-1/5 bg-gray-100 p-4 rounded-lg shadow-md h-full">
+        <h2 className="text-2xl font-bold mb-4">{roomName}</h2>
+        {renderColorOptions()}
+      </div>
 
-            {/* Room Image Section */}
-            <div className="relative lg:w-2/3 lg:ml-8">
+      {/* Room Image Section */}
+      <div className="relative lg:w-2/3 lg:ml-8 mt-8 lg:mt-0 mx-auto h-full">
               {/* Wall Image */}
               {roomData?.images?.length > 0 && (
                 <Image
@@ -269,7 +270,7 @@ const RoomsPage = () => {
         <div className="flex justify-center mt-4">
           <button
             onClick={handleBack}
-            className="bg-blue-500 text-white py-2 px-6 rounded-full"
+            className="bg-blue-500 text-white py-4 px-8 rounded-full"
           >
             Back to Home
           </button>
