@@ -22,6 +22,9 @@ const RoomsPage = () => {
   const [selectedWardrobeImage, setSelectedWardrobeImage] = useState<string | null>(null);
   const [selectedCeilingImage, setSelectedCeilingImage] = useState<string | null>(null);
 
+  // Define the session storage key for this session
+  const storageKey = `room-selections-${sessionId}`;
+
   useEffect(() => {
     if (!houseId || !sessionId || !roomName) return;
 
@@ -32,6 +35,20 @@ const RoomsPage = () => {
         );
         const data = await response.json();
         setRoomData(data);
+
+         // Retrieve previously selected images from sessionStorage
+         const savedSelections = sessionStorage.getItem(storageKey);
+         if (savedSelections) {
+           const parsedSelections = JSON.parse(savedSelections);
+           if (parsedSelections) {
+             setSelectedWallImage(parsedSelections.wallImage || null);
+             setSelectedCabinetImage(parsedSelections.cabinetImage || null);
+             setSelectedBasinImage(parsedSelections.basinImage || null);
+             setSelectedWardrobeImage(parsedSelections.wardrobeImage || null);
+             setSelectedCeilingImage(parsedSelections.ceilingImage || null);
+           }
+         }
+
       } catch (error) {
         console.error('Error fetching room data:', error);
       }
@@ -44,15 +61,29 @@ const RoomsPage = () => {
     router.push(`/gallery?house_id=${houseId}&session_id=${sessionId}`);
   };
 
+  const handleColorClick = (
+    setSelectedColor: React.Dispatch<React.SetStateAction<string | null>>,
+    selectedImage: string | null,
+    image: string,
+    colorType: string
+  ) => {
+    const newSelection = selectedImage === image ? null : image;
+    setSelectedColor(newSelection);
+
+    // Save the selection to sessionStorage
+    const savedSelections = sessionStorage.getItem(storageKey);
+    const parsedSelections = savedSelections ? JSON.parse(savedSelections) : {};
+
+    // Update the selected color based on the color type
+    parsedSelections[colorType] = newSelection;
+
+    // Save back to sessionStorage
+    sessionStorage.setItem(storageKey, JSON.stringify(parsedSelections));
+  };
+
+
   // Dynamic rendering of color options based on selected room
   const renderColorOptions = () => {
-    const handleColorClick = (setSelectedColor: React.Dispatch<React.SetStateAction<string | null>>, selectedImage: string | null, image: string) => {
-      if (selectedImage === image) {
-        setSelectedColor(null); // Deselect the color if it's already selected
-      } else {
-        setSelectedColor(image); // Select the new color
-      }
-    };
 
     if (selectedRoom === 'Kitchen') {
       return (
@@ -65,7 +96,7 @@ const RoomsPage = () => {
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCabinetImage === color.image ? 'border-4 border-green-500' : ''}`}
-                    onClick={() => { handleColorClick(setSelectedCabinetImage, selectedCabinetImage, color.image); }}
+                    onClick={() => { handleColorClick(setSelectedCabinetImage, selectedCabinetImage, color.image, 'cabinetImage'); }}
                   >
                     <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
@@ -82,7 +113,7 @@ const RoomsPage = () => {
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? 'border-4 border-green-500' : ''}`}
-                    onClick={() => { handleColorClick(setSelectedWallImage, selectedWallImage, color.image); }}
+                    onClick={() => { handleColorClick(setSelectedWallImage, selectedWallImage, color.image, 'wallImage'); }}
                   >
                     <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
@@ -99,7 +130,7 @@ const RoomsPage = () => {
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedBasinImage === color.image ? 'border-4 border-green-500' : ''}`}
-                    onClick={() => { handleColorClick(setSelectedBasinImage, selectedBasinImage, color.image); }}
+                    onClick={() => { handleColorClick(setSelectedBasinImage, selectedBasinImage, color.image, 'basinImage'); }}
                   >
                     <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
@@ -122,7 +153,7 @@ const RoomsPage = () => {
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? 'border-4 border-green-500' : ''}`}
-                    onClick={() => { handleColorClick(setSelectedWallImage, selectedWallImage, color.image); }}
+                    onClick={() => { handleColorClick(setSelectedWallImage, selectedWallImage, color.image, 'wallImage'); }}
                   >
                     <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
@@ -139,7 +170,7 @@ const RoomsPage = () => {
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWardrobeImage === color.image ? 'border-4 border-green-500' : ''}`}
-                    onClick={() => { handleColorClick(setSelectedWardrobeImage, selectedWardrobeImage, color.image); }}
+                    onClick={() => { handleColorClick(setSelectedWardrobeImage, selectedWardrobeImage, color.image, 'wardrobeImage'); }}
                   >
                     <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
@@ -162,7 +193,7 @@ const RoomsPage = () => {
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedWallImage === color.image ? 'border-4 border-green-500' : ''}`}
-                    onClick={() => { handleColorClick(setSelectedWallImage, selectedWallImage, color.image); }}
+                    onClick={() => { handleColorClick(setSelectedWallImage, selectedWallImage, color.image, 'wallImage'); }}
                   >
                     <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
@@ -179,7 +210,7 @@ const RoomsPage = () => {
                   <div
                     key={index}
                     className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedCeilingImage === color.image ? 'border-4 border-green-500' : ''}`}
-                    onClick={() => { handleColorClick(setSelectedCeilingImage, selectedCeilingImage, color.image); }}
+                    onClick={() => { handleColorClick(setSelectedCeilingImage, selectedCeilingImage, color.image, 'ceilingImage'); }}
                   >
                     <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                   </div>
@@ -261,23 +292,23 @@ const RoomsPage = () => {
                   style={{ objectFit: 'cover' }}
                   className="absolute top-0 left-0 rounded-lg shadow-lg opacity-40"
                 />
-              )}
-            </div>
-          </div>
-        </div>
+              )} 
 
         {/* Back to Home Button below the image section */}
         <div className="flex justify-center mt-4">
           <button
             onClick={handleBack}
-            className="bg-blue-500 text-white py-4 px-8 rounded-full"
+            className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
           >
             Back to Home
           </button>
+          </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+</div>
+);
 };
 
 export default RoomsPage;
