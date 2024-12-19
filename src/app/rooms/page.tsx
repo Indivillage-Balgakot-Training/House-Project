@@ -15,12 +15,15 @@ const RoomsPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  // Extract house_id, session_id, and room_name from the URL query parameters
   const houseId = searchParams.get('house_id');
   const sessionId = searchParams.get('session_id');
   const roomName = searchParams.get('room_name');
 
-  //To store selected room and its corresponding images
+  // State to track default from URL
   const [selectedRoom, setSelectedRoom] = useState<string>(roomName || '');
+
+  // States to store selected images for different parts of the room
   const [selectedWallImage, setSelectedWallImage] = useState<string | null>(null);
   const [selectedCabinetImage, setSelectedCabinetImage] = useState<string | null>(null);
   const [selectedBasinImage, setSelectedBasinImage] = useState<string | null>(null);
@@ -48,6 +51,7 @@ const RoomsPage = () => {
         if (savedSelections) {
           const parsedSelections = JSON.parse(savedSelections);
           if (parsedSelections) {
+            // Restore previous selections from sessionStorage
             setSelectedWallImage(parsedSelections.wallImage || null);
             setSelectedCabinetImage(parsedSelections.cabinetImage || null);
             setSelectedBasinImage(parsedSelections.basinImage || null);
@@ -60,7 +64,7 @@ const RoomsPage = () => {
       }
     };
 
-    fetchRoomData();
+    fetchRoomData();// Call the fetch function
   }, [houseId, sessionId, roomName]);
 
   // Navigate back to the gallery page
@@ -76,7 +80,7 @@ const RoomsPage = () => {
     colorType: string
   ) => {
     const newSelection = selectedImage === image ? null : image;
-    setSelectedColor(newSelection);
+    setSelectedColor(newSelection);// Update the selected color in state
 
     // Save the selection to sessionStorage
     const savedSelections = sessionStorage.getItem(storageKey);
@@ -95,6 +99,7 @@ const RoomsPage = () => {
     if (selectedRoom === 'Kitchen') {
       return (
         <>
+         {/* Render cabinet color options*/}
           {roomData?.cabinet_colors && (
             <>
               <h3 className="text-xl mt-6 mb-2">Cabinet Colors</h3>
@@ -112,6 +117,7 @@ const RoomsPage = () => {
             </>
           )}
 
+           {/* Render wall color options*/}
           {roomData?.wall_colors && (
             <>
               <h3 className="text-xl mt-6 mb-2">Wall Colors</h3>
@@ -129,6 +135,7 @@ const RoomsPage = () => {
             </>
           )}
 
+           {/* Render basin color options*/}
           {roomData?.basin_colors && (
             <>
               <h3 className="text-xl mt-6 mb-2">Basin Colors</h3>
