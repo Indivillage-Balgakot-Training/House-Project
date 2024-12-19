@@ -29,8 +29,9 @@ const LayoutPage = () => {
   const [hoveredArea, setHoveredArea] = useState<string | null>(null); // Track the area being hovered
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null); // Track the selected room
-  const [roomDetails, setRoomDetails] = useState<any | null>(null); // Store selected room details
   const [error, setError] = useState<string | null>(null); // State hook for error
+  const [rooms, setRooms] = useState<string[]>([]); // Track rooms for the selected house
+  const [selectedHouseId, setSelectedHouseId] = useState<string | null>(null); // Track selected house ID
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -47,13 +48,19 @@ const LayoutPage = () => {
 
     const fetchLayoutData = async () => {
       try {
+        // Fetch layout data for the selected house
         const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`);
         if (!layoutResponse.ok) {
           throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
         }
         const data: LayoutData = await layoutResponse.json();
-        console.log(data);  // Check what data is received
         setLayoutData(data);
+
+        // Set rooms data for the selected house
+        const roomNames = data.rooms.map(room => room.name);
+        setRooms(roomNames);
+
+        setSelectedHouseId(houseId); // Set selected house ID
       } catch (error) {
         console.error('Error fetching layout data:', error);
         setError('Failed to load layout data');
@@ -81,6 +88,14 @@ const LayoutPage = () => {
     router.push(`/rooms?house_id=${houseId}&session_id=${sessionId}&room_name=${room}`);
   };
 
+  const handleHouseSelect = (houseId: string) => {
+    setSelectedHouseId(houseId);
+  };
+
+  const handleRoomSelect = (roomName: string) => {
+    setSelectedRoom(roomName);
+  };
+
   if (error) {
     return <div>{error}</div>;
   }
@@ -91,6 +106,10 @@ const LayoutPage = () => {
         currentPage="layout"
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        selectedHouseId={selectedHouseId}
+        rooms={rooms}
+        onHouseSelect={handleHouseSelect}
+        onRoomSelect={handleRoomSelect}
       />
       <div className={`flex-grow ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
         <div className="relative">
@@ -104,7 +123,6 @@ const LayoutPage = () => {
             />
           )}
 
-          {/* Check if rooms and areas exist */}
           <div className="absolute top-0 left-0">
             {layoutData?.rooms?.map((room) =>
               room.areas?.map((area) => (
