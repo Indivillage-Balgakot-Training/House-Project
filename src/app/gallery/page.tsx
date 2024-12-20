@@ -115,8 +115,9 @@ const GalleryPage = () => {
       <Sidebar
         onHouseSelect={handleHouseSelect}
         isOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-      />
+        toggleSidebar={toggleSidebar} onRoomSelect={function (roomName: string): void {
+          throw new Error('Function not implemented.');
+        } } selectedHouseId={null} rooms={[]}      />
       <div className="w-3/4 flex flex-col items-center justify-center p-8">
         {selectedHouse ? (
           <>

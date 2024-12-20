@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -74,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           ))}
         </div>
 
-        {selectedHouseId && rooms.length > 0 && (
+        {selectedHouseId && rooms.length > 0 ? (
           <>
             <h3 className="text-xl font-semibold mt-8 mb-4">Rooms</h3>
             <div className="flex flex-col space-y-4">
@@ -89,6 +90,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               ))}
             </div>
           </>
+        ) : (
+          <div className="text-gray-400">No rooms available for this house</div>
         )}
       </div>
     </div>

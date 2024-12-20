@@ -46,7 +46,7 @@ const RoomsPage = () => {
         const data = await response.json();
         setRoomData(data);
 
-        // Fetch the previously chosen images from the sessionStorage
+        // Fetch the previously chosen images from sessionStorage
         const savedSelections = sessionStorage.getItem(storageKey);
         if (savedSelections) {
           const parsedSelections = JSON.parse(savedSelections);
@@ -256,11 +256,11 @@ const RoomsPage = () => {
     <div className="flex">
       {/* Sidebar Section */}
       <Sidebar
-        currentPage="layout"
+        currentPage="rooms"
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         selectedHouseId={houseId} // Use houseId here
-        rooms={roomData.rooms || []} // Ensure roomData has a rooms array
+        rooms={roomData.rooms || [roomName]} // Ensure roomData has a rooms array
         onHouseSelect={handleHouseSelect}
         onRoomSelect={handleRoomSelect}
       />
