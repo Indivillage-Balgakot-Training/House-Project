@@ -50,27 +50,21 @@ const RoomsPage = () => {
   };
 
   const handleColorClick = (category: string, image: string | null) => {
-    // Ensure the selection for the category is limited to one per category
-    if (selectedImages[category]) {
-      // If there's already a selection, replace it with the new one
+    // If the clicked image is already selected, unselect it by removing it from selectedImages
+    if (selectedImages[category] === image) {
+      setSelectedImages((prevState: any) => {
+        const updatedState = { ...prevState };
+        delete updatedState[category];  // Remove the category from the selected images
+        sessionStorage.setItem(storageKey, JSON.stringify(updatedState));
+        return updatedState;
+      });
+    } else {
+      // Otherwise, select the new image
       setSelectedImages((prevState: any) => {
         const updatedState = { ...prevState, [category]: image };
         sessionStorage.setItem(storageKey, JSON.stringify(updatedState));
         return updatedState;
       });
-    } else {
-      // If it's the first selection, check if total selections are less than 2
-      const totalSelections = Object.keys(selectedImages).length;
-      if (totalSelections < 2) {
-        setSelectedImages((prevState: any) => {
-          const updatedState = { ...prevState, [category]: image };
-          sessionStorage.setItem(storageKey, JSON.stringify(updatedState));
-          return updatedState;
-        });
-      } else {
-        // If there are already 2 selections, show an alert or prevent selection
-        alert("You can only select two categories at a time!");
-      }
     }
   };
 
