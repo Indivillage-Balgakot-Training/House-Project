@@ -6,21 +6,22 @@ import Image from 'next/image';
 import Sidebar from '../gallery/Sidebar';
 
 const RoomsPage = () => {
-  const [roomData, setRoomData] = useState<any>({});
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [roomData, setRoomData] = useState<any>({}); // State to store room data
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);// State to toggle the sidebar
 
-  const searchParams = useSearchParams();
-  const router = useRouter();
+  const searchParams = useSearchParams(); // Get search parameters (house_id, session_id, room_name) from the URL
+  const router = useRouter();// Router for navigating
 
-  const houseId = searchParams.get('house_id');
-  const sessionId = searchParams.get('session_id');
-  const roomName = searchParams.get('room_name');
+  const houseId = searchParams.get('house_id');// Extract house_id
+  const sessionId = searchParams.get('session_id');// Extract session_id
+  const roomName = searchParams.get('room_name'); // Extract room_name
 
-  const [selectedRoom, setSelectedRoom] = useState<string>(roomName || '');
-  const [selectedImages, setSelectedImages] = useState<any>({});
+  const [selectedRoom, setSelectedRoom] = useState<string>(roomName || '');// State to store the currently selected room name
+  const [selectedImages, setSelectedImages] = useState<any>({});// State to store selected images per category
 
-  const storageKey = `room-selections-${sessionId}`;
+  const storageKey = `room-selections-${sessionId}`;// Key for sessionStorage to store selected images for a session
 
+  // Fetch room data from the backend based on houseId, sessionId, and roomName
   useEffect(() => {
     if (!houseId || !sessionId || !roomName) return;
 
@@ -69,22 +70,21 @@ const RoomsPage = () => {
   };
 
   const renderColorOptions = () => {
-    if (!roomData?.images) return null;
-
+    if (!roomData?.images) return null;// If there are no images in the room data, return null
     return Object.keys(roomData).map((category) => {
-      const categoryData = roomData[category];
+      const categoryData = roomData[category]; // Get the data for the current category
       if (Array.isArray(categoryData) && categoryData.length > 0) {
         return (
           <div key={category}>
-            <h3 className="text-xl mt-6 mb-2">{category.replace(/([A-Z])/g, ' $1')}</h3>
+            <h3 className="text-xl mt-6 mb-2">{category.replace(/([A-Z])/g, ' $1')}</h3>{/* Format category name */}
             <div className="flex p-2 space-x-4">
               {categoryData.map((color: any, index: number) => (
                 <div
                   key={index}
                   className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedImages[category] === color.image ? 'border-4 border-green-500' : ''}`}
-                  onClick={() => handleColorClick(category, color.image)}
+                  onClick={() => handleColorClick(category, color.image)}// Handle image click to select or unselect
                 >
-                  <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
+                  <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />{/* Display color option */}
                 </div>
               ))}
             </div>
@@ -96,17 +96,17 @@ const RoomsPage = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex"> {/* Sidebar component with room selection and house selection */}
       <Sidebar
         currentPage="rooms"
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         selectedHouseId={houseId}
-        rooms={roomData.rooms || [roomName]}
-        onHouseSelect={(houseId) => console.log('Selected House:', houseId)}
+        rooms={roomData.rooms || [roomName]} // List of rooms, defaulting to the current room name
+        onHouseSelect={(houseId) => console.log('Selected House:', houseId)}// Handle house selection
         onRoomSelect={(roomName) => {
-          console.log('Selected Room:', roomName);
-          setSelectedRoom(roomName);
+          console.log('Selected Room:', roomName); // Handle room selection
+          setSelectedRoom(roomName);// Update the selected room
         }}
       />
 
