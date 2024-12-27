@@ -49,13 +49,29 @@ const RoomsPage = () => {
     router.push(`/gallery?house_id=${houseId}&session_id=${sessionId}`);
   };
 
-  const handleColorClick = (colorKey: string, image: string | null, category: string) => {
-    const newSelection = selectedImages[colorKey] === image ? null : image;
-    setSelectedImages((prevState: any) => {
-      const newState = { ...prevState, [colorKey]: newSelection };
-      sessionStorage.setItem(storageKey, JSON.stringify(newState));
-      return newState;
-    });
+  const handleColorClick = (category: string, image: string | null) => {
+    // Ensure the selection for the category is limited to one per category
+    if (selectedImages[category]) {
+      // If there's already a selection, replace it with the new one
+      setSelectedImages((prevState: any) => {
+        const updatedState = { ...prevState, [category]: image };
+        sessionStorage.setItem(storageKey, JSON.stringify(updatedState));
+        return updatedState;
+      });
+    } else {
+      // If it's the first selection, check if total selections are less than 2
+      const totalSelections = Object.keys(selectedImages).length;
+      if (totalSelections < 2) {
+        setSelectedImages((prevState: any) => {
+          const updatedState = { ...prevState, [category]: image };
+          sessionStorage.setItem(storageKey, JSON.stringify(updatedState));
+          return updatedState;
+        });
+      } else {
+        // If there are already 2 selections, show an alert or prevent selection
+        alert("You can only select two categories at a time!");
+      }
+    }
   };
 
   const renderColorOptions = () => {
@@ -72,7 +88,7 @@ const RoomsPage = () => {
                 <div
                   key={index}
                   className={`cursor-pointer hover:bg-gray-200 p-1 rounded ${selectedImages[category] === color.image ? 'border-4 border-green-500' : ''}`}
-                  onClick={() => handleColorClick(category, color.image, category)}
+                  onClick={() => handleColorClick(category, color.image)}
                 >
                   <div className="w-8 h-8 rounded shadow-md" style={{ backgroundColor: color.color }} />
                 </div>
@@ -109,35 +125,33 @@ const RoomsPage = () => {
             </div>
 
             <div className="relative lg:w-2/3 lg:ml-8 mt-8 lg:mt-0 mx-auto h-full">
-              
-
-              {Object.keys(selectedImages).map((key) => {
-                if (selectedImages[key]) {
-                  return (
-                    <Image
-                      key={key}
-                      src={selectedImages[key]}
-                      alt={key}
-                      width={900}
-                      height={800}
-                      style={{ objectFit: 'cover' }}
-                      className={`absolute top-0 left-0 rounded-lg shadow-lg opacity-${key === 'ceilingImage' ? 50 : 75}`}
-                    />
-                  );
-                }
-                return null;
+              {/* Render all selected images for each category */}
+              {Object.keys(selectedImages).map((category) => {
+                const image = selectedImages[category];
+                return image ? (
+                  <Image
+                    key={`${category}`}
+                    src={image}
+                    alt={`${category}`}
+                    width={900}
+                    height={800}
+                    style={{ objectFit: 'cover' }}
+                    className={`absolute top-0 left-0 rounded-lg shadow-lg opacity-75`}
+                  />
+                ) : null;
               })}
-
-              <div className="flex justify-center mt-4">
-                <button
-                  onClick={handleBack}
-                  className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
-                >
-                  Back to Home
-                </button>
-              </div>
             </div>
           </div>
+        </div>
+
+        {/* Back to Home button below the images */}
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleBack}
+            className="px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition"
+          >
+            Back to Home
+          </button>
         </div>
       </div>
     </div>
