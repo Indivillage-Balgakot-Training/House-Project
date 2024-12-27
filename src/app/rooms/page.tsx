@@ -114,8 +114,8 @@ const RoomsPage = () => {
         <div className="flex justify-end h-full">
           <div className="flex flex-col items-center w-full lg:flex-row lg:justify-between h-full">
             <div className="lg:w-1/5 bg-gray-100 p-4 rounded-lg shadow-md h-full">
-              <h2 className="text-2xl font-bold mb-4">{roomName}</h2>
-              {renderColorOptions()}
+              <h2 className="text-2xl font-bold mb-4">{roomName}</h2>{/* Display room name */}
+              {renderColorOptions()}{/* Render color selection options for the room */}
             </div>
 
             <div className="relative lg:w-2/3 lg:ml-8 mt-8 lg:mt-0 mx-auto h-full">
@@ -124,7 +124,7 @@ const RoomsPage = () => {
                 const image = selectedImages[category];
                 return image ? (
                   <Image
-                    key={`${category}`}
+                    key={`${category}`} // Unique key for each image
                     src={image}
                     alt={`${category}`}
                     width={900}
