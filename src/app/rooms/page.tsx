@@ -24,26 +24,29 @@ const RoomsPage = () => {
   // Fetch room data from the backend based on houseId, sessionId, and roomName
   useEffect(() => {
     if (!houseId || !sessionId || !roomName) return;
-
-    const fetchRoomData = async () => {
+    // Make a GET request to fetch room data from the server based on houseId, sessionId, and roomName.
+    async function fetchRoomData() {
       try {
+        // Parse the response data and set it to the roomData state.
         const response = await fetch(
           `http://localhost:5000/room-data?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
         );
         const data = await response.json();
         setRoomData(data);
-
+// Get the saved selections from sessionStorage using the storageKey.
         const savedSelections = sessionStorage.getItem(storageKey);
+        // If there are saved selections, parse them and update the selectedImages state.
         if (savedSelections) {
           const parsedSelections = JSON.parse(savedSelections);
           setSelectedImages(parsedSelections || {});
         }
       } catch (error) {
-        console.error('Error fetching room data:', error);
+      
+        console.error('Error fetching room data:', error);// If an error occurs during the fetch, log it to the console.
       }
-    };
+    }
 
-    fetchRoomData();
+    fetchRoomData(); //Call the fetchRoomData function to load room data.
   }, [houseId, sessionId, roomName]);
 
   const handleBack = () => {
@@ -63,7 +66,7 @@ const RoomsPage = () => {
       // Otherwise, select the new image
       setSelectedImages((prevState: any) => {
         const updatedState = { ...prevState, [category]: image };
-        sessionStorage.setItem(storageKey, JSON.stringify(updatedState));
+        sessionStorage.setItem(storageKey, JSON.stringify(updatedState));// Save the updated selections to sessionStorage using the storageKey
         return updatedState;
       });
     }
