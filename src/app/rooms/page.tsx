@@ -9,6 +9,8 @@ const RoomsPage = () => {
   const [roomData, setRoomData] = useState<any>({}); // State to store room data
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // State to toggle the sidebar
   const [selectedImages, setSelectedImages] = useState<any>({}); // State to store selected images per category
+  const [backendPreferences, setBackendPreferences] = useState<any>({}); // State to store preferences fetched from the backend
+
 
   const searchParams = useSearchParams(); // Get search parameters (house_id, session_id, room_name) from the URL
   const router = useRouter(); // Router for navigating
@@ -48,22 +50,59 @@ const RoomsPage = () => {
     router.push(`/gallery?house_id=${houseId}&session_id=${sessionId}`);
   };
 
-  const handleColorClick = (category: string, image: string | null) => {
-    if (selectedImages[category] === image) {
-      setSelectedImages((prevState: any) => {
-        const updatedState = { ...prevState };
-        delete updatedState[category];
-        sessionStorage.setItem(storageKey, JSON.stringify(updatedState));
-        return updatedState;
-      });
+  const handleColorClick = async (category: string, image: string | null) => {
+    // Update the selected image
+    const updatedImages = { ...selectedImages };
+    if (updatedImages[category] === image) {
+      delete updatedImages[category];
     } else {
-      setSelectedImages((prevState: any) => {
-        const updatedState = { ...prevState, [category]: image };
-        sessionStorage.setItem(storageKey, JSON.stringify(updatedState));
-        return updatedState;
-      });
+      updatedImages[category] = image;
+    }
+
+    setSelectedImages(updatedImages);
+    sessionStorage.setItem(storageKey, JSON.stringify(updatedImages));
+
+    // Determine which preferences have changed
+    const updatedPreferences: any = {};
+
+    Object.keys(updatedImages).forEach((key) => {
+      if (updatedImages[key] !== backendPreferences[key]) {
+        updatedPreferences[key] = updatedImages[key];
+      }
+    });
+
+    // If no preferences have changed, we don't need to send a request
+    if (Object.keys(updatedPreferences).length > 0) {
+      // Only send the updated preferences to the backend
+      const preferences = {
+        house_id: houseId,
+        session_id: sessionId,
+        selected_rooms: [roomName], // Assuming only one room is selected at a time
+        ...updatedPreferences,
+      };
+
+      try {
+        const response = await fetch('http://localhost:5000/select-room', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(preferences),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log('Room preferences updated:', result.message);
+        } else {
+          console.error('Error:', result.error);
+        }
+      } catch (error) {
+        console.error('Error sending preferences:', error);
+      }
     }
   };
+
 
   const renderColorOptions = () => {
     if (!roomData?.images) return null;
