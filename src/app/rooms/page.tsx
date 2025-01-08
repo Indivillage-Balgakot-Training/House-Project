@@ -11,15 +11,12 @@ const RoomsPage = () => {
   const [selectedImages, setSelectedImages] = useState<any>({}); // State to store selected images per category
   const [backendPreferences, setBackendPreferences] = useState<any>({}); // State to store preferences fetched from the backend
 
-
   const searchParams = useSearchParams(); // Get search parameters (house_id, session_id, room_name) from the URL
   const router = useRouter(); // Router for navigating
 
   const houseId = searchParams.get('house_id'); // Extract house_id
   const sessionId = searchParams.get('session_id'); // Extract session_id
   const roomName = searchParams.get('room_name'); // Extract room_name
-
-  const storageKey = `room-selections-${sessionId}`; // Key for sessionStorage to store selected images for a session
 
   // Fetch room data from the backend based on houseId, sessionId, and roomName
   useEffect(() => {
@@ -31,13 +28,6 @@ const RoomsPage = () => {
         );
         const data = await response.json();
         setRoomData(data);
-
-        // Get the saved selections from sessionStorage using the storageKey.
-        const savedSelections = sessionStorage.getItem(storageKey);
-        if (savedSelections) {
-          const parsedSelections = JSON.parse(savedSelections);
-          setSelectedImages(parsedSelections || {});
-        }
       } catch (error) {
         console.error('Error fetching room data:', error);
       }
@@ -60,7 +50,6 @@ const RoomsPage = () => {
     }
 
     setSelectedImages(updatedImages);
-    sessionStorage.setItem(storageKey, JSON.stringify(updatedImages));
 
     // Determine which preferences have changed
     const updatedPreferences: any = {};
@@ -102,7 +91,6 @@ const RoomsPage = () => {
       }
     }
   };
-
 
   const renderColorOptions = () => {
     if (!roomData?.images) return null;
