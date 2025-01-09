@@ -67,7 +67,7 @@ const RoomsPage = () => {
         house_id: houseId,
         session_id: sessionId,
         selected_rooms: [roomName], // Assuming only one room is selected at a time
-        ...updatedPreferences,
+        preferences: updatedPreferences,
       };
 
       try {
