@@ -1,39 +1,15 @@
+Documentation of each page when its connects to the backend and APIs 
+
+1. GET and POST request 
 GALLERY PAGE
-
-'use client'; //its client side component
-
-import { useState, useEffect } from 'react'; //Import hooks for state
-import Image from 'next/image'; // Import Image component
-import Link from 'next/link'; // Import Link component for client-side navigation
-import { useRouter } from 'next/navigation'; // Ensure correct import of useRouter
-import Sidebar from '../gallery/Sidebar'; // Correct import of Sidebar
-
-// This Defines TypeScript interface for House object to structure data
-interface House {
-  house_id: string;
-  house_name: string;
-  house_image: string;
-  description?: string;
-  locked: boolean | null; // Track if house is locked by another user
-}
-
-const GalleryPage = () => {
- // State hooks to manage data
-  const [houses, setHouses] = useState<House[]>([]); // Store list of houses
-  const [error, setError] = useState<string | null>(null); // Store error messages
-  const [loading, setLoading] = useState<boolean>(true);
-  const [selectedHouse, setSelectedHouse] = useState<House | null>(null); // Store the Selected house state
-  const [lockedHouses, setLockedHouses] = useState<{ [key: string]: boolean }>({});  // Track locked houses
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false); // Manage the sidebar's open/close state
-  const router = useRouter(); // Directly call useRouter here
 
   // Fetch houses from the backend when the component mounts
   useEffect(() => {
     const fetchHouses = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/houses');  // Fetch houses data from backend API
+        const response = await fetch('http://127.0.0.1:5000/houses');  // we have Fetch houses data from this backend API
         if (!response.ok) {
-          throw new Error('Network response was not ok'); // Handle network errors
+          throw new Error('Network response was not ok'); // this will Handle network errors
         }
         const data: House[] = await response.json(); // Parse the JSON response into House objects
         setHouses(data);  // Set the fetched houses to state
@@ -52,6 +28,7 @@ const GalleryPage = () => {
     fetchHouses();  // Call the fetchHouses function to get data
   }, []);
 
+POST 
 
  // Function to handle image click event and lock house selection
   const handleImageClick = async () => {
@@ -90,82 +67,81 @@ const GalleryPage = () => {
         setLoading(false); // Stop loading state once the operation is complete
       }
     }
-  };
+  
 
-  // Handle house selection from Sidebar
-  const handleHouseSelect = (houseId: string) => {
-// Find the selected house from the list of houses
-    const selected = houses.find(house => house.house_id === houseId);
-    setSelectedHouse(selected || null); // Set the selected house based on the ID
-  };
+  LAYOUT PAGE
 
- // Toggle the visibility of the sidebar
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev); // Invert the current state of sidebar visibility
-  };
+  useEffect(() => { // This is a React useEffect hook. It runs the code inside the function
+    if (!houseId || !sessionId) {
+      console.error("Missing house_id, or session_id");
+      return;
+    }
 
-  // If the data is still loading, show loading spinner
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="spinner"></div> {/* Custom loading spinner */}
-        <p>Loading houses...</p>
-      </div>
-    );
-  }
+    const fetchLayoutData = async () => {
+      try {
+        // Fetch layout data for the selected house
+        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`);
+        if (!layoutResponse.ok) {
+          throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
+        }
+        const data: LayoutData = await layoutResponse.json();
+        setLayoutData(data);
 
- // If no houses are available, show a message
-  if (houses.length === 0) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>No houses available at the moment.</p>  {/* Display when no houses are fetched */}
-      </div>
-      </div>
-    );
-  }
+        // Set rooms data for the selected house
+        const roomNames = data.rooms.map(room => room.name);
+        setRooms(roomNames);
 
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-    // Sidebar component
-      <Sidebar
-        onHouseSelect={handleHouseSelect} // House selection handler
-        isOpen={isSidebarOpen}  // Sidebar visibility state
-        toggleSidebar={toggleSidebar} // Sidebar toggle function
-        onRoomSelect={function (roomName: string): void {
-          throw new Error('Function not implemented.'); // Placeholder for room select function
-        } } selectedHouseId={null} // Pass selected house ID 
-           rooms={[]} // Pass an empty array for rooms     />
+        setSelectedHouseId(houseId); // Set selected house ID
+      } catch (error) {
+        console.error('Error fetching layout data:', error);
+        setError('Failed to load layout data');
+      }
+    };
 
-      <div className="w-3/4 flex flex-col items-center justify-center p-8">
-        {selectedHouse ? (
-          <>
-             {/* Display selected house details */}
-            <h1 className="text-4xl font-bold mb-4">{selectedHouse.house_name}</h1>
-            <Image
-              src={selectedHouse.house_image} // Image source for the selected house
-              alt={selectedHouse.house_name}  // Alt text for the image
-              width={600} // Image width
-              height={400} // Image height
-              style={{ objectFit: 'cover' }}  // Maintain aspect ratio and cover the space
-              className="rounded-lg shadow-lg cursor-pointer" // Styling for image
-              onClick={handleImageClick} // Call handleImageClick when the image is clicked
-            />
-            <p className="mt-4 text-center">{selectedHouse.description || "No description available."}</p>
-	     {/* Display description if available, otherwise show a default message */}
-            <Link href="/" className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
-              Back to Home
-            </Link>
-          </>
-        ) : (
-          <p>No house selected.</p>// Show message when no house is selected
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default GalleryPage;
+    fetchLayoutData();
+  }, [houseId, sessionId]);
 
 
+  ROOMS PAGE
+  
+  useEffect(() => {
+    if (!houseId || !sessionId || !roomName) return;
+    async function fetchRoomData() {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/room-data_dev?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
+        );
+        const data = await response.json();
+        setRoomData(data);
+      } catch (error) {
+        console.error('Error fetching room data:', error);
+      }
+    }
 
+    fetchRoomData();
+  }, [houseId, sessionId, roomName]);
+
+
+  POST Request
+
+  try {
+        const response = await fetch('http://localhost:5000/select-room', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(preferences),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log('Room preferences updated:', result.message);
+        } else {
+          console.error('Error:', result.error);
+        }
+      } catch (error) {
+        console.error('Error sending preferences:', error);
+      }
+ 
 
