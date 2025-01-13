@@ -126,23 +126,23 @@ POST
   POST Request
 
   try {
-        const response = await fetch('http://localhost:5000/select-room', {
+        const response = await fetch('http://localhost:5000/select-room', { //to send room preferences to the server using a POST request
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', // Telling to the server we're sending JSON data
           },
-          body: JSON.stringify(preferences),
+          body: JSON.stringify(preferences), // Converting the preferences to JSON format and send it
         });
 
-        const result = await response.json();
+        const result = await response.json(); // Waiting for the server's response
 
         if (response.ok) {
-          console.log('Room preferences updated:', result.message);
+          console.log('Room preferences updated:', result.message); // // If the request was successful then success message
         } else {
-          console.error('Error:', result.error);
+          console.error('Error:', result.error); //if there is a error then error message will show
         }
       } catch (error) {
-        console.error('Error sending preferences:', error);
+        console.error('Error sending preferences:', error);  // If something went wrong while sending the data then error message
       }
  
 
