@@ -72,54 +72,55 @@ POST
   LAYOUT PAGE
 
   useEffect(() => { // This is a React useEffect hook. It runs the code inside the function
-    if (!houseId || !sessionId) {
-      console.error("Missing house_id, or session_id");
-      return;
+    if (!houseId || !sessionId) { //we will check house_id and session_id is missing
+      console.error("Missing house_id, or session_id"); //If houseId or sessionId is missing, it will show error and stops the execution 
+      return; // stops the execution 
     }
 
-    const fetchLayoutData = async () => {
+    const fetchLayoutData = async () => { // it will handle the process of fetching data from the server.
       try {
         // Fetch layout data for the selected house
         const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`);
         if (!layoutResponse.ok) {
-          throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
+          throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`); // when we will get the response, we check if it was unsuccessful then error message will show
         }
-        const data: LayoutData = await layoutResponse.json();
-        setLayoutData(data);
+        const data: LayoutData = await layoutResponse.json(); // If we get the response is successful, we parse the response data as JSON and store it in the "data" variable
+        setLayoutData(data); // We then update the state with the fetched layout data.
 
-        // Set rooms data for the selected house
-        const roomNames = data.rooms.map(room => room.name);
-        setRooms(roomNames);
+        const roomNames = data.rooms.map(room => room.name); // we have to take room names from fetched data
+        setRooms(roomNames); // We have to update the state with the list of room names
 
-        setSelectedHouseId(houseId); // Set selected house ID
+        setSelectedHouseId(houseId); // We have to store the current houseId in the state to keep track of the selected house
       } catch (error) {
-        console.error('Error fetching layout data:', error);
-        setError('Failed to load layout data');
+        console.error('Error fetching layout data:', error); // its when any error occurs during the fetch operation
+        setError('Failed to load layout data'); //this is error message
       }
     };
 
-    fetchLayoutData();
-  }, [houseId, sessionId]);
+    fetchLayoutData(); // We call this function to get the data when the page first loads or whenever the houseId or sessionId changes.
+  }, [houseId, sessionId]); //this is used whenever houseId or sessionId changes
 
 
   ROOMS PAGE
   
   useEffect(() => {
-    if (!houseId || !sessionId || !roomName) return;
-    async function fetchRoomData() {
+    if (!houseId || !sessionId || !roomName) return; // If houseId, sessionId, or roomName is missing, we stop the function from running
+    async function fetchRoomData() { // This function will get the data for the room from the server
       try {
+        // We ask the server for room data by sending houseId, sessionId, and roomName
         const response = await fetch(
           `http://localhost:5000/room-data_dev?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
         );
+         // Once we get the response, we turn it into a format JSON and store it in our state
         const data = await response.json();
         setRoomData(data);
       } catch (error) {
-        console.error('Error fetching room data:', error);
+        console.error('Error fetching room data:', error); // If something goes wrong while fetching, we show the error
       }
     }
 
-    fetchRoomData();
-  }, [houseId, sessionId, roomName]);
+    fetchRoomData(); // function to fetch the room data
+  }, [houseId, sessionId, roomName]); // This will run the code again if houseId, sessionId, or roomName changes
 
 
   POST Request
