@@ -3,18 +3,18 @@ Documentation of each page when its connects to the backend and APIs
 1. GET and POST request 
 GALLERY PAGE
 
-  // Fetch houses from the backend when the component mounts
-  useEffect(() => {
-    const fetchHouses = async () => {
+  // Fetch houses from the backend when the data loaded
+  useEffect(() => { // This is a React useEffect hook. It runs the code inside the function
+    const fetchHouses = async () => { // it will handle the process of fetching data from the server
       try {
         const response = await fetch('http://127.0.0.1:5000/houses');  // we have Fetch houses data from this backend API
         if (!response.ok) {
           throw new Error('Network response was not ok'); // this will Handle network errors
         }
-        const data: House[] = await response.json(); // Parse the JSON response into House objects
-        setHouses(data);  // Set the fetched houses to state
+        const data: House[] = await response.json(); //  data returned by the server and turns it into House objects
+        setHouses(data);  // fetched houses to state
         if (data.length > 0) {
-          setSelectedHouse(data[0]); // Set the first house as selected
+          setSelectedHouse(data[0]); // it picks first house as selected to show as a main house 
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -32,10 +32,10 @@ POST
 
  // Function to handle image click event and lock house selection
   const handleImageClick = async () => {
-    if (selectedHouse) {
-      if (lockedHouses[selectedHouse.house_id]) {
+    if (selectedHouse) { // to Check if a house is selected
+      if (lockedHouses[selectedHouse.house_id]) { // this is to Check if the selected house is already locked by another user
         setError('This house is currently locked by another user.'); // If house is locked, show error message
-        return;
+        return; // to Stop execution if the house is locked
       }
       try {
         setLoading(true); // it used to Set loading state to true while processing the request
@@ -43,21 +43,21 @@ POST
         const response = await fetch('http://127.0.0.1:5000/select-house', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', // Tell the server we are sending JSON
           },
           body: JSON.stringify({
             house_id: selectedHouse.house_id, // Send the selected house's ID in the request body
           }),
         });
 
-        const data = await response.json(); // Parse the response as JSON
+        const data = await response.json(); // Convert the server's response into JSON
         if (!response.ok) {
           throw new Error(data.error || 'Failed to select house'); // Throw error if the selection fails
         }
         }
 
-        const { session_id, house_id } = data; // Destructure session ID and house ID from response data
-        setLockedHouses(prev => ({ ...prev, [house_id]: true })); // Lock the house to prevent re-selection
+        const { session_id, house_id } = data; // accessing session ID and house ID from response data
+        setLockedHouses(prev => ({ ...prev, [house_id]: true })); // Lock the house so that it can't be selected by others
 
        // Navigate to the layout page with query parameters for house and session IDs
         router.push(`/layout?house_id=${house_id}&house_name=${selectedHouse.house_name}&session_id=${session_id}`);
@@ -102,6 +102,8 @@ POST
 
 
   ROOMS PAGE
+
+  GET request
   
   useEffect(() => {
     if (!houseId || !sessionId || !roomName) return; // If houseId, sessionId, or roomName is missing, we stop the function from running
@@ -113,7 +115,7 @@ POST
         );
          // Once we get the response, we turn it into a format JSON and store it in our state
         const data = await response.json();
-        setRoomData(data);
+        setRoomData(data); // We then update the state with the fetched room data
       } catch (error) {
         console.error('Error fetching room data:', error); // If something goes wrong while fetching, we show the error
       }
