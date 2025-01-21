@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useSearchParams, useRouter } from 'next/navigation'; // useSearchParams to access query params
+import { useSearchParams, useRouter } from 'next/navigation'; // Use `useSearchParams` for query parameters
 import Sidebar from '../gallery/Sidebar';
 
 interface Area {
@@ -11,7 +11,7 @@ interface Area {
   top: number;
   width: number;
   height: number;
-  color: string; // Color for the area (optional, for highlighting)
+  color: string;
 }
 
 interface Room {
@@ -22,34 +22,32 @@ interface Room {
 interface LayoutData {
   rooms_image: string;
   rooms: Room[];
+  house_id: string;
 }
 
 const LayoutPage = () => {
   const [layoutData, setLayoutData] = useState<LayoutData | null>(null); // State to hold layout data
   const [hoveredArea, setHoveredArea] = useState<string | null>(null); // Track the area being hovered
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null); // Track the selected room
-  const [error, setError] = useState<string | null>(null); // State hook for error
-  const [rooms, setRooms] = useState<string[]>([]); // Track rooms for the selected house
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
   const [selectedHouseId, setSelectedHouseId] = useState<string | null>(null); // Track selected house ID
+  const [rooms, setRooms] = useState<string[]>([]); // Track rooms for the selected house
+  const [error, setError] = useState<string | null>(null); // State hook for error
 
-  const searchParams = useSearchParams();
-  const router = useRouter();
+  const searchParams = useSearchParams(); // Use searchParams to get query parameters
+  const house_id = searchParams.get('house_id'); // Get house_id from URL query parameters
 
-  // Get query parameters from the URL
-  const houseId = searchParams.get('house_id');
-  const sessionId = searchParams.get('session_id');
-
+  // Log the house_id to verify it's being fetched correctly
   useEffect(() => {
-    if (!houseId || !sessionId) {
-      console.error("Missing house_id, or session_id");
+    console.log('house_id:', house_id);  // Log house_id to check if it's being fetched
+
+    if (!house_id) {
+      setError('Missing house_id');
       return;
     }
 
     const fetchLayoutData = async () => {
       try {
-        // Fetch layout data for the selected house
-        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`);
+        const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`);
         if (!layoutResponse.ok) {
           throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
         }
@@ -60,7 +58,7 @@ const LayoutPage = () => {
         const roomNames = data.rooms.map(room => room.name);
         setRooms(roomNames);
 
-        setSelectedHouseId(houseId); // Set selected house ID
+        setSelectedHouseId(house_id); // Set selected house ID
       } catch (error) {
         console.error('Error fetching layout data:', error);
         setError('Failed to load layout data');
@@ -68,7 +66,7 @@ const LayoutPage = () => {
     };
 
     fetchLayoutData();
-  }, [houseId, sessionId]);
+  }, [house_id]);
 
   const handleMouseEnter = (area: string) => {
     setHoveredArea(area);
@@ -79,13 +77,14 @@ const LayoutPage = () => {
   };
 
   const handleClick = (room: string) => {
-    if (!houseId || !sessionId || !room) {
-      console.error("Missing houseId, sessionId, or room");
+    if (!house_id || !room) {
+      console.error("Missing houseId or room");
       return;
     }
 
     // Navigate to the room page with the selected room name
-    router.push(`/rooms?house_id=${houseId}&session_id=${sessionId}&room_name=${room}`);
+    const router = useRouter();
+    router.push(`/rooms?house_id=${house_id}&room_name=${room}`);
   };
 
   const handleHouseSelect = (houseId: string) => {
@@ -93,7 +92,7 @@ const LayoutPage = () => {
   };
 
   const handleRoomSelect = (roomName: string) => {
-    setSelectedRoom(roomName);
+    console.log('Selected Room:', roomName);
   };
 
   if (error) {
