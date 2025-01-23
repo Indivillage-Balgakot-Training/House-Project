@@ -22,35 +22,6 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const existingSessionId = sessionStorage.getItem('sessionId');
-    if (!existingSessionId) {
-      const newSessionId = generateSessionId();
-      sessionStorage.setItem('sessionId', newSessionId);
-      setSessionId(newSessionId);
-    } else {
-      setSessionId(existingSessionId);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchHouses();
-  }, []);
-
-  const generateSessionId = () => {
-    return 'session-' + Math.random().toString(36).substr(2, 9);
-  };
-
-  const fetchHouses = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:5000/houses');
-      const data: House[] = await response.json();
-      setHouses(data);
-    } catch (error) {
-      console.error('Error fetching houses:', error);
-    }
-  };
-
   const Logo = () => (
     <div className="flex items-center justify-center">
       <svg
