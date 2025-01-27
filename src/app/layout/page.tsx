@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useSearchParams, useRouter } from 'next/navigation'; // Use `useSearchParams` for query parameters
+import { useSearchParams, useRouter } from 'next/navigation';
 import Sidebar from '../gallery/Sidebar';
 
 interface Area {
@@ -26,17 +26,18 @@ interface LayoutData {
 }
 
 const LayoutPage = () => {
-  const [layoutData, setLayoutData] = useState<LayoutData | null>(null); // State to hold layout data
-  const [hoveredArea, setHoveredArea] = useState<string | null>(null); // Track the area being hovered
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
-  const [selectedHouseId, setSelectedHouseId] = useState<string | null>(null); // Track selected house ID
-  const [rooms, setRooms] = useState<string[]>([]); // Track rooms for the selected house
-  const [error, setError] = useState<string | null>(null); // State hook for error
+  const [layoutData, setLayoutData] = useState<LayoutData | null>(null);
+  const [hoveredArea, setHoveredArea] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedHouseId, setSelectedHouseId] = useState<string | null>(null);
+  const [rooms, setRooms] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const searchParams = useSearchParams(); // Use searchParams to get query parameters
-  const house_id = searchParams.get('house_id'); // Get house_id from URL query parameters
+  const searchParams = useSearchParams();
+  const house_id = searchParams.get('house_id');
+  const router = useRouter();
 
-  // Log the house_id to verify it's being fetched correctly
+  // Log house_id to verify it's being fetched correctly
   useEffect(() => {
     console.log('house_id:', house_id);  // Log house_id to check if it's being fetched
 
@@ -82,9 +83,9 @@ const LayoutPage = () => {
       return;
     }
 
-    // Navigate to the room page with the selected room name
-    const router = useRouter();
-    router.push(`/rooms?house_id=${house_id}&room_name=${room}`);
+    // Pass session_id as a parameter if necessary
+    const sessionId = 'your-session-id';  // Set session_id dynamically if needed
+    router.push(`/rooms?house_id=${house_id}&session_id=${sessionId}&room_name=${room}`);
   };
 
   const handleHouseSelect = (houseId: string) => {
