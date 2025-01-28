@@ -1,9 +1,14 @@
-----GALLERY PAGE----
+----HOME PAGE----
+
+Home Page is when the user first visits the site. 
+
+This page includes a background image, a logo, button, and social media icons.
 
 When we click on View gallery in home page it will navigate to GALLERY Page.
 
-When the page loads it makes request to fetch the data const response = await fetch('http://127.0.0.1:5000/houses'); 
-and displays them.
+----GALLERY PAGE----
+
+When the page loads  const response = await fetch('http://127.0.0.1:5000/houses'); this link makes request to fetch the data.
 
 It will display House Details Once a house is selected, and shows along with name, image, and description.
 
@@ -48,7 +53,7 @@ Users can hover over these areas to highlight them and click to select a room.
 
 When a room is selected, the user goes to a new page.
 
-When the page loads it fetches the data from the backend API (`http://localhost:5000/rooms/${house_id}`)
+When the page loads, const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`); this link makes request to fetch the data.
 
 When the user hovers over a room's area, the area changes color to provide a visual hint, making it clear which area is being hovered.
 
@@ -59,48 +64,54 @@ To show how house layout looks.
 Allow users to select and navigate between different rooms within the house.
 Display room details based on user selection.
 
-
 Response:
- {
-  "rooms_image": "/images/layout.jpg",
+{
+  "house_id": "house-002",
   "rooms": [
     {
-      "name": "Bedroom",
-      "areas": {
-        "bedroom": {
+      "areas": [
+        {
           "color": "blue",
           "height": 120,
           "left": 215,
+          "name": "Bedroom",
           "top": 100,
           "width": 198
         }
-      }
+      ],
+      "image_path": "/images/Bed Room.jpg",
+      "name": "Bedroom"
     },
     {
-      "name": "Kitchen",
-      "areas": {
-        "kitchen": {
+      "areas": [
+        {
           "color": "green",
           "height": 197,
           "left": 218,
+          "name": "Kitchen",
           "top": 220,
           "width": 195
         }
-      }
+      ],
+      "image_path": "/images/Kitchen img.jpg",
+      "name": "Kitchen"
     },
     {
-      "name": "Living Room",
-      "areas": {
-        "livingroom": {
+      "areas": [
+        {
           "color": "red",
           "height": 315,
           "left": 413,
+          "name": "Living Room",
           "top": 100,
           "width": 200
         }
-      }
+      ],
+      "image_path": "/images/LivingRoom.jpg",
+      "name": "Living Room"
     }
-  ]
+  ],
+  "rooms_image": "/images/layout.jpg"
 }
 
 
@@ -112,9 +123,9 @@ It allows users to select room color preferences for a specific room in a house.
 
 This page fetches room data based on query parameters, and displays various options (like colors).
 
-When the page loads it fetches the data from the backend API (
+When the page loads, (
           `http://localhost:5000/room-data_dev?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
-        )
+        ) this link makes request to fetch the data.
 
 Users can interact with the page to select different colors for various categories of the room, and these preferences are sent to the backend.
 
