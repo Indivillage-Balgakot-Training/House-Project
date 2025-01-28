@@ -1,264 +1,182 @@
-Documentation of each page when its connects to the backend and APIs 
+----GALLERY PAGE----
 
-1. GET and POST request 
-GALLERY PAGE
+When we click on View gallery in home page it will navigate to GALLERY Page.
 
-  // Fetch houses from the backend when the data loaded
-  useEffect(() => { // This is a React useEffect hook. It runs the code inside the function
-    const fetchHouses = async () => { // it will handle the process of fetching data from the server
-      try {
-        const response = await fetch('http://127.0.0.1:5000/houses');  // we have Fetch houses data from this backend API
-        if (!response.ok) {
-          throw new Error('Network response was not ok'); // this will Handle network errors
+When the page loads it fetches the list of houses from the backend API ('http://127.0.0.1:5000/houses') and displays them.
+
+It will display House Details Once a house is selected, and shows along with name, image, and description.
+
+The sidebar shows a list of houses, and when a house is selected, the page updates to show the selected house's details.
+
+Clicking on the house image navigates users to a layout page where they can view the layout of the selected house,
+     router.push(`/layout?house_id=${houseId}`).
+
+If loading spinner is shown to indicate that the page is fetching data, While waiting for the house data to be fetched.
+
+If there is an error in fetching the house data, an error message is shown to the user.
+
+"Back to Home"  button allows the user to navigate back to the home page.
+
+Purpose:
+  Shows a list of available houses with their images, names, and descriptions.
+  Allows users to select a house by clicking on its image.
+  Prevents other users from selecting a house that is already locked by someone else.
+  After selecting a house, users are redirected to a detailed page for further interaction.
+
+Response:
+[
+              {
+      "house_id": "house-001",
+      "house_name": "House 1",
+      "house_image": "/house1.jpg",
+      "description": "A beautiful two-story house located in the heart of the city. Features modern amenities and spacious interiors.",
+    }
+...
+]  
+
+
+----LAYOUT PAGE----
+
+excepted parameters on house_id and session_id.
+
+LayoutPage allows users to view the layout of rooms in a house.
+
+It displays an image showing the house's layout, and also they are clickable areas having different rooms.
+
+Users can hover over these areas to highlight them and click to select a room.
+
+When a room is selected, the user goes to a new page.
+
+When the page loads it fetches the data from the backend API (`http://localhost:5000/rooms/${house_id}`)
+
+When the user hovers over a room's area, the area changes color to provide a visual hint, making it clear which area is being hovered.
+
+If there is an issue fetching the layout data, an error message is displayed to the user.
+
+Purpose:
+To show how house layout looks.
+Allow users to select and navigate between different rooms within the house.
+Display room details based on user selection.
+
+
+Response:
+ {
+  "rooms_image": "/images/layout.jpg",
+  "rooms": [
+    {
+      "name": "Bedroom",
+      "areas": {
+        "bedroom": {
+          "color": "blue",
+          "height": 120,
+          "left": 215,
+          "top": 100,
+          "width": 198
         }
-        const data: House[] = await response.json(); //  data returned by the server and turns it into House objects
-        setHouses(data);  // fetched houses to state
-        if (data.length > 0) {
-          setSelectedHouse(data[0]); // it picks first house as selected to show as a main house 
-        }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          setError('Error fetching houses: ' + error.message); // Handle error and update state
-        }
-      } finally {
-        setLoading(false); // Stop loading state once the fetch is complete
       }
-    };
-
-    fetchHouses();  // Call the fetchHouses function to get data
-  }, []);
-
-POST 
-
- // Function to handle image click event and lock house selection
-  const handleImageClick = async () => {
-    if (selectedHouse) { // to Check if a house is selected
-      if (lockedHouses[selectedHouse.house_id]) { // this is to Check if the selected house is already locked by another user
-        setError('This house is currently locked by another user.'); // If house is locked, show error message
-        return; // to Stop execution if the house is locked
+    },
+    {
+      "name": "Kitchen",
+      "areas": {
+        "kitchen": {
+          "color": "green",
+          "height": 197,
+          "left": 218,
+          "top": 220,
+          "width": 195
+        }
       }
-      try {
-        setLoading(true); // it used to Set loading state to true while processing the request
-     // Make a POST request to select the house
-        const response = await fetch('http://127.0.0.1:5000/select-house', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json', // Tell the server we are sending JSON
-          },
-          body: JSON.stringify({
-            house_id: selectedHouse.house_id, // Send the selected house's ID in the request body
-          }),
-        });
-
-        const data = await response.json(); // Convert the server's response into JSON
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to select house'); // Throw error if the selection fails
+    },
+    {
+      "name": "Living Room",
+      "areas": {
+        "livingroom": {
+          "color": "red",
+          "height": 315,
+          "left": 413,
+          "top": 100,
+          "width": 200
         }
-        }
-
-        const { session_id, house_id } = data; // accessing session ID and house ID from response data
-        setLockedHouses(prev => ({ ...prev, [house_id]: true })); // Lock the house so that it can't be selected by others
-
-       // Navigate to the layout page with query parameters for house and session IDs
-        router.push(`/layout?house_id=${house_id}&house_name=${selectedHouse.house_name}&session_id=${session_id}`);
-      } catch (error) {
-        setError('Failed to select house'); // Handle errors during house selection
-      } finally {
-        setLoading(false); // Stop loading state once the operation is complete
       }
     }
-  
-
-  LAYOUT PAGE
-
-  useEffect(() => { // This is a React useEffect hook. It runs the code inside the function
-    if (!houseId || !sessionId) { //we will check house_id and session_id is missing
-      console.error("Missing house_id, or session_id"); //If houseId or sessionId is missing, it will show error and stops the execution 
-      return; // stops the execution 
-    }
-
-    const fetchLayoutData = async () => { // it will handle the process of fetching data from the server.
-      try {
-        // Fetch layout data for the selected house
-        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`);
-        if (!layoutResponse.ok) {
-          throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`); // when we will get the response, we check if it was unsuccessful then error message will show
-        }
-        const data: LayoutData = await layoutResponse.json(); // If we get the response is successful, we parse the response data as JSON and store it in the "data" variable
-        setLayoutData(data); // We then update the state with the fetched layout data.
-
-        const roomNames = data.rooms.map(room => room.name); // we have to take room names from fetched data
-        setRooms(roomNames); // We have to update the state with the list of room names
-
-        setSelectedHouseId(houseId); // We have to store the current houseId in the state to keep track of the selected house
-      } catch (error) {
-        console.error('Error fetching layout data:', error); // its when any error occurs during the fetch operation
-        setError('Failed to load layout data'); //this is error message
-      }
-    };
-
-    fetchLayoutData(); // We call this function to get the data when the page first loads or whenever the houseId or sessionId changes.
-  }, [houseId, sessionId]); //this is used whenever houseId or sessionId changes
-
-
-  ROOMS PAGE
-
-  GET request
-  
-  useEffect(() => {
-    if (!houseId || !sessionId || !roomName) return; // If houseId, sessionId, or roomName is missing, we stop the function from running
-    async function fetchRoomData() { // This function will get the data for the room from the server
-      try {
-        // We ask the server for room data by sending houseId, sessionId, and roomName
-        const response = await fetch(
-          `http://localhost:5000/room-data_dev?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
-        );
-         // Once we get the response, we turn it into a format JSON and store it in our state
-        const data = await response.json();
-        setRoomData(data); // We then update the state with the fetched room data
-      } catch (error) {
-        console.error('Error fetching room data:', error); // If something goes wrong while fetching, we show the error
-      }
-    }
-
-    fetchRoomData(); // function to fetch the room data
-  }, [houseId, sessionId, roomName]); // This will run the code again if houseId, sessionId, or roomName changes
-
-
-  POST Request
-
-  try {
-        const response = await fetch('http://localhost:5000/select-room', { //to send room preferences to the server using a POST request
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json', // Telling to the server we're sending JSON data
-          },
-          body: JSON.stringify(preferences), // Converting the preferences to JSON format and send it
-        });
-
-        const result = await response.json(); // Waiting for the server's response
-
-        if (response.ok) {
-          console.log('Room preferences updated:', result.message); // // If the request was successful then success message
-        } else {
-          console.error('Error:', result.error); //if there is a error then error message will show
-        }
-      } catch (error) {
-        console.error('Error sending preferences:', error);  // If something went wrong while sending the data then error message
-      }
- 
-
-What Payload request ?
-
-Gallery page 
-
-Request-
-This request is sent when a user selects a house, in this case user selected house 1.
-{house_id: "house-001"}
-house_id: "house-001"
-
-Response-
-this says that house was selected successfully, returns house_id also session_id to user interaction.
-{
-  "house_id": "house-001",
-  "message": "House selected successfully",
-  "session_id": "651599ff-f9b1-498c-af2f-27600492fb27"
+  ]
 }
 
-Layout Page
 
-house_id: house-001
-house_name: House 1
-session_id: 0c278465-7036-4b17-981f-e73fc039ef06
+----ROOMS PAGE----
 
-Rooms page
+excepted parameters on house_id and session_id and roomName.
 
-kitchen 
-when the Page loads 
-Request- this is house_id of the user and current session_id to interact, along with current room. 
-house_id: house-001
-session_id: 7aa897f4-b50d-4e92-b331-173e40dd3742
-room_name: Kitchen
+It allows users to select room color preferences for a specific room in a house.
 
-Response- It gives a list of color categories that is Cabinet Colors, Wall Colors, Basin Colors for the kitchen, 
-         along with the images with respective colors.
-{
+This page fetches room data based on query parameters, and displays various options (like colors).
+
+When the page loads it fetches the data from the backend API (
+          `http://localhost:5000/room-data_dev?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
+        )
+
+Users can interact with the page to select different colors for various categories of the room, and these preferences are sent to the backend.
+
+Selected Preferences can also diselected and can select new preferences.
+
+The page sends a POST request with the updated preferences for the room.
+
+As the user selects different colors, the corresponding images for the selected options are displayed on top of the room image.
+
+"Back to Home" buttons navigates to gallery page, so that users can see other houses.
+
+If the room data is not successfully fetched, an error message is displayed to the user.
+
+Purpose:
+  RoomPage allows users to view and customize a specific room within a house. The user can select different color options for categories 
+  in the room, means wall color, wardrobe color etc, and these preferences are sent to backend.
+
+Response:
+  {
   "images": [
     {
       "color_categories": [
         {
           "colors": [
             {
-              "color": "#D2B48C",
-              "image": "/images/kitchenCabinet1.jpg"
+              "color": "#afdc8b",
+              "image": "/images/H2 Living Room Wall Green.jpg"
             },
             {
-              "color": "#FFD700",
-              "image": "/images/kitchenCabinet2.jpg"
+              "color": "#d3c5ff",
+              "image": "/images/H2 Living Room Wall Purple.jpg"
             },
             {
-              "color": "#E37383",
-              "image": "/images/kitchenCabinet3.jpg"
-            }
-          ],
-          "key": "cabinet_colors",
-          "label": "Cabinet Colors",
-          "selected_color": "#FFD700"
-        },
-        {
-          "colors": [
-            {
-              "color": "#b0c8bf",
-              "image": "/images/Wall1.jpg"
-            },
-            {
-              "color": "#FFB6C1",
-              "image": "/images/Wall2.jpg"
-            },
-            {
-              "color": "#c8bca6",
-              "image": "/images/Wall3.jpg"
+              "color": "#93ece8",
+              "image": "/images/H2 Living Room Wall SkyBlue.jpg"
             }
           ],
           "key": "wall_colors",
           "label": "Wall Colors",
-          "selected_color": "#c8bca6"
+          "selected_color": "#d3c5ff"
         },
         {
           "colors": [
             {
-              "color": "#C0C0C0",
-              "image": "/images/kitchen.jpg"
+              "color": "#eed725",
+              "image": "/images/H2 Living Room Ceiling Yellow.jpg"
+            },
+            {
+              "color": "#ffaead",
+              "image": "/images/H2 Living Room Ceiling Pink.jpg"
+            },
+            {
+              "color": "#ffaf5d",
+              "image": "/images/H2 Living Room Ceiling Orange.jpg"
             }
           ],
-          "key": "basin_colors",
-          "label": "Basin Colors",
-          "selected_color": ""
+          "key": "ceiling_colors",
+          "label": "Ceiling Colors",
+          "selected_color": "#ffaead"
         }
       ],
-      "image_path": "/images/kitchen.jpg"
+      "image_path": "/images/LivingRoom.jpg"
     }
   ],
-  "room_name": "Kitchen"
-}
-
-
-when user selects
-{house_id: "house-001", session_id: "7aa897f4-b50d-4e92-b331-173e40dd3742",…}
-house_id
-: 
-"house-001"
-preferences
-: 
-{cabinet_colors: "/images/kitchenCabinet3.jpg", wall_colors: "/images/Wall1.jpg"}
-selected_rooms
-: 
-["Kitchen"]
-session_id
-: 
-"7aa897f4-b50d-4e92-b331-173e40dd3742"
-
-Response-
-{
-  "message": "Room selection updated successfully"
+  "room_name": "Living Room"
 }
