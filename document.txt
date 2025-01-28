@@ -15,7 +15,7 @@ It will display House Details Once a house is selected, and shows along with nam
 The sidebar shows a list of houses, and when a house is selected, the page updates to show the selected house's details.
 
 Clicking on the house image navigates users to a layout page where they can view the layout of the selected house,
-     router.push(`/layout?house_id=${houseId}`).
+     router.push(`/layout?house_id=${houseId}`);.
 
 If loading spinner is shown to indicate that the page is fetching data, While waiting for the house data to be fetched.
 
@@ -47,13 +47,14 @@ excepted parameters on house_id and session_id.
 
 LayoutPage allows users to view the layout of rooms in a house.
 
+When the page loads, const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`); this link makes request to fetch the data.
+
 It displays an image showing the house's layout, and also they are clickable areas having different rooms.
 
 Users can hover over these areas to highlight them and click to select a room.
 
-When a room is selected, the user goes to a new page.
-
-When the page loads, const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`); this link makes request to fetch the data.
+When a room is selected, the user goes to a new page, 
+router.push(`/rooms?house_id=${house_id}&session_id=${sessionId}&room_name=${room}`);.
 
 When the user hovers over a room's area, the area changes color to provide a visual hint, making it clear which area is being hovered.
 
