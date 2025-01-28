@@ -2,7 +2,8 @@
 
 When we click on View gallery in home page it will navigate to GALLERY Page.
 
-When the page loads it fetches the list of houses from the backend API ('http://127.0.0.1:5000/houses') and displays them.
+When the page loads it makes request to fetch the data const response = await fetch('http://127.0.0.1:5000/houses'); 
+and displays them.
 
 It will display House Details Once a house is selected, and shows along with name, image, and description.
 
