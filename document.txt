@@ -10,7 +10,8 @@ When we click on View gallery in home page it will navigate to GALLERY Page.
 
 Expected Parameters: session_id and house_id
 
-When the page loads  const response = await fetch('http://127.0.0.1:5000/houses'); this link makes request to fetch the data.
+When the page loads it sends a GET request to the backend using const response = await fetch('http://127.0.0.1:5000/houses'); 
+when it makes request to fetch the a list of available houses.
 
 It will display House Details Once a house is selected, and shows along with name, image, and description.
 
@@ -49,11 +50,19 @@ excepted parameters on house_id and session_id.
 
 LayoutPage allows users to view the layout of rooms in a house.
 
-When the page loads, const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`); this link makes request to fetch the data.
+When the page loads it sends a GET request to the backend using const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`); 
+when it makes request asking for the layout information for the house.
+
+The request is successful, it saves the layout data and the list of rooms into the state.
 
 It displays an image showing the house's layout, and also they are clickable areas having different rooms.
 
 Users can hover over these areas to highlight them and click to select a room.
+
+We have functions called handleMouseEnter(when we hover the area,the color will change), handleMouseLeave(when we remove hover it will stop highlight effect),
+handleClick(when we click on rooms area it will navigate to the rooms page).
+
+It does not have POST method because it will not send any information to the backend. it uses for navigation of page.
 
 When a room is selected, the user goes to a new page, 
 router.push(`/rooms?house_id=${house_id}&session_id=${sessionId}&room_name=${room}`);.
@@ -126,9 +135,12 @@ It allows users to select room color preferences for a specific room in a house.
 
 This page fetches room data based on query parameters, and displays various options (like colors).
 
-When the page loads, (
+When the page loads it sends a GET request to the backend using (
           `http://localhost:5000/room-data_dev?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
-        ) this link makes request to fetch the data.
+        ) when it makes request asking for the rooms information for the house.
+
+The request is successful, it saves the Room information into the roomData state, selectedImages state stores the selected images per category, 
+and it updates dynamically when the user makes selections.        
 
 Users can interact with the page to select different colors for various categories of the room, and these preferences are sent to the backend.
 
