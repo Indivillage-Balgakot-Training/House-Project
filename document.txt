@@ -84,7 +84,7 @@ excepted parameters on house_id and session_id.
 
 LayoutPage allows users to view the layout of rooms in a house.
 
-When the page loads it sends a GET request to the backend using const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`); 
+When the page loads it sends a GET request to the backend using  const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}?session_id=${sessionId}`); 
 when it makes request asking for the layout information along with the house_id for the house.
 
 The request is successful, it saves the layout data and the list of rooms into the state.
