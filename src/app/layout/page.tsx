@@ -34,21 +34,25 @@ const LayoutPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
-  const house_id = searchParams.get('house_id');
   const router = useRouter();
 
-  // Log house_id to verify it's being fetched correctly
-  useEffect(() => {
-    console.log('house_id:', house_id);  // Log house_id to check if it's being fetched
+  const houseId = searchParams.get('house_id');
+  const sessionId = searchParams.get('session_id') || sessionStorage.getItem('session_id'); // Fallback to sessionStorage
 
-    if (!house_id) {
+  useEffect(() => {
+    if (!houseId) {
       setError('Missing house_id');
+      return;
+    }
+
+    if (!sessionId) {
+      setError('Session ID is missing');
       return;
     }
 
     const fetchLayoutData = async () => {
       try {
-        const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`);
+        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}?session_id=${sessionId}`);
         if (!layoutResponse.ok) {
           throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
         }
@@ -59,7 +63,7 @@ const LayoutPage = () => {
         const roomNames = data.rooms.map(room => room.name);
         setRooms(roomNames);
 
-        setSelectedHouseId(house_id); // Set selected house ID
+        setSelectedHouseId(houseId); // Set selected house ID
       } catch (error) {
         console.error('Error fetching layout data:', error);
         setError('Failed to load layout data');
@@ -67,7 +71,7 @@ const LayoutPage = () => {
     };
 
     fetchLayoutData();
-  }, [house_id]);
+  }, [houseId, sessionId]);
 
   const handleMouseEnter = (area: string) => {
     setHoveredArea(area);
@@ -78,22 +82,13 @@ const LayoutPage = () => {
   };
 
   const handleClick = (room: string) => {
-    if (!house_id || !room) {
-      console.error("Missing houseId or room");
+    if (!houseId || !room || !sessionId) {
+      console.error("Missing houseId, room, or sessionId");
       return;
     }
 
     // Pass session_id as a parameter if necessary
-    const sessionId = 'your-session-id';  // Set session_id dynamically if needed
-    router.push(`/rooms?house_id=${house_id}&session_id=${sessionId}&room_name=${room}`);
-  };
-
-  const handleHouseSelect = (houseId: string) => {
-    setSelectedHouseId(houseId);
-  };
-
-  const handleRoomSelect = (roomName: string) => {
-    console.log('Selected Room:', roomName);
+    router.push(`/rooms?house_id=${houseId}&session_id=${sessionId}&room_name=${room}`);
   };
 
   if (error) {
@@ -108,8 +103,9 @@ const LayoutPage = () => {
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         selectedHouseId={selectedHouseId}
         rooms={rooms}
-        onHouseSelect={handleHouseSelect}
-        onRoomSelect={handleRoomSelect}
+        onHouseSelect={() => {}}
+        onRoomSelect={() => {}}
+        houses={[]} // Pass an empty array for houses since we're not using it in LayoutPage
       />
       <div className={`flex-grow ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
         <div className="relative">

@@ -15,18 +15,62 @@ interface House {
 }
 
 const GalleryPage = () => {
-  const [houses, setHouses] = useState<House[]>([]);
+  const [houses, setHouses] = useState<House[]>([]);  // All houses list
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedHouse, setSelectedHouse] = useState<House | null>(null); // Selected house state
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const router = useRouter();
 
+  // Helper function to get or generate session ID
+  const getSessionId = (): string => {
+    let sessionId = sessionStorage.getItem('session_id');
+    if (!sessionId) {
+      sessionId = crypto.randomUUID(); // Generate a new UUID
+      sessionStorage.setItem('session_id', sessionId);
+    }
+    return sessionId;
+  };
+
+  // Lock the house on the backend
+  const lockHouse = async (houseId: string) => {
+    const sessionId = getSessionId();
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/select-house?session_id=${sessionId}&house_id=${houseId}`);
+      if (!response.ok) {
+        throw new Error('Error locking house: ' + (await response.text()));
+      }
+      
+      // Update the list of houses to exclude the locked house
+      setHouses((prevHouses) =>
+        prevHouses.filter((house) => house.house_id !== houseId)
+      );
+  
+      const updatedHouse = await response.json();
+  
+      // Ensure all properties are properly set, particularly `house_id` as a string
+      setSelectedHouse({
+        house_id: updatedHouse.house_id || "",
+        house_name: updatedHouse.house_name || "",
+        house_image: updatedHouse.house_image || "",
+        description: updatedHouse.description || "",
+        locked: true,  // Mark as locked
+      });
+  
+      console.log(`House ${houseId} locked successfully!`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      }
+    }
+  };
+
   // Fetch houses from the backend when the component mounts
   useEffect(() => {
     const fetchHouses = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/houses');
+        const sessionId = getSessionId(); // Get the session ID here
+        const response = await fetch(`http://127.0.0.1:5000/houses?session_id=${sessionId}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -45,7 +89,7 @@ const GalleryPage = () => {
     };
 
     fetchHouses();
-  }, []);
+  }, []); // Only run on component mount
 
   // Handle house selection from Sidebar
   const handleHouseSelect = (houseId: string) => {
@@ -57,9 +101,9 @@ const GalleryPage = () => {
     setIsSidebarOpen((prev) => !prev);
   };
 
-  // Handle image click to navigate to layout page
+  // Handle image click to lock and navigate to layout page
   const handleImageClick = (houseId: string) => {
-    // Navigate to the layout page with house_id as query param
+    lockHouse(houseId);
     router.push(`/layout?house_id=${houseId}`);
   };
 
@@ -84,18 +128,17 @@ const GalleryPage = () => {
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar
         onHouseSelect={handleHouseSelect}
-        onRoomSelect={() => {}}  // Dummy function to satisfy the required prop
+        onRoomSelect={() => {}}
         isOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         selectedHouseId={selectedHouse?.house_id || null}
         rooms={[]} // Assuming room data is still not required or you will handle it later
+        houses={houses} // Pass the houses from the GalleryPage to Sidebar
       />
       <div className="w-3/4 flex flex-col items-center justify-center p-8">
         {selectedHouse ? (
           <>
             <h1 className="text-4xl font-bold mb-4">{selectedHouse.house_name}</h1>
-            
-            {/* Wrap the image with a Link component */}
             <div
               className="cursor-pointer"
               onClick={() => handleImageClick(selectedHouse.house_id)}
@@ -109,7 +152,6 @@ const GalleryPage = () => {
                 className="rounded-lg shadow-lg"
               />
             </div>
-            
             <p className="mt-4 text-center">{selectedHouse.description || "No description available."}</p>
             <Link href="/" className="mt-6 px-4 py-2 bg-yellow-500 text-black rounded-lg shadow-lg hover:bg-yellow-400 transition">
               Back to Home
