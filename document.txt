@@ -8,6 +8,8 @@ When we click on View gallery in home page it will navigate to GALLERY Page.
 
 ----GALLERY PAGE----
 
+Expected Parameters: session_id and house_id
+
 When the page loads  const response = await fetch('http://127.0.0.1:5000/houses'); this link makes request to fetch the data.
 
 It will display House Details Once a house is selected, and shows along with name, image, and description.
