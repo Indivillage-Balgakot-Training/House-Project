@@ -49,6 +49,8 @@ If loading spinner is shown to indicate that the page is fetching data, While wa
 
 If there is an error in fetching the house data, an error message is shown to the user.
 
+when user click on house then the house is locked, const response = await fetch('http://127.0.0.1:5000/select-house?session_id=${sessionId}&house_id=${houseId}`);
+
 "Back to Home"  button allows the user to navigate back to the home page.
 
 Purpose:
@@ -68,6 +70,13 @@ Response:
 ...
 ]  
 
+Response(houselock):
+{
+  "status": "ok",
+  "session_id": "user-session-id",
+  "house_id": "house-id",
+  "locked_at": "2025-01-29 10:45:30"
+}
 
 ----LAYOUT PAGE----
 
