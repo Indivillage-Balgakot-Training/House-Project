@@ -1,3 +1,28 @@
+Title: Home Buying Platform
+
+Description: A  web application for users to browse the house . The platform allows users to search for houses, view property,
+          to look into the rooms and available colours of the room. The project leverages Next.js for the frontend and Flask for the backend, 
+           creating a seamless user experience and a powerful backend infrastructure. MongoDB is used as database to store the data.
+
+Technologies Used:
+Frontend: Next.js, Tailwind CSS
+
+Set up the Frontend (Next.js):
+Install dependencies
+Start the development server
+
+Frontend (Next.js):
+Home Page : Reference for site
+Gallery Page: Displays available houses.
+Layout Page: It displays the the layout of houses with hoverable rooms.
+Rooms Page: It displays the room specification and allow user to make selections.
+
+
+-----Diagram-----
+
+[Frontend - Next.js]  <---> [Backend - Flask] <---> [Database - MongoDB]
+
+
 ----HOME PAGE----
 
 Home Page is when the user first visits the site. 
@@ -8,7 +33,7 @@ When we click on View gallery in home page it will navigate to GALLERY Page.
 
 ----GALLERY PAGE----
 
-Expected Parameters: session_id and house_id
+Expected Parameters: session_id 
 
 When the page loads it sends a GET request to the backend using const response = await fetch('http://127.0.0.1:5000/houses'); 
 when it makes request to fetch the a list of available houses.
@@ -51,7 +76,7 @@ excepted parameters on house_id and session_id.
 LayoutPage allows users to view the layout of rooms in a house.
 
 When the page loads it sends a GET request to the backend using const layoutResponse = await fetch(`http://localhost:5000/rooms/${house_id}`); 
-when it makes request asking for the layout information for the house.
+when it makes request asking for the layout information along with the house_id for the house.
 
 The request is successful, it saves the layout data and the list of rooms into the state.
 
@@ -61,8 +86,6 @@ Users can hover over these areas to highlight them and click to select a room.
 
 We have functions called handleMouseEnter(when we hover the area,the color will change), handleMouseLeave(when we remove hover it will stop highlight effect),
 handleClick(when we click on rooms area it will navigate to the rooms page).
-
-It does not have POST method because it will not send any information to the backend. it uses for navigation of page.
 
 When a room is selected, the user goes to a new page, 
 router.push(`/rooms?house_id=${house_id}&session_id=${sessionId}&room_name=${room}`);.
@@ -147,6 +170,7 @@ Users can interact with the page to select different colors for various categori
 Selected Preferences can also diselected and can select new preferences.
 
 The page sends a POST request with the updated preferences for the room.
+const response = await fetch('http://localhost:5000/select-room');
 
 As the user selects different colors, the corresponding images for the selected options are displayed on top of the room image.
 
@@ -157,7 +181,7 @@ If the room data is not successfully fetched, an error message is displayed to t
 Purpose:
   RoomPage allows users to view and customize a specific room within a house. The user can select different color options for categories 
   in the room, means wall color, wardrobe color etc, and these preferences are sent to backend.
-
+  
 Response:
   {
   "images": [
@@ -207,3 +231,12 @@ Response:
   ],
   "room_name": "Living Room"
 }
+
+Payload:
+{house_id: "house-001", session_id: "c6222e6a-12d3-4643-96a4-d9df5da5646c",…}
+    house_id: "house-001"
+    preferences: {cabinet_colors: "#ef90d0"}
+    cabinet_colors: "ef90d0"
+      selected_rooms: ["Kitchen"]: 
+       0 :"Kitchen"
+    session_id: "c6222e6a-12d3-4643-96a4-d9df5da5646c"
