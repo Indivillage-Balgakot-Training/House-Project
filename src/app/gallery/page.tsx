@@ -36,7 +36,7 @@ const GalleryPage = () => {
   const lockHouse = async (houseId: string) => {
     const sessionId = getSessionId();
     try {
-      const response = await fetch(`http://127.0.0.1:5000/select-house?session_id=${sessionId}&house_id=${houseId}`);
+      const response = await fetch(`http://127.0.0.1:5000/houses?session_id=${sessionId}&house_id=${houseId}`);
       if (!response.ok) {
         throw new Error('Error locking house: ' + (await response.text()));
       }
