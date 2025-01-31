@@ -35,7 +35,7 @@ When we click on View gallery in home page it will navigate to GALLERY Page.
 
 Expected Parameters: session_id 
 
-When the page loads it sends a GET request to the backend using const response = await fetch('http://127.0.0.1:5000/houses'); 
+When the page loads it sends a GET request to the backend using const response = await fetch(`http://127.0.0.1:5000/houses?session_id=${sessionId}`); 
 when it makes request to fetch the a list of available houses.
 
 It will display House Details Once a house is selected, and shows along with name, image, and description.
@@ -49,7 +49,7 @@ If loading spinner is shown to indicate that the page is fetching data, While wa
 
 If there is an error in fetching the house data, an error message is shown to the user.
 
-when user click on house then the house is locked, const response = await fetch('http://127.0.0.1:5000/select-house?session_id=${sessionId}&house_id=${houseId}`);
+when user click on house then the house is locked, const response = await fetch(`http://127.0.0.1:5000/select-house?session_id=${sessionId}&house_id=${houseId}`);
 
 "Back to Home"  button allows the user to navigate back to the home page.
 
@@ -97,7 +97,7 @@ We have functions called handleMouseEnter(when we hover the area,the color will 
 handleClick(when we click on rooms area it will navigate to the rooms page).
 
 When a room is selected, the user goes to a new page, 
-router.push(`/rooms?house_id=${house_id}&session_id=${sessionId}&room_name=${room}`);.
+ router.push(`/rooms?house_id=${houseId}&session_id=${sessionId}&room_name=${room}`);.
 
 When the user hovers over a room's area, the area changes color to provide a visual hint, making it clear which area is being hovered.
 
@@ -168,8 +168,8 @@ It allows users to select room color preferences for a specific room in a house.
 This page fetches room data based on query parameters, and displays various options (like colors).
 
 When the page loads it sends a GET request to the backend using (
-          `http://localhost:5000/room-data_dev?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
-        ) when it makes request asking for the rooms information for the house.
+          `http://localhost:5000/room-data?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`)
+           when it makes request asking for the rooms information for the house.
 
 The request is successful, it saves the Room information into the roomData state, selectedImages state stores the selected images per category, 
 and it updates dynamically when the user makes selections.        
@@ -240,12 +240,3 @@ Response:
   ],
   "room_name": "Living Room"
 }
-
-Payload:
-{house_id: "house-001", session_id: "c6222e6a-12d3-4643-96a4-d9df5da5646c",…}
-    house_id: "house-001"
-    preferences: {cabinet_colors: "#ef90d0"}
-    cabinet_colors: "ef90d0"
-      selected_rooms: ["Kitchen"]: 
-       0 :"Kitchen"
-    session_id: "c6222e6a-12d3-4643-96a4-d9df5da5646c"
