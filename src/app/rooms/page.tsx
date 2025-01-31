@@ -28,7 +28,7 @@ const RoomsPage = () => {
     async function fetchRoomData() {
       try {
         const response = await fetch(
-          `http://localhost:5000/room-data_dev?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
+          `http://localhost:5000/room-data?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
         );
         
         const data = await response.json();
@@ -141,8 +141,7 @@ const RoomsPage = () => {
         onHouseSelect={(houseId) => console.log('Selected House:', houseId)}
         onRoomSelect={(roomName) => {
           console.log('Selected Room:', roomName);
-        }}
-      />
+        } } houses={[]}      />
       <div className={`flex-grow ${isSidebarOpen ? 'ml-50' : 'ml-60'} p-10`}>
         <div className="flex justify-end h-full">
           <div className="flex flex-col items-center w-full lg:flex-row lg:justify-between h-full">
