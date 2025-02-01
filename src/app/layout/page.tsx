@@ -37,7 +37,6 @@ const LayoutPage = () => {
   const router = useRouter();
 
   const houseId = searchParams.get('house_id');
-  const sessionId = searchParams.get('session_id') || sessionStorage.getItem('session_id'); // Fallback to sessionStorage
 
   useEffect(() => {
     if (!houseId) {
@@ -45,22 +44,22 @@ const LayoutPage = () => {
       return;
     }
 
-    if (!sessionId) {
-      setError('Session ID is missing');
-      return;
-    }
-
     const fetchLayoutData = async () => {
       try {
-        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}?session_id=${sessionId}`);
+        // Fetch the layout data without the session_id in the query string
+        const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`, {
+          credentials: 'same-origin',  // Ensure the session cookie is sent automatically
+        });
+
         if (!layoutResponse.ok) {
           throw new Error(`Failed to fetch layout data: ${layoutResponse.statusText}`);
         }
+
         const data: LayoutData = await layoutResponse.json();
         setLayoutData(data);
 
         // Set rooms data for the selected house
-        const roomNames = data.rooms.map(room => room.name);
+        const roomNames = data.rooms.map((room) => room.name);
         setRooms(roomNames);
 
         setSelectedHouseId(houseId); // Set selected house ID
@@ -71,7 +70,7 @@ const LayoutPage = () => {
     };
 
     fetchLayoutData();
-  }, [houseId, sessionId]);
+  }, [houseId]);
 
   const handleMouseEnter = (area: string) => {
     setHoveredArea(area);
@@ -82,13 +81,13 @@ const LayoutPage = () => {
   };
 
   const handleClick = (room: string) => {
-    if (!houseId || !room || !sessionId) {
-      console.error("Missing houseId, room, or sessionId");
+    if (!houseId || !room) {
+      console.error('Missing houseId or room');
       return;
     }
 
-    // Pass session_id as a parameter if necessary
-    router.push(`/rooms?house_id=${houseId}&session_id=${sessionId}&room_name=${room}`);
+    // Navigate to the room layout page
+    router.push(`/rooms?house_id=${houseId}&room_name=${room}`);
   };
 
   if (error) {

@@ -5,61 +5,66 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Sidebar from '../gallery/Sidebar';
 
-type SelectedImages = { [key: string]: string | null };  // Define the type for selectedImages
-type BackendPreferences = { [key: string]: string | null };  // Define the type for backendPreferences
+type SelectedImages = { [key: string]: string | null };
+type BackendPreferences = { [key: string]: string | null };
 
 const RoomsPage = () => {
-  const [roomData, setRoomData] = useState<any>({}); // State to store room data
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // State to toggle the sidebar
-  const [selectedImages, setSelectedImages] = useState<SelectedImages>({}); // State to store selected images per category
-  const [backendPreferences, setBackendPreferences] = useState<BackendPreferences>({}); // State to store preferences fetched from the backend
+  const [roomData, setRoomData] = useState<any>({});
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedImages, setSelectedImages] = useState<SelectedImages>({});
+  const [backendPreferences, setBackendPreferences] = useState<BackendPreferences>({});
+  const [error, setError] = useState<string | null>(null);
 
-  const searchParams = useSearchParams(); // Get search parameters (house_id, session_id, room_name) from the URL
-  const router = useRouter(); // Router for navigating
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  const houseId = searchParams.get('house_id'); // Extract house_id
-  const sessionId = searchParams.get('session_id'); // Extract session_id
-  const roomName = searchParams.get('room_name'); // Extract room_name
+  const houseId = searchParams.get('house_id');
+  const sessionId = searchParams.get('session_id');
+  const roomName = searchParams.get('room_name');
 
-  // Fetch room data from the backend based on houseId, sessionId, and roomName
   useEffect(() => {
-    if (!houseId || !sessionId || !roomName) return;
-    
+    if (!houseId || !roomName) {
+      setError('Missing required parameters: house_id or room_name');
+      return;
+    }
+  
     async function fetchRoomData() {
       try {
         const response = await fetch(
-          `http://localhost:5000/room-data?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`
+          `http://localhost:5000/room-data?house_id=${houseId}&room_name=${roomName}`,
+          {
+            credentials: 'same-origin',  // Ensure cookies are sent automatically
+          }
         );
-        
+  
         const data = await response.json();
-        
-        // Check if room data is successfully fetched
+  
         if (data.status === 'error') {
-          console.error(data.message);  // Log the error message from the backend
+          setError(data.message);
         } else {
-          setRoomData(data);  // Set room data if successful
-
-          // Set initial backend preferences if available
+          setRoomData(data);
+  
           const preferences: BackendPreferences = {};
           data.available_selections.forEach((selection: any) => {
-            preferences[selection.key] = selection.colors[0]?.image || null; // Set the first color as default
+            preferences[selection.key] = selection.colors[0]?.image || null;
           });
-          setBackendPreferences(preferences);  // Store backend preferences
+          setBackendPreferences(preferences);
         }
       } catch (error) {
+        setError('Error fetching room data');
         console.error('Error fetching room data:', error);
       }
     }
-
+  
     fetchRoomData();
-  }, [houseId, sessionId, roomName]);
+  }, [houseId, roomName]);
+  
 
   const handleBack = () => {
     router.push(`/gallery?house_id=${houseId}&session_id=${sessionId}`);
   };
 
   const handleColorClick = async (category: string, image: string | null) => {
-    // Update the selected image
     const updatedImages = { ...selectedImages };
     if (updatedImages[category] === image) {
       delete updatedImages[category];
@@ -69,7 +74,6 @@ const RoomsPage = () => {
 
     setSelectedImages(updatedImages);
 
-    // Determine which preferences have changed
     const updatedPreferences: BackendPreferences = {};
 
     Object.keys(updatedImages).forEach((key) => {
@@ -78,7 +82,6 @@ const RoomsPage = () => {
       }
     });
 
-    // If no preferences have changed, we don't need to send a request
     if (Object.keys(updatedPreferences).length > 0) {
       const preferences = {
         house_id: houseId,
@@ -130,6 +133,10 @@ const RoomsPage = () => {
     ));
   };
 
+  if (error) {
+    return <div className="text-center text-red-600 mt-10">{error}</div>;
+  }
+
   return (
     <div className="flex">
       <Sidebar
@@ -139,17 +146,22 @@ const RoomsPage = () => {
         selectedHouseId={houseId}
         rooms={roomData.rooms || [roomName]}
         onHouseSelect={(houseId) => console.log('Selected House:', houseId)}
-        onRoomSelect={(roomName) => {
-          console.log('Selected Room:', roomName);
-        } } houses={[]}      />
+        onRoomSelect={(roomName) => console.log('Selected Room:', roomName)}
+        houses={[]}
+      />
       <div className={`flex-grow ${isSidebarOpen ? 'ml-50' : 'ml-60'} p-10`}>
         <div className="flex justify-end h-full">
           <div className="flex flex-col items-center w-full lg:flex-row lg:justify-between h-full">
             <div className="lg:w-1/5 bg-gray-100 p-4 rounded-lg shadow-md h-full">
               <h2 className="text-2xl font-bold mb-4">{roomName}</h2>
-              {renderColorOptions()} {/* Render color options from backend */}
+              {renderColorOptions()}
             </div>
             <div className="relative lg:w-2/3 lg:ml-8 mt-8 lg:mt-0 mx-auto h-full">
+              {roomData.image_path && (
+                <div className="room-image mb-4">
+                  <Image src={roomData.image_path} alt={roomName || 'Room Image'} width={900} height={800} />
+                </div>
+              )}
               {Object.keys(selectedImages).map((category) => {
                 const image = selectedImages[category];
                 return image ? (
