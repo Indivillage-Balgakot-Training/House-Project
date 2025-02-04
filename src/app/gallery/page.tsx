@@ -1,12 +1,10 @@
 'use client';
 
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../gallery/Sidebar'; // Correct import of Sidebar
-
 
 interface House {
   house_id: string;
@@ -16,7 +14,6 @@ interface House {
   locked: boolean;
 }
 
-
 const GalleryPage = () => {
   const [houses, setHouses] = useState<House[]>([]);  // All houses list
   const [error, setError] = useState<string | null>(null);
@@ -24,49 +21,6 @@ const GalleryPage = () => {
   const [selectedHouse, setSelectedHouse] = useState<House | null>(null); // Selected house state
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const router = useRouter();
-
-
-  // Lock the house on the backend
-  const lockHouse = async (houseId: string) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/select-house?house_id=${houseId}`, {
-        method: 'POST',
-        credentials: 'same-origin',  // Ensures the session cookie is sent with the request
-      });
-
-
-      if (!response.ok) {
-        throw new Error('Error locking house: ' + (await response.text()));
-      }
-
-
-      const updatedHouse = await response.json();
-
-
-      // Update the list of houses to exclude the locked house
-      setHouses((prevHouses) =>
-        prevHouses.filter((house) => house.house_id !== houseId)
-      );
-
-
-      // Set the selected house as locked
-      setSelectedHouse({
-        house_id: updatedHouse.house_id || "",
-        house_name: updatedHouse.house_name || "",
-        house_image: updatedHouse.house_image || "",
-        description: updatedHouse.description || "",
-        locked: true,  // Mark as locked
-      });
-
-
-      console.log(`House ${houseId} locked successfully!`);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      }
-    }
-  };
-
 
   // Fetch houses from the backend when the component mounts
   useEffect(() => {
@@ -76,15 +30,12 @@ const GalleryPage = () => {
           credentials: 'same-origin',  // Ensures the session cookie is sent with the request
         });
 
-
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
 
-
         const data: House[] = await response.json();
         setHouses(data);
-
 
         if (data.length > 0) {
           setSelectedHouse(data[0]); // Set the first house as selected
@@ -98,10 +49,8 @@ const GalleryPage = () => {
       }
     };
 
-
     fetchHouses();
   }, []); // Only run on component mount
-
 
   // Handle house selection from Sidebar
   const handleHouseSelect = (houseId: string) => {
@@ -109,18 +58,9 @@ const GalleryPage = () => {
     setSelectedHouse(selected || null);
   };
 
-
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
-
-
-  // Handle image click to lock and navigate to layout page
-  const handleImageClick = (houseId: string) => {
-    lockHouse(houseId);
-    router.push(`/layout?house_id=${houseId}`);
-  };
-
 
   if (loading) {
     return (
@@ -131,7 +71,6 @@ const GalleryPage = () => {
     );
   }
 
-
   if (houses.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -139,7 +78,6 @@ const GalleryPage = () => {
       </div>
     );
   }
-
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -158,7 +96,7 @@ const GalleryPage = () => {
             <h1 className="text-4xl font-bold mb-4">{selectedHouse.house_name}</h1>
             <div
               className="cursor-pointer"
-              onClick={() => handleImageClick(selectedHouse.house_id)}
+              onClick={() => router.push(`/layout?house_id=${selectedHouse.house_id}`)}
             >
               <Image
                 src={selectedHouse.house_image}
@@ -181,6 +119,5 @@ const GalleryPage = () => {
     </div>
   );
 };
-
 
 export default GalleryPage;
