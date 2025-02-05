@@ -22,6 +22,14 @@ const GalleryPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const router = useRouter();
 
+  
+  const getSessionId = (): string | null => {
+    return document.cookie
+      .split('; ')
+      .find(row => row.startsWith('session_id='))
+      ?.split('=')[1] || null;
+  };
+
   // Fetch houses from the backend when the component mounts
   useEffect(() => {
     const fetchHouses = async () => {

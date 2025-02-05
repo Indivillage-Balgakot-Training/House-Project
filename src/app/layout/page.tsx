@@ -38,6 +38,15 @@ const LayoutPage = () => {
 
   const houseId = searchParams.get('house_id');
 
+  const getSessionIdFromCookies = (): string | null => {
+    return document.cookie
+      .split('; ')
+      .find(row => row.startsWith('session_id='))
+      ?.split('=')[1] || null;
+  };
+
+  const sessionId = getSessionIdFromCookies();
+
   useEffect(() => {
     if (!houseId) {
       setError('Missing house_id');

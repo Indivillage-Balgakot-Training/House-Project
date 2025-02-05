@@ -19,8 +19,18 @@ const RoomsPage = () => {
   const router = useRouter();
 
   const houseId = searchParams.get('house_id');
-  const sessionId = searchParams.get('session_id');
+  //const sessionId = searchParams.get('session_id');
   const roomName = searchParams.get('room_name');
+
+  const getSessionIdFromCookies = (): string | null => {
+    return document.cookie
+      .split('; ')
+      .find(row => row.startsWith('session_id='))
+      ?.split('=')[1] || null;
+  };
+
+  const sessionId = getSessionIdFromCookies();
+
 
   useEffect(() => {
     if (!houseId || !roomName) {
