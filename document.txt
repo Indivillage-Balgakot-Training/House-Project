@@ -232,3 +232,17 @@ Response:
   ],
   "room_name": "Living Room"
 }
+
+Payload:
+
+{
+      "house_id": "house-002",
+      "session_id": "sfafgagfafasffsa",
+      "preferences": {
+      "wall_colors": "#ffaf5d",
+      "ceiling_colors": "#eed725"
+  },
+     "selected_rooms": [
+     "Living Room"
+  ]
+}
