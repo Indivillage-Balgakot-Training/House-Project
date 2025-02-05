@@ -31,25 +31,22 @@ This page includes a background image, a logo, button, and social media icons.
 
 When we click on View gallery in home page it will navigate to GALLERY Page.
 
-----GALLERY PAGE----
+----GALLERY PAGE---- 
 
-Expected Parameters: session_id 
-
-When the page loads it sends a GET request to the backend using const response = await fetch(`http://127.0.0.1:5000/houses?session_id=${sessionId}`); 
+When the page loads it sends a GET request to the backend using const response = await fetch(`http://127.0.0.1:5000/houses`); 
 when it makes request to fetch the a list of available houses.
+
+credentials: 'include'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.
 
 It will display House Details Once a house is selected, and shows along with name, image, and description.
 
 The sidebar shows a list of houses, and when a house is selected, the page updates to show the selected house's details.
 
-Clicking on the house image navigates users to a layout page where they can view the layout of the selected house,
-     router.push(`/layout?house_id=${houseId}`);.
+Clicking on the house image navigates users to a layout page where they can view the layout of the selected house.
 
 If loading spinner is shown to indicate that the page is fetching data, While waiting for the house data to be fetched.
 
 If there is an error in fetching the house data, an error message is shown to the user.
-
-when user click on house then the house is locked, const response = await fetch(`http://127.0.0.1:5000/select-house?session_id=${sessionId}&house_id=${houseId}`);
 
 "Back to Home"  button allows the user to navigate back to the home page.
 
@@ -70,22 +67,16 @@ Response:
 ...
 ]  
 
-Response(houselock):
-{
-  "status": "ok",
-  "session_id": "user-session-id",
-  "house_id": "house-id",
-  "locked_at": "2025-01-29 10:45:30"
-}
-
 ----LAYOUT PAGE----
 
-excepted parameters on house_id and session_id.
+excepted parameters: house_id
 
 LayoutPage allows users to view the layout of rooms in a house.
 
-When the page loads it sends a GET request to the backend using  const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}?session_id=${sessionId}`); 
+When the page loads it sends a GET request to the backend using  const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`); 
 when it makes request asking for the layout information along with the house_id for the house.
+
+credentials: 'include'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.
 
 The request is successful, it saves the layout data and the list of rooms into the state.
 
@@ -96,8 +87,7 @@ Users can hover over these areas to highlight them and click to select a room.
 We have functions called handleMouseEnter(when we hover the area,the color will change), handleMouseLeave(when we remove hover it will stop highlight effect),
 handleClick(when we click on rooms area it will navigate to the rooms page).
 
-When a room is selected, the user goes to a new page, 
- router.push(`/rooms?house_id=${houseId}&session_id=${sessionId}&room_name=${room}`);.
+When a room is selected, the user goes to a new page that is rooms page.
 
 When the user hovers over a room's area, the area changes color to provide a visual hint, making it clear which area is being hovered.
 
@@ -161,15 +151,17 @@ Response:
 
 ----ROOMS PAGE----
 
-excepted parameters on house_id and session_id and roomName.
+excepted parameters: house_id and roomName.
 
 It allows users to select room color preferences for a specific room in a house.
 
 This page fetches room data based on query parameters, and displays various options (like colors).
 
-When the page loads it sends a GET request to the backend using (
-          `http://localhost:5000/room-data?house_id=${houseId}&session_id=${sessionId}&room_name=${roomName}`)
+When the page loads it sends a GET request to the backend using const response = await fetch(
+          `http://localhost:5000/room-data?house_id=${houseId}&room_name=${roomName}`)
            when it makes request asking for the rooms information for the house.
+
+credentials: 'include'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.           
 
 The request is successful, it saves the Room information into the roomData state, selectedImages state stores the selected images per category, 
 and it updates dynamically when the user makes selections.        
