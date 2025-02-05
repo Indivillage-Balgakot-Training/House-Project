@@ -36,7 +36,9 @@ When we click on View gallery in home page it will navigate to GALLERY Page.
 When the page loads it sends a GET request to the backend using const response = await fetch(`http://127.0.0.1:5000/houses`); 
 when it makes request to fetch the a list of available houses.
 
-credentials: 'include'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.
+credentials: 'same-origin'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.
+
+The getSessionId function is used to get the user's session ID from the browser's cookies.
 
 It will display House Details Once a house is selected, and shows along with name, image, and description.
 
@@ -76,7 +78,9 @@ LayoutPage allows users to view the layout of rooms in a house.
 When the page loads it sends a GET request to the backend using  const layoutResponse = await fetch(`http://localhost:5000/rooms/${houseId}`); 
 when it makes request asking for the layout information along with the house_id for the house.
 
-credentials: 'include'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.
+credentials: 'same-origin'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.
+
+The getSessionId function is used to get the user's session ID from the browser's cookies.
 
 The request is successful, it saves the layout data and the list of rooms into the state.
 
@@ -161,7 +165,9 @@ When the page loads it sends a GET request to the backend using const response =
           `http://localhost:5000/room-data?house_id=${houseId}&room_name=${roomName}`)
            when it makes request asking for the rooms information for the house.
 
-credentials: 'include'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.           
+credentials: 'same-origin'; This tells the browser to send the cookie along with the request to the server, the session ID is automatically sent with the request.           
+
+The getSessionId function is used to get the user's session ID from the browser's cookies.
 
 The request is successful, it saves the Room information into the roomData state, selectedImages state stores the selected images per category, 
 and it updates dynamically when the user makes selections.        
